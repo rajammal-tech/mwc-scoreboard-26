@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
-import { getDatabase, ref, onValue, set, push, remove, update } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, increment } from "firebase/database";
 
 // 1. FIREBASE CONFIG
 const firebaseConfig = {
@@ -43,6 +43,7 @@ const MWCScoreboard = () => {
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [history, setHistory] = useState([]);
+  const [activeUsers, setActiveUsers] = useState(0); // Added for session count
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
@@ -64,6 +65,15 @@ const MWCScoreboard = () => {
   };
 
   useEffect(() => {
+    // --- SESSION TRACKING LOGIC ---
+    const userCountRef = ref(db, 'status/activeUsers');
+    // Increment on join
+    update(userCountRef, increment(1));
+    // Decrement on leave (tab close/crash)
+    onDisconnect(userCountRef).update(increment(-1));
+    // Listen for changes
+    onValue(userCountRef, (snap) => setActiveUsers(snap.val() || 0));
+
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
@@ -77,42 +87,34 @@ const MWCScoreboard = () => {
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
-  
   const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
   const deleteResult = (id) => { if (window.confirm("Delete this entry forever?")) remove(ref(db, `history/${id}`)); };
 
   const archiveMatch = () => {
     if (!match.t1 || !match.t2) return alert("Please select both teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
-    
-    // TIMESTAMP FORMAT: MM/DD/YYYY : HH:MM
     const now = new Date();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const yyyy = now.getFullYear();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
-    const ts = `${mm}/${dd}/${yyyy} : ${hh}:${min}`;
-    
-    push(ref(db, "history/"), { 
-      mNo: Date.now(), 
-      t1: match.t1, 
-      t2: match.t2, 
-      players: pLine, 
-      s1: match.s1, 
-      s2: match.s2, 
-      time: ts 
-    });
-    
+    const ts = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()} : ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF" };
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#BBB" };
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       <header style={{ padding: "20px", textAlign: "center", borderBottom: "1px solid #333", position: "relative" }}>
-        <h1 style={{ color: theme.accent, margin: 0, fontSize: "20px", fontStyle: "italic" }}>MWC OPEN'26</h1>
+        {/* REQUEST 1: SESSION COUNT ONLY FOR UMPIRE */}
+        {isAdmin && (
+          <div style={{ position: "absolute", left: "15px", top: "25px", fontSize: "10px", color: theme.accent, border: `1px solid ${theme.accent}`, padding: "2px 8px", borderRadius: "10px", fontWeight: "bold" }}>
+            LIVE: {activeUsers}
+          </div>
+        )}
+        
+        {/* REQUEST 5: BANNER WITH 8TH EDITION */}
+        <h1 style={{ color: theme.accent, margin: 0, fontSize: "20px", fontStyle: "italic", lineHeight: "1" }}>MWC OPEN'26</h1>
+        <div style={{ fontSize: "10px", color: "#888", fontWeight: "bold", letterSpacing: "1px", marginTop: "2px" }}>8th Edition</div>
+
         <button onClick={handleLogin} style={{ position: "absolute", right: "15px", top: "20px", padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "bold" }}>{isAdmin ? "UMPIRE" : "LOGIN"}</button>
       </header>
 
@@ -149,9 +151,9 @@ const MWCScoreboard = () => {
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
-                  <div style={{ fontSize: "11px", color: "#888", marginTop: "2px" }}>{h.players}</div>
-                  {/* TIMESTAMP BELOW PLAYERS */}
-                  <div style={{ fontSize: "9px", color: "#444", marginTop: "4px" }}>{h.time}</div>
+                  {/* REQUEST 2: HIGHER CONTRAST FOR PLAYERS & TIMESTAMP */}
+                  <div style={{ fontSize: "12px", color: theme.muted, marginTop: "4px", fontWeight: "500" }}>{h.players}</div>
+                  <div style={{ fontSize: "10px", color: theme.accent, marginTop: "6px", opacity: 0.9 }}>{h.time}</div>
                 </div>
                 {editingId === h.id ? (
                   <div style={{ display: "flex", gap: "5px", marginLeft: "10px" }}>
@@ -172,32 +174,65 @@ const MWCScoreboard = () => {
                 )}
               </div>
             ))}
-            {history.length === 0 && <div style={{ padding: "40px", textAlign: "center", color: "#555" }}>No results found.</div>}
           </div>
         )}
 
         {view === "info" && (
-          <div>
-            <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>
-              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "10px", background: infoTab === "rules" ? theme.accent : "#222", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>RULES</button>
-              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "10px", background: infoTab === "teams" ? theme.accent : "#222", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>TEAMS</button>
+          // REQUEST 3: UTILIZE FULL SCREEN / 3/4th SCREEN
+          <div style={{ minHeight: "65vh" }}>
+            <div style={{ display: "flex", gap: "5px", marginBottom: "15px" }}>
+              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "12px", background: infoTab === "rules" ? theme.accent : "#222", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "8px", fontWeight: "bold" }}>RULES</button>
+              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "12px", background: infoTab === "teams" ? theme.accent : "#222", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "8px", fontWeight: "bold" }}>TEAMS</button>
             </div>
-            {infoTab === "rules" ? <div style={{ padding: "15px", background: theme.card, borderRadius: "10px", fontSize: "13px" }}>Best of 3 sets to 21. Golden point at 20-all.</div> : <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "10px", borderRadius: "10px" }}><h4 style={{ margin: "0 0 5px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "10px", color: "#AAA" }}>{p}</div>)}</div>))}</div>}
+            {infoTab === "rules" ? (
+              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333", lineHeight: "1.8" }}>
+                <h3 style={{ color: theme.accent, marginTop: 0 }}>Tournament Regulations</h3>
+                <ul style={{ paddingLeft: "20px", color: theme.muted }}>
+                  <li>Matches: Best of 3 sets to 21 points.</li>
+                  <li>Golden Point: At 20-all, the next point wins.</li>
+                  <li>Intervals: 60s at 11 points, 120s between sets.</li>
+                  <li>Side Switch: At the end of each set.</li>
+                </ul>
+                <div style={{ marginTop: "40px", border: `1px dashed ${theme.accent}`, padding: "20px", borderRadius: "10px", textAlign: "center", color: "#666" }}>
+                   COURT MAP & SEATING LAYOUT <br/> [Available at Admin Desk]
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                    <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "12px", textTransform: "uppercase" }}>{t}</h4>
+                    {ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: theme.muted, padding: "2px 0" }}>{p}</div>)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {view === "schedule" && (
           <div>
-            <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "10px", background: activeDay === d ? theme.accent : "#222", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>{d}</button>)}</div>
-            <div style={{ background: theme.card, borderRadius: "10px" }}>{SCHEDULE_DATA[activeDay].map((m, i) => <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "15px", borderBottom: "1px solid #222" }}><div style={{ color: theme.accent, fontWeight: "bold" }}>{m.time}</div><div style={{ textAlign: "right" }}><div style={{ fontWeight: "bold" }}>{m.t1} vs {m.t2}</div><div style={{ fontSize: "10px", color: "#888" }}>{m.type}</div></div></div>)}</div>
+            <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "10px", background: activeDay === d ? theme.accent : "#222", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "5px", fontWeight: "bold" }}>{d}</button>)}</div>
+            <div style={{ background: theme.card, borderRadius: "10px" }}>
+              {SCHEDULE_DATA[activeDay].map((m, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "18px", borderBottom: "1px solid #222", alignItems: "center" }}>
+                  <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: "bold", fontSize: "15px" }}>{m.t1} vs {m.t2}</div>
+                    {/* REQUEST 4: SINGLES/DOUBLES CONTRAST */}
+                    <div style={{ fontSize: "11px", color: theme.accent, fontWeight: "bold", marginTop: "3px", textTransform: "uppercase" }}>{m.type}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "#111", borderTop: "1px solid #333", paddingBottom: "30px", paddingTop: "10px" }}>
+      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "#111", borderTop: "1px solid #333", paddingBottom: "35px", paddingTop: "15px" }}>
         {VIEWS.map(v => (
-          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#FFF", fontSize: "10px", fontWeight: "bold" }}>
-            <div style={{ fontSize: "18px" }}>{v === "live" ? "🎾" : v === "results" ? "🏆" : v === "info" ? "📋" : "📅"}</div>{v.toUpperCase()}
+          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#666", fontSize: "10px", fontWeight: "bold" }}>
+            <div style={{ fontSize: "20px", marginBottom: "4px" }}>{v === "live" ? "🎾" : v === "results" ? "🏆" : v === "info" ? "📋" : "📅"}</div>{v.toUpperCase()}
           </button>
         ))}
       </nav>
