@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update } from "firebase/database";
 
+// 1. FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -49,6 +50,7 @@ const MWCScoreboard = () => {
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
 
+  // Swipe Logic
   const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
   const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX);
   const onTouchEnd = () => {
@@ -68,9 +70,11 @@ const MWCScoreboard = () => {
       if (snap.val()) {
         const raw = snap.val();
         const data = Object.keys(raw).map(k => ({ id: k, ...raw[k] }));
-        // FILTER: Only keep matches that have at least Team 1 and Team 2 defined
-        const validData = data.filter(m => m.t1 && m.t2);
-        setHistory(validData.sort((a, b) => b.mNo - a.mNo));
+        
+        // HARD FILTER: Removes any entry where Team 1 or Team 2 name is missing/empty
+        const cleanData = data.filter(m => m.t1 && m.t1.trim() !== "" && m.t2 && m.t2.trim() !== "");
+        
+        setHistory(cleanData.sort((a, b) => b.mNo - a.mNo));
       } else { setHistory([]); }
     });
   }, []);
@@ -79,13 +83,24 @@ const MWCScoreboard = () => {
   const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
   
   const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
-  const deleteResult = (id) => { if (window.confirm("Delete this?")) remove(ref(db, `history/${id}`)); };
+  const deleteResult = (id) => { if (window.confirm("Delete this entry forever?")) remove(ref(db, `history/${id}`)); };
 
   const archiveMatch = () => {
-    if (!match.t1 || !match.t2) return alert("Select teams!");
+    if (!match.t1 || !match.t2) return alert("Please select both teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
     const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
+    
+    push(ref(db, "history/"), { 
+      mNo: Date.now(), 
+      t1: match.t1, 
+      t2: match.t2, 
+      players: pLine, 
+      s1: match.s1, 
+      s2: match.s2, 
+      time: ts 
+    });
+    
+    // Reset Live match
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
@@ -152,10 +167,10 @@ const MWCScoreboard = () => {
                 )}
               </div>
             ))}
+            {history.length === 0 && <div style={{ padding: "40px", textAlign: "center", color: "#555" }}>No results found.</div>}
           </div>
         )}
 
-        {/* ... Rules, Schedule, and Nav remain the same as previous stable version ... */}
         {view === "info" && (
           <div>
             <div style={{ display: "flex", gap: "5px", marginBottom: "10px" }}>
