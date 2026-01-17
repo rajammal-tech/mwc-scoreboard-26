@@ -76,7 +76,14 @@ const MWCScoreboard = () => {
   }, []);
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
-  const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
+  
+  // Updated login handler
+  const handleLogin = () => { 
+    if (isAdmin) return setIsAdmin(false); 
+    const p = window.prompt("Enter Umpire PIN:"); 
+    if (p === "121212") setIsAdmin(true); 
+  };
+
   const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
   const deleteResult = (id) => { if (window.confirm("Delete this entry forever?")) remove(ref(db, `history/${id}`)); };
 
@@ -94,11 +101,13 @@ const MWCScoreboard = () => {
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       <header style={{ padding: "20px", textAlign: "center", borderBottom: "1px solid #333", position: "relative" }}>
-        {/* Banner with 8th Edition */}
         <h1 style={{ color: theme.accent, margin: 0, fontSize: "20px", fontStyle: "italic", lineHeight: "1" }}>MWC OPEN'26</h1>
         <div style={{ fontSize: "10px", color: "#888", fontWeight: "bold", letterSpacing: "1px", marginTop: "2px" }}>8th Edition</div>
 
-        <button onClick={handleLogin} style={{ position: "absolute", right: "15px", top: "20px", padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "bold" }}>{isAdmin ? "UMPIRE" : "LOGIN"}</button>
+        {/* Updated Button Label */}
+        <button onClick={handleLogin} style={{ position: "absolute", right: "15px", top: "20px", padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "bold" }}>
+          {isAdmin ? "LOGOUT" : "UMPIRE"}
+        </button>
       </header>
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
