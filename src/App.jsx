@@ -119,7 +119,8 @@ const MWCScoreboard = () => {
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #333", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          <div style={{ minWidth: "70px" }}><div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "2px 6px", borderRadius: "10px" }}>● {viewers} LIVE</div></div>
+          {/* Changed LIVE to VIEWERS */}
+          <div style={{ minWidth: "70px" }}><div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "2px 6px", borderRadius: "10px" }}>● {viewers} VIEWERS</div></div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px", textTransform: "uppercase" }}>
