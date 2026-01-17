@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update } from "firebase/database";
 
-// ==========================================
-// 1. FIREBASE CONFIGURATION
-// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -105,10 +102,24 @@ const MWCScoreboard = () => {
 
   const archiveMatch = () => {
     if (!match.t1 || !match.t2) return alert("Select teams!");
-    const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
+    // FIXED: Clean player string to avoid redundant "VS"
+    const pLine = match.mType === "Singles" 
+      ? `${match.p1a} vs ${match.p2a}` 
+      : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
+    
     const now = new Date();
     const ts = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
-    push(ref(db, "history/"), { mNo: history.length + 1, t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
+    
+    push(ref(db, "history/"), { 
+      mNo: history.length + 1, 
+      t1: match.t1, 
+      t2: match.t2, 
+      players: pLine, 
+      s1: match.s1, 
+      s2: match.s2, 
+      time: ts 
+    });
+    
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
@@ -153,7 +164,8 @@ const MWCScoreboard = () => {
             {history.map((h) => (
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: "bold", fontSize: "14px" }}>{h.t1} vs {h.t2}</div>
+                  {/* CLEANED UP VS LOGIC HERE */}
+                  <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
                   <div style={{ fontSize: "10px", color: "#888" }}>{h.players}</div>
                 </div>
                 {editingId === h.id ? (
@@ -170,6 +182,7 @@ const MWCScoreboard = () => {
                 )}
               </div>
             ))}
+            {history.length === 0 && <div style={{ padding: "40px", textAlign: "center", color: "#555" }}>No results yet.</div>}
           </div>
         )}
 
