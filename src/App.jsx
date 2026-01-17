@@ -47,22 +47,35 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   const [viewers, setViewers] = useState(1);
 
+  // SWIPE LOGIC RE-ENABLED
+  const touchStart = useRef(null);
+  const touchEnd = useRef(null);
+
+  const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
+  const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX);
+  const onTouchEnd = () => {
+    if (!touchStart.current || !touchEnd.current) return;
+    const dist = touchStart.current - touchEnd.current;
+    if (Math.abs(dist) > 70) {
+      const idx = VIEWS.indexOf(view);
+      if (dist > 0 && idx < VIEWS.length - 1) setView(VIEWS[idx + 1]);
+      if (dist < 0 && idx > 0) setView(VIEWS[idx - 1]);
+    }
+    touchStart.current = null; touchEnd.current = null;
+  };
+
   const standings = useMemo(() => {
     const stats = TEAMS.reduce((acc, team) => {
       acc[team] = { played: 0, won: 0 };
       return acc;
     }, {});
-
     history.forEach((m) => {
       if (stats[m.t1]) stats[m.t1].played += 1;
       if (stats[m.t2]) stats[m.t2].played += 1;
       if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; } 
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
-
-    return Object.entries(stats)
-      .map(([name, data]) => ({ name, ...data }))
-      .sort((a, b) => b.won - a.won || b.played - a.played);
+    return Object.entries(stats).map(([name, data]) => ({ name, ...data })).sort((a, b) => b.won - a.won || b.played - a.played);
   }, [history]);
 
   useEffect(() => {
@@ -76,10 +89,7 @@ const MWCScoreboard = () => {
     });
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
-      if (snap.val() === true) {
-        onDisconnect(myPresenceRef).remove();
-        set(myPresenceRef, serverTimestamp());
-      }
+      if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
     });
     onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
     return () => { remove(myPresenceRef); };
@@ -88,15 +98,15 @@ const MWCScoreboard = () => {
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
   
-  const startEdit = (h) => { setEditingId(h.id); setEditScores({ s1: h.s1, s2: h.s2 }); };
   const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
-  const deleteResult = (id) => { if (window.confirm("Delete this result?")) remove(ref(db, `history/${id}`)); };
+  const deleteResult = (id) => { if (window.confirm("Delete result?")) remove(ref(db, `history/${id}`)); };
 
   const archiveMatch = () => {
     if (!match.t1 || !match.t2) return alert("Select teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
     const now = new Date();
-    const ts = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    // Corrected Timestamp Format: DD/MM HH:MM
+    const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
@@ -104,7 +114,7 @@ const MWCScoreboard = () => {
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF" };
 
   return (
-    <div style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px" }}>
+    <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #333", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
@@ -112,7 +122,7 @@ const MWCScoreboard = () => {
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px", textTransform: "uppercase" }}>
-              <span style={{ fontSize: "15px" }}>8</span><span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
+              <span style={{ fontSize: "16px" }}>8</span><span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
             </div>
           </div>
           <div style={{ minWidth: "70px", textAlign: "right" }}><button onClick={handleLogin} style={{ padding: "5px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button></div>
@@ -132,9 +142,17 @@ const MWCScoreboard = () => {
                  <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0" }}>TEAM {n}</p>
                  {isAdmin ? (
                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                     <select style={{ padding: "10px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value })}><option value="">Team</option>{TEAMS.map(t=><option key={t}>{t}</option>)}</select>
-                     <select style={{ padding: "10px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">P1</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>
-                     {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">P2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
+                     {/* Team Selection with filtering logic */}
+                     <select style={{ padding: "10px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value })}>
+                        <option value="">Select Team</option>
+                        {TEAMS.map(t => (
+                          <option key={t} value={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>
+                            {t}
+                          </option>
+                        ))}
+                     </select>
+                     <select style={{ padding: "10px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>
+                     {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
                    </div>
                  ) : (
                    <div><h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#FFF", fontSize: "15px", marginTop: "8px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
@@ -146,7 +164,7 @@ const MWCScoreboard = () => {
                  </div>
                </div>
              ))}
-             {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none" }}>FINALIZE & ARCHIVE</button>}
+             {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none" }}>FINALIZE MATCH</button>}
            </div>
         )}
 
@@ -156,25 +174,27 @@ const MWCScoreboard = () => {
                <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
                  <div style={{ display: "flex", alignItems: "center" }}>
                    <div style={{ flex: 1 }}>
-                     <div style={{ fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span>{h.t1} {Number(h.s1) > Number(h.s2) && <span style={{color: theme.accent, fontSize: "12px"}}>✔</span>}</span>
+                     <div style={{ fontWeight: "800", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>{h.t1} {Number(h.s1) > Number(h.s2) && <span style={{color: theme.accent}}>✔</span>}</span>
                         <span style={{color: "#444"}}>vs</span>
-                        <span>{h.t2} {Number(h.s2) > Number(h.s1) && <span style={{color: theme.accent, fontSize: "12px"}}>✔</span>}</span>
+                        <span>{h.t2} {Number(h.s2) > Number(h.s1) && <span style={{color: theme.accent}}>✔</span>}</span>
                      </div>
-                     <div style={{ fontSize: "12px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                     <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                     {/* Timestamp DD/MM HH:MM */}
+                     <div style={{ fontSize: "9px", color: theme.accent, marginTop: "6px", opacity: 0.8 }}>{h.time}</div>
                    </div>
                    {editingId === h.id ? (
                      <div style={{ display: "flex", gap: "5px" }}>
-                        <input type="number" style={{ width: "35px", padding: "5px" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
-                        <input type="number" style={{ width: "35px", padding: "5px" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
-                        <button onClick={()=>saveEdit(h.id)} style={{ background: theme.accent, border: "none", padding: "5px 8px", borderRadius: "4px" }}>OK</button>
+                        <input type="number" style={{ width: "35px" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
+                        <input type="number" style={{ width: "35px" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
+                        <button onClick={()=>saveEdit(h.id)} style={{ background: theme.accent, border: "none", padding: "5px", borderRadius: "4px" }}>OK</button>
                      </div>
-                   ) : (<div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>)}
+                   ) : (<div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "20px" }}>{h.s1} - {h.s2}</span></div>)}
                  </div>
                  {isAdmin && editingId !== h.id && (
                    <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-                     <button onClick={() => startEdit(h)} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "10px", borderRadius: "4px" }}>EDIT</button>
-                     <button onClick={() => deleteResult(h.id)} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "10px", borderRadius: "4px" }}>DELETE</button>
+                     <button onClick={() => {setEditingId(h.id); setEditScores({s1:h.s1, s2:h.s2})}} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "9px", borderRadius: "4px" }}>EDIT</button>
+                     <button onClick={() => deleteResult(h.id)} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "9px", borderRadius: "4px" }}>DELETE</button>
                    </div>
                  )}
                </div>
@@ -185,11 +205,11 @@ const MWCScoreboard = () => {
         {view === "standings" && (
           <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "11px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "11px" }}>MP</th><th style={{ textAlign: "center", fontSize: "11px" }}>WON</th><th style={{ textAlign: "right", paddingRight: "15px", fontSize: "11px", color: theme.accent }}>PTS</th></tr></thead>
+              <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "center", fontSize: "10px" }}>WON</th><th style={{ textAlign: "right", paddingRight: "15px", fontSize: "10px", color: theme.accent }}>PTS</th></tr></thead>
               <tbody>
                 {standings.map((team, i) => (
                   <tr key={team.name} style={{ borderBottom: "1px solid #222" }}>
-                    <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "600", fontSize: "14px" }}>{team.name}</span></td>
+                    <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "600", fontSize: "13px" }}>{team.name}</span></td>
                     <td style={{ textAlign: "center" }}>{team.played}</td><td style={{ textAlign: "center" }}>{team.won}</td>
                     <td style={{ textAlign: "right", paddingRight: "15px", fontWeight: "900", color: theme.accent }}>{team.won}</td>
                   </tr>
