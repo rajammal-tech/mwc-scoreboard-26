@@ -31,10 +31,16 @@ const SCHEDULE_DATA = {
 
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
-const ALL_PLAYERS = Object.values(TEAM_ROSTERS).flat();
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
+
+// Cross-platform Green Checkmark SVG Component
+const GreenCheck = ({ color }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
 
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
@@ -47,10 +53,9 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   const [viewers, setViewers] = useState(1);
 
-  // SWIPE LOGIC RE-ENABLED
+  // SWIPE LOGIC
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
-
   const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
   const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX);
   const onTouchEnd = () => {
@@ -65,10 +70,7 @@ const MWCScoreboard = () => {
   };
 
   const standings = useMemo(() => {
-    const stats = TEAMS.reduce((acc, team) => {
-      acc[team] = { played: 0, won: 0 };
-      return acc;
-    }, {});
+    const stats = TEAMS.reduce((acc, team) => { acc[team] = { played: 0, won: 0 }; return acc; }, {});
     history.forEach((m) => {
       if (stats[m.t1]) stats[m.t1].played += 1;
       if (stats[m.t2]) stats[m.t2].played += 1;
@@ -97,7 +99,6 @@ const MWCScoreboard = () => {
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
-  
   const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
   const deleteResult = (id) => { if (window.confirm("Delete result?")) remove(ref(db, `history/${id}`)); };
 
@@ -105,12 +106,12 @@ const MWCScoreboard = () => {
     if (!match.t1 || !match.t2) return alert("Select teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
     const now = new Date();
-    // Corrected Timestamp Format: DD/MM HH:MM
     const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
+  const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF" };
 
   return (
@@ -122,7 +123,7 @@ const MWCScoreboard = () => {
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px", textTransform: "uppercase" }}>
-              <span style={{ fontSize: "16px" }}>8</span><span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
+              <span style={{ fontSize: "18px" }}>8</span><span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
             </div>
           </div>
           <div style={{ minWidth: "70px", textAlign: "right" }}><button onClick={handleLogin} style={{ padding: "5px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button></div>
@@ -142,17 +143,9 @@ const MWCScoreboard = () => {
                  <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0" }}>TEAM {n}</p>
                  {isAdmin ? (
                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                     {/* Team Selection with filtering logic */}
-                     <select style={{ padding: "10px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value })}>
-                        <option value="">Select Team</option>
-                        {TEAMS.map(t => (
-                          <option key={t} value={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>
-                            {t}
-                          </option>
-                        ))}
-                     </select>
-                     <select style={{ padding: "10px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>
-                     {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
+                     <select style={{ padding: "10px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "" })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                     <select style={{ padding: "10px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                     {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
                    </div>
                  ) : (
                    <div><h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#FFF", fontSize: "15px", marginTop: "8px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
@@ -175,12 +168,11 @@ const MWCScoreboard = () => {
                  <div style={{ display: "flex", alignItems: "center" }}>
                    <div style={{ flex: 1 }}>
                      <div style={{ fontWeight: "800", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span>{h.t1} {Number(h.s1) > Number(h.s2) && <span style={{color: theme.accent}}>✔</span>}</span>
+                        <span>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>}</span>
                         <span style={{color: "#444"}}>vs</span>
-                        <span>{h.t2} {Number(h.s2) > Number(h.s1) && <span style={{color: theme.accent}}>✔</span>}</span>
+                        <span>{h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</span>
                      </div>
                      <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
-                     {/* Timestamp DD/MM HH:MM */}
                      <div style={{ fontSize: "9px", color: theme.accent, marginTop: "6px", opacity: 0.8 }}>{h.time}</div>
                    </div>
                    {editingId === h.id ? (
@@ -206,24 +198,20 @@ const MWCScoreboard = () => {
           <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "center", fontSize: "10px" }}>WON</th><th style={{ textAlign: "right", paddingRight: "15px", fontSize: "10px", color: theme.accent }}>PTS</th></tr></thead>
-              <tbody>
-                {standings.map((team, i) => (
-                  <tr key={team.name} style={{ borderBottom: "1px solid #222" }}>
-                    <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "600", fontSize: "13px" }}>{team.name}</span></td>
-                    <td style={{ textAlign: "center" }}>{team.played}</td><td style={{ textAlign: "center" }}>{team.won}</td>
-                    <td style={{ textAlign: "right", paddingRight: "15px", fontWeight: "900", color: theme.accent }}>{team.won}</td>
-                  </tr>
-                ))}
-              </tbody>
+              <tbody>{standings.map((team, i) => (
+                <tr key={team.name} style={{ borderBottom: "1px solid #222" }}>
+                  <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "600", fontSize: "13px" }}>{team.name}</span></td>
+                  <td style={{ textAlign: "center" }}>{team.played}</td><td style={{ textAlign: "center" }}>{team.won}</td>
+                  <td style={{ textAlign: "right", paddingRight: "15px", fontWeight: "900", color: theme.accent }}>{team.won}</td>
+                </tr>
+              ))}</tbody>
             </table>
           </div>
         )}
 
         {view === "schedule" && (
            <div style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
-             <div style={{ display: "flex", borderBottom: "1px solid #222" }}>
-               {Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}
-             </div>
+             <div style={{ display: "flex", borderBottom: "1px solid #222" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}</div>
              {SCHEDULE_DATA[activeDay].map((m, i) => (
                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                  <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
@@ -242,11 +230,9 @@ const MWCScoreboard = () => {
             {infoTab === "rules" ? (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ paddingLeft: "20px", color: "#EEE", lineHeight: "1.8" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD" }}>{p}</div>)}</div>
-                ))}
-              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD" }}>{p}</div>)}</div>
+              ))}</div>
             )}
           </div>
         )}
