@@ -50,7 +50,6 @@ const MWCScoreboard = () => {
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
 
-  // Swipe Logic
   const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
   const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX);
   const onTouchEnd = () => {
@@ -86,7 +85,7 @@ const MWCScoreboard = () => {
     if (!match.t1 || !match.t2) return alert("Please select both teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
     
-    // NEW DATE FORMATTING: MM/DD/YYYY : HH:MM
+    // TIMESTAMP FORMAT: MM/DD/YYYY : HH:MM
     const now = new Date();
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const dd = String(now.getDate()).padStart(2, '0');
@@ -149,11 +148,10 @@ const MWCScoreboard = () => {
             {history.map((h) => (
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
-                    <div style={{ fontSize: "9px", color: "#555" }}>{h.time}</div>
-                  </div>
-                  <div style={{ fontSize: "10px", color: "#888" }}>{h.players}</div>
+                  <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
+                  <div style={{ fontSize: "11px", color: "#888", marginTop: "2px" }}>{h.players}</div>
+                  {/* TIMESTAMP BELOW PLAYERS */}
+                  <div style={{ fontSize: "9px", color: "#444", marginTop: "4px" }}>{h.time}</div>
                 </div>
                 {editingId === h.id ? (
                   <div style={{ display: "flex", gap: "5px", marginLeft: "10px" }}>
@@ -184,7 +182,7 @@ const MWCScoreboard = () => {
               <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "10px", background: infoTab === "rules" ? theme.accent : "#222", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>RULES</button>
               <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "10px", background: infoTab === "teams" ? theme.accent : "#222", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>TEAMS</button>
             </div>
-            {infoTab === "rules" ? <div style={{ padding: "15px", background: theme.card, borderRadius: "10px", fontSize: "13px" }}>Match format: Best of 3 sets to 21. Golden point at 20-all.</div> : <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "10px", borderRadius: "10px" }}><h4 style={{ margin: "0 0 5px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "10px", color: "#AAA" }}>{p}</div>)}</div>))}</div>}
+            {infoTab === "rules" ? <div style={{ padding: "15px", background: theme.card, borderRadius: "10px", fontSize: "13px" }}>Best of 3 sets to 21. Golden point at 20-all.</div> : <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "10px", borderRadius: "10px" }}><h4 style={{ margin: "0 0 5px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "10px", color: "#AAA" }}>{p}</div>)}</div>))}</div>}
           </div>
         )}
 
