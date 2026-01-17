@@ -70,10 +70,7 @@ const MWCScoreboard = () => {
       if (snap.val()) {
         const raw = snap.val();
         const data = Object.keys(raw).map(k => ({ id: k, ...raw[k] }));
-        
-        // HARD FILTER: Removes any entry where Team 1 or Team 2 name is missing/empty
         const cleanData = data.filter(m => m.t1 && m.t1.trim() !== "" && m.t2 && m.t2.trim() !== "");
-        
         setHistory(cleanData.sort((a, b) => b.mNo - a.mNo));
       } else { setHistory([]); }
     });
@@ -88,7 +85,15 @@ const MWCScoreboard = () => {
   const archiveMatch = () => {
     if (!match.t1 || !match.t2) return alert("Please select both teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
-    const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // NEW DATE FORMATTING: MM/DD/YYYY : HH:MM
+    const now = new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const ts = `${mm}/${dd}/${yyyy} : ${hh}:${min}`;
     
     push(ref(db, "history/"), { 
       mNo: Date.now(), 
@@ -100,7 +105,6 @@ const MWCScoreboard = () => {
       time: ts 
     });
     
-    // Reset Live match
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
@@ -145,17 +149,20 @@ const MWCScoreboard = () => {
             {history.map((h) => (
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
+                    <div style={{ fontSize: "9px", color: "#555" }}>{h.time}</div>
+                  </div>
                   <div style={{ fontSize: "10px", color: "#888" }}>{h.players}</div>
                 </div>
                 {editingId === h.id ? (
-                  <div style={{ display: "flex", gap: "5px" }}>
+                  <div style={{ display: "flex", gap: "5px", marginLeft: "10px" }}>
                     <input type="number" style={{ width: "35px", padding: "5px", background: "#222", color: "#FFF" }} value={editScores.s1} onChange={(e) => setEditScores({ ...editScores, s1: e.target.value })} />
                     <input type="number" style={{ width: "35px", padding: "5px", background: "#222", color: "#FFF" }} value={editScores.s2} onChange={(e) => setEditScores({ ...editScores, s2: e.target.value })} />
                     <button onClick={() => saveEdit(h.id)} style={{ background: theme.accent, border: "none", padding: "5px 10px", borderRadius: "4px", fontSize: "10px" }}>OK</button>
                   </div>
                 ) : (
-                  <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "10px", marginLeft: "10px" }}>
                     <span style={{ color: theme.accent, fontWeight: "bold", fontSize: "18px" }}>{h.s1} - {h.s2}</span>
                     {isAdmin && (
                       <div style={{ display: "flex", gap: "5px" }}>
