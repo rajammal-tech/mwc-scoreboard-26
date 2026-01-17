@@ -65,7 +65,6 @@ const MWCScoreboard = () => {
   };
 
   useEffect(() => {
-    // 1. Existing Match & History Listeners
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
@@ -76,21 +75,17 @@ const MWCScoreboard = () => {
       } else { setHistory([]); }
     });
 
-    // 2. Presence Logic (Safe Session Counting)
     const myPresenceRef = push(ref(db, "presence/"));
     const connectedRef = ref(db, ".info/connected");
-
     onValue(connectedRef, (snap) => {
       if (snap.val() === true) {
         onDisconnect(myPresenceRef).remove();
         set(myPresenceRef, serverTimestamp());
       }
     });
-
     onValue(ref(db, "presence/"), (snap) => {
       setViewers(snap.exists() ? Object.keys(snap.val()).length : 1);
     });
-
     return () => { remove(myPresenceRef); };
   }, []);
 
@@ -113,18 +108,35 @@ const MWCScoreboard = () => {
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       
-      {/* Session Counter Badge */}
-      <div style={{ position: "absolute", top: "10px", left: "10px", backgroundColor: "rgba(173, 255, 47, 0.1)", color: theme.accent, padding: "4px 8px", borderRadius: "12px", fontSize: "10px", fontWeight: "bold", border: "1px solid rgba(173, 255, 47, 0.3)" }}>
-        ● {viewers} Live
-      </div>
+      {/* HEADER SECTION */}
+      <header style={{ padding: "15px 10px", borderBottom: "1px solid #333", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
+          
+          {/* Live Counter (Left) */}
+          <div style={{ minWidth: "70px" }}>
+            <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 8px", borderRadius: "10px", display: "inline-block" }}>
+               ● {viewers} LIVE
+            </div>
+          </div>
 
-      <header style={{ padding: "20px", textAlign: "center", borderBottom: "1px solid #333", position: "relative" }}>
-        <h1 style={{ color: theme.accent, margin: 0, fontSize: "20px", fontStyle: "italic", lineHeight: "1" }}>MWC OPEN'26</h1>
-        <div style={{ fontSize: "10px", color: "#888", fontWeight: "bold", letterSpacing: "1px", marginTop: "2px" }}>8th Edition</div>
+          {/* Title & 8th Edition (Center) */}
+          <div style={{ textAlign: "center", flex: 1 }}>
+            <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900", letterSpacing: "0.5px" }}>
+              MWC OPEN'26
+            </h1>
+            <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "2px", marginTop: "2px", textTransform: "uppercase", opacity: 0.8 }}>
+              8th Edition
+            </div>
+          </div>
 
-        <button onClick={handleLogin} style={{ position: "absolute", right: "15px", top: "20px", padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "bold" }}>
-          {isAdmin ? "LOGOUT" : "UMPIRE"}
-        </button>
+          {/* Umpire Button (Right) */}
+          <div style={{ minWidth: "70px", textAlign: "right" }}>
+            <button onClick={handleLogin} style={{ padding: "6px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>
+              {isAdmin ? "LOGOUT" : "UMPIRE"}
+            </button>
+          </div>
+
+        </div>
       </header>
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
