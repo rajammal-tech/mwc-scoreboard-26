@@ -30,7 +30,6 @@ const SCHEDULE_DATA = {
   ],
 };
 
-// UPDATED VIEW ORDER
 const VIEWS = ["live", "results", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 const ALL_PLAYERS = Object.values(TEAM_ROSTERS).flat();
@@ -120,7 +119,9 @@ const MWCScoreboard = () => {
 
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "2px", marginTop: "1px", textTransform: "uppercase" }}>8th Edition</div>
+            <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px", textTransform: "uppercase" }}>
+              8<span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
+            </div>
           </div>
 
           <div style={{ minWidth: "70px", textAlign: "right" }}>
