@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { initializeApp, getApps } from "firebase/app";
-import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, increment } from "firebase/database";
+import { getDatabase, ref, onValue, set, push, remove, update } from "firebase/database";
 
 // 1. FIREBASE CONFIG
 const firebaseConfig = {
@@ -43,7 +43,6 @@ const MWCScoreboard = () => {
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [history, setHistory] = useState([]);
-  const [activeUsers, setActiveUsers] = useState(0); // Added for session count
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
@@ -65,15 +64,6 @@ const MWCScoreboard = () => {
   };
 
   useEffect(() => {
-    // --- SESSION TRACKING LOGIC ---
-    const userCountRef = ref(db, 'status/activeUsers');
-    // Increment on join
-    update(userCountRef, increment(1));
-    // Decrement on leave (tab close/crash)
-    onDisconnect(userCountRef).update(increment(-1));
-    // Listen for changes
-    onValue(userCountRef, (snap) => setActiveUsers(snap.val() || 0));
-
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
@@ -104,14 +94,7 @@ const MWCScoreboard = () => {
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       <header style={{ padding: "20px", textAlign: "center", borderBottom: "1px solid #333", position: "relative" }}>
-        {/* REQUEST 1: SESSION COUNT ONLY FOR UMPIRE */}
-        {isAdmin && (
-          <div style={{ position: "absolute", left: "15px", top: "25px", fontSize: "10px", color: theme.accent, border: `1px solid ${theme.accent}`, padding: "2px 8px", borderRadius: "10px", fontWeight: "bold" }}>
-            LIVE: {activeUsers}
-          </div>
-        )}
-        
-        {/* REQUEST 5: BANNER WITH 8TH EDITION */}
+        {/* Banner with 8th Edition */}
         <h1 style={{ color: theme.accent, margin: 0, fontSize: "20px", fontStyle: "italic", lineHeight: "1" }}>MWC OPEN'26</h1>
         <div style={{ fontSize: "10px", color: "#888", fontWeight: "bold", letterSpacing: "1px", marginTop: "2px" }}>8th Edition</div>
 
@@ -132,7 +115,7 @@ const MWCScoreboard = () => {
                     {match.mType === "Doubles" && <select style={{ width: "100%", padding: "8px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">P2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
                   </div>
                 ) : (
-                  <div><h2 style={{ fontSize: "24px", margin: 0 }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "12px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
+                  <div><h2 style={{ fontSize: "24px", margin: 0 }}>{match[`t${n}`] || "---"}</h2><p style={{ color: theme.muted, fontSize: "14px", marginTop: "5px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
                 )}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
                   {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#333", color: "#ff4444", border: "none" }}>-</button>}
@@ -151,7 +134,6 @@ const MWCScoreboard = () => {
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: "bold", fontSize: "14px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
-                  {/* REQUEST 2: HIGHER CONTRAST FOR PLAYERS & TIMESTAMP */}
                   <div style={{ fontSize: "12px", color: theme.muted, marginTop: "4px", fontWeight: "500" }}>{h.players}</div>
                   <div style={{ fontSize: "10px", color: theme.accent, marginTop: "6px", opacity: 0.9 }}>{h.time}</div>
                 </div>
@@ -178,7 +160,6 @@ const MWCScoreboard = () => {
         )}
 
         {view === "info" && (
-          // REQUEST 3: UTILIZE FULL SCREEN / 3/4th SCREEN
           <div style={{ minHeight: "65vh" }}>
             <div style={{ display: "flex", gap: "5px", marginBottom: "15px" }}>
               <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "12px", background: infoTab === "rules" ? theme.accent : "#222", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "8px", fontWeight: "bold" }}>RULES</button>
@@ -189,13 +170,10 @@ const MWCScoreboard = () => {
                 <h3 style={{ color: theme.accent, marginTop: 0 }}>Tournament Regulations</h3>
                 <ul style={{ paddingLeft: "20px", color: theme.muted }}>
                   <li>Matches: Best of 3 sets to 21 points.</li>
-                  <li>Golden Point: At 20-all, the next point wins.</li>
-                  <li>Intervals: 60s at 11 points, 120s between sets.</li>
-                  <li>Side Switch: At the end of each set.</li>
+                  <li>Golden Point: At 20-all, next point wins.</li>
+                  <li>Intervals: 60s at 11 pts, 120s between sets.</li>
+                  <li>Side Switch: After each set.</li>
                 </ul>
-                <div style={{ marginTop: "40px", border: `1px dashed ${theme.accent}`, padding: "20px", borderRadius: "10px", textAlign: "center", color: "#666" }}>
-                   COURT MAP & SEATING LAYOUT <br/> [Available at Admin Desk]
-                </div>
               </div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -219,7 +197,6 @@ const MWCScoreboard = () => {
                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                   <div style={{ textAlign: "right" }}>
                     <div style={{ fontWeight: "bold", fontSize: "15px" }}>{m.t1} vs {m.t2}</div>
-                    {/* REQUEST 4: SINGLES/DOUBLES CONTRAST */}
                     <div style={{ fontSize: "11px", color: theme.accent, fontWeight: "bold", marginTop: "3px", textTransform: "uppercase" }}>{m.type}</div>
                   </div>
                 </div>
