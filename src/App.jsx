@@ -30,7 +30,8 @@ const SCHEDULE_DATA = {
   ],
 };
 
-const VIEWS = ["live", "results", "info", "schedule"];
+// UPDATED VIEW ORDER
+const VIEWS = ["live", "results", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 const ALL_PLAYERS = Object.values(TEAM_ROSTERS).flat();
 
@@ -108,34 +109,25 @@ const MWCScoreboard = () => {
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px", touchAction: "pan-y" }}>
       
-      {/* HEADER SECTION */}
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #333", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
           
-          {/* Live Counter (Left) */}
           <div style={{ minWidth: "70px" }}>
-            <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 8px", borderRadius: "10px", display: "inline-block" }}>
+            <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "2px 6px", borderRadius: "10px", display: "inline-block" }}>
                ● {viewers} LIVE
             </div>
           </div>
 
-          {/* Title & 8th Edition (Center) */}
           <div style={{ textAlign: "center", flex: 1 }}>
-            <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900", letterSpacing: "0.5px" }}>
-              MWC OPEN'26
-            </h1>
-            <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "2px", marginTop: "2px", textTransform: "uppercase", opacity: 0.8 }}>
-              8th Edition
-            </div>
+            <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
+            <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "2px", marginTop: "1px", textTransform: "uppercase" }}>8th Edition</div>
           </div>
 
-          {/* Umpire Button (Right) */}
           <div style={{ minWidth: "70px", textAlign: "right" }}>
-            <button onClick={handleLogin} style={{ padding: "6px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>
+            <button onClick={handleLogin} style={{ padding: "5px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>
               {isAdmin ? "LOGOUT" : "UMPIRE"}
             </button>
           </div>
-
         </div>
       </header>
 
@@ -150,29 +142,29 @@ const MWCScoreboard = () => {
             )}
             {[1, 2].map(n => (
               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: "1px solid #222", textAlign: "center" }}>
-                <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0", letterSpacing: "1px" }}>TEAM {n}</p>
+                <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0" }}>TEAM {n}</p>
                 {isAdmin ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <select style={{ padding: "10px", borderRadius: "5px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value })}><option value="">Select Team</option>{TEAMS.map(t=><option key={t}>{t}</option>)}</select>
-                    <select style={{ padding: "10px", borderRadius: "5px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>
-                    {match.mType === "Doubles" && <select style={{ padding: "10px", borderRadius: "5px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
+                    <select style={{ padding: "10px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value })}><option value="">Team</option>{TEAMS.map(t=><option key={t}>{t}</option>)}</select>
+                    <select style={{ padding: "10px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">P1</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>
+                    {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">P2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
                   </div>
                 ) : (
                   <div>
-                    <h2 style={{ fontSize: "28px", margin: 0, letterSpacing: "-0.5px" }}>{match[`t${n}`] || "---"}</h2>
+                    <h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || "---"}</h2>
                     <p style={{ color: "#FFF", fontSize: "15px", marginTop: "8px", fontWeight: "500" }}>
                       {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}
                     </p>
                   </div>
                 )}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                  {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", fontSize: "20px" }}>-</button>}
-                  <span style={{ fontSize: "72px", fontWeight: "900", margin: "0 25px", color: theme.text }}>{match[`s${n}`] || 0}</span>
-                  {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: (match[`s${n}`] || 0) + 1 })} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", fontSize: "20px" }}>+</button>}
+                  {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333" }}>-</button>}
+                  <span style={{ fontSize: "72px", fontWeight: "900", margin: "0 25px" }}>{match[`s${n}`] || 0}</span>
+                  {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: (match[`s${n}`] || 0) + 1 })} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333" }}>+</button>}
                 </div>
               </div>
             ))}
-            {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", marginTop: "10px", border: "none", fontSize: "14px" }}>FINALIZE & ARCHIVE</button>}
+            {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", marginTop: "10px", border: "none" }}>FINALIZE & ARCHIVE</button>}
           </div>
         )}
 
@@ -182,44 +174,15 @@ const MWCScoreboard = () => {
               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "18px", borderBottom: "1px solid #222" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: "800", fontSize: "15px", color: "#FFF" }}>{h.t1} vs {h.t2}</div>
-                  <div style={{ fontSize: "13px", color: "#EEE", marginTop: "4px", fontWeight: "500" }}>{h.players}</div>
-                  <div style={{ fontSize: "10px", color: theme.accent, marginTop: "8px", fontWeight: "bold" }}>{h.time}</div>
+                  <div style={{ fontSize: "13px", color: "#EEE", marginTop: "4px" }}>{h.players}</div>
+                  <div style={{ fontSize: "10px", color: theme.accent, marginTop: "8px" }}>{h.time}</div>
                 </div>
-                <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ textAlign: "right" }}>
                   <span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span>
-                  {isAdmin && <button onClick={() => deleteResult(h.id)} style={{ background: "#441111", color: "#ff4444", border: "none", padding: "6px", borderRadius: "5px", fontSize: "10px" }}>DEL</button>}
+                  {isAdmin && <button onClick={() => deleteResult(h.id)} style={{ background: "#441111", color: "#ff4444", border: "none", padding: "6px", borderRadius: "5px", fontSize: "10px", marginLeft: "10px" }}>DEL</button>}
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {view === "info" && (
-          <div style={{ minHeight: "60vh" }}>
-            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>RULES</button>
-              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>TEAMS</button>
-            </div>
-            {infoTab === "rules" ? (
-              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333", lineHeight: "1.8" }}>
-                <h3 style={{ color: theme.accent, marginTop: 0, fontSize: "16px" }}>Tournament Guidelines</h3>
-                <ul style={{ paddingLeft: "20px", color: "#EEE", fontSize: "14px" }}>
-                  <li>Matches: Best of 3 sets to 21 points.</li>
-                  <li>Golden Point: At 20-all, next point wins.</li>
-                  <li>Intervals: 60s at 11 pts, 120s between sets.</li>
-                  <li>Side Switch: After each set.</li>
-                </ul>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                    <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "12px", textTransform: "uppercase" }}>{t}</h4>
-                    {ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD", padding: "3px 0" }}>{p}</div>)}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
@@ -235,18 +198,48 @@ const MWCScoreboard = () => {
                 <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} vs {m.t2}</div>
-                  <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px", textTransform: "uppercase", opacity: 0.8 }}>{m.type}</div>
+                  <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px", textTransform: "uppercase" }}>{m.type}</div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {view === "info" && (
+          <div style={{ minHeight: "60vh" }}>
+            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
+              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>RULES</button>
+              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>TEAMS</button>
+            </div>
+            {infoTab === "rules" ? (
+              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333", lineHeight: "1.8" }}>
+                <h3 style={{ color: theme.accent, marginTop: 0 }}>Tournament Guidelines</h3>
+                <ul style={{ paddingLeft: "20px", color: "#EEE" }}>
+                  <li>Matches: Best of 3 sets to 21 points.</li>
+                  <li>Golden Point: At 20-all, next point wins.</li>
+                  <li>Intervals: 60s at 11 pts, 120s between sets.</li>
+                </ul>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                    <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "12px", textTransform: "uppercase" }}>{t}</h4>
+                    {ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD", padding: "3px 0" }}>{p}</div>)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(10px)", borderTop: "1px solid #333", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
-          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", transition: "0.2s" }}>
-            <div style={{ fontSize: "22px", marginBottom: "6px" }}>{v === "live" ? "🎾" : v === "results" ? "🏆" : v === "info" ? "📋" : "📅"}</div>
+          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
+            <div style={{ fontSize: "22px", marginBottom: "6px" }}>
+              {v === "live" ? "🎾" : v === "results" ? "🏆" : v === "schedule" ? "📅" : "📋"}
+            </div>
             {v.toUpperCase()}
           </button>
         ))}
