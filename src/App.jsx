@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// 1. FIREBASE CONFIG (Kept from previous version)
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -43,13 +42,11 @@ const MWCScoreboard = () => {
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [history, setHistory] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   const [viewers, setViewers] = useState(1);
 
-  const touchStart = useRef(null);
-  const touchEnd = useRef(null);
-
-  // --- LOGIC: STANDINGS CALCULATION ---
   const standings = useMemo(() => {
     const stats = TEAMS.reduce((acc, team) => {
       acc[team] = { played: 0, won: 0 };
@@ -59,12 +56,8 @@ const MWCScoreboard = () => {
     history.forEach((m) => {
       if (stats[m.t1]) stats[m.t1].played += 1;
       if (stats[m.t2]) stats[m.t2].played += 1;
-      
-      if (m.s1 > m.s2) {
-        if (stats[m.t1]) stats[m.t1].won += 1;
-      } else if (m.s2 > m.s1) {
-        if (stats[m.t2]) stats[m.t2].won += 1;
-      }
+      if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; } 
+      else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
 
     return Object.entries(stats)
@@ -78,27 +71,27 @@ const MWCScoreboard = () => {
       if (snap.val()) {
         const raw = snap.val();
         const data = Object.keys(raw).map(k => ({ id: k, ...raw[k] }));
-        setHistory(data);
+        setHistory(data.sort((a, b) => b.mNo - a.mNo));
       } else { setHistory([]); }
     });
-
     const myPresenceRef = push(ref(db, "presence/"));
-    const connectedRef = ref(db, ".info/connected");
-    onValue(connectedRef, (snap) => {
+    onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) {
         onDisconnect(myPresenceRef).remove();
         set(myPresenceRef, serverTimestamp());
       }
     });
-    onValue(ref(db, "presence/"), (snap) => {
-      setViewers(snap.exists() ? Object.keys(snap.val()).length : 1);
-    });
+    onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
     return () => { remove(myPresenceRef); };
   }, []);
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const handleLogin = () => { if (isAdmin) return setIsAdmin(false); const p = window.prompt("PIN:"); if (p === "121212") setIsAdmin(true); };
   
+  const startEdit = (h) => { setEditingId(h.id); setEditScores({ s1: h.s1, s2: h.s2 }); };
+  const saveEdit = (id) => { update(ref(db, `history/${id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); };
+  const deleteResult = (id) => { if (window.confirm("Delete this result?")) remove(ref(db, `history/${id}`)); };
+
   const archiveMatch = () => {
     if (!match.t1 || !match.t2) return alert("Select teams!");
     const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
@@ -108,38 +101,30 @@ const MWCScoreboard = () => {
     sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   };
 
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#BBB" };
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF" };
 
   return (
     <div style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "sans-serif", paddingBottom: "120px" }}>
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #333", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          <div style={{ minWidth: "70px" }}>
-             <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "2px 6px", borderRadius: "10px" }}>● {viewers} LIVE</div>
-          </div>
+          <div style={{ minWidth: "70px" }}><div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "2px 6px", borderRadius: "10px" }}>● {viewers} LIVE</div></div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", color: "#FFF", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px", textTransform: "uppercase" }}>
-              8<span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
+              <span style={{ fontSize: "15px" }}>8</span><span style={{ fontSize: "7px", verticalAlign: "top", textTransform: "lowercase" }}>th</span> Edition
             </div>
           </div>
-          <div style={{ minWidth: "70px", textAlign: "right" }}>
-            <button onClick={handleLogin} style={{ padding: "5px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>
-              {isAdmin ? "LOGOUT" : "UMPIRE"}
-            </button>
-          </div>
+          <div style={{ minWidth: "70px", textAlign: "right" }}><button onClick={handleLogin} style={{ padding: "5px 10px", borderRadius: "15px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "9px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button></div>
         </div>
       </header>
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
-           /* ... Same Live Scoring Code ... */
            <div>
              {isAdmin && (
                <select style={{ width: "100%", padding: "12px", background: "#111", color: theme.accent, border: "1px solid #333", borderRadius: "8px", marginBottom: "10px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}>
-                 <option value="Singles">Singles Match</option>
-                 <option value="Doubles">Doubles Match</option>
+                 <option value="Singles">Singles Match</option><option value="Doubles">Doubles Match</option>
                </select>
              )}
              {[1, 2].map(n => (
@@ -152,10 +137,7 @@ const MWCScoreboard = () => {
                      {match.mType === "Doubles" && <select style={{ padding: "10px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">P2</option>{ALL_PLAYERS.map(p=><option key={p}>{p}</option>)}</select>}
                    </div>
                  ) : (
-                   <div>
-                     <h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || "---"}</h2>
-                     <p style={{ color: "#FFF", fontSize: "15px", marginTop: "8px", fontWeight: "500" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p>
-                   </div>
+                   <div><h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#FFF", fontSize: "15px", marginTop: "8px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
                  )}
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
                    {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333" }}>-</button>}
@@ -164,31 +146,52 @@ const MWCScoreboard = () => {
                  </div>
                </div>
              ))}
-             {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", marginTop: "10px", border: "none" }}>FINALIZE & ARCHIVE</button>}
+             {isAdmin && match.t1 && <button onClick={archiveMatch} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none" }}>FINALIZE & ARCHIVE</button>}
+           </div>
+        )}
+
+        {view === "results" && (
+           <div style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
+             {history.map((h) => (
+               <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
+                 <div style={{ display: "flex", alignItems: "center" }}>
+                   <div style={{ flex: 1 }}>
+                     <div style={{ fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span>{h.t1} {Number(h.s1) > Number(h.s2) && <span style={{color: theme.accent, fontSize: "12px"}}>✔</span>}</span>
+                        <span style={{color: "#444"}}>vs</span>
+                        <span>{h.t2} {Number(h.s2) > Number(h.s1) && <span style={{color: theme.accent, fontSize: "12px"}}>✔</span>}</span>
+                     </div>
+                     <div style={{ fontSize: "12px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                   </div>
+                   {editingId === h.id ? (
+                     <div style={{ display: "flex", gap: "5px" }}>
+                        <input type="number" style={{ width: "35px", padding: "5px" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
+                        <input type="number" style={{ width: "35px", padding: "5px" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
+                        <button onClick={()=>saveEdit(h.id)} style={{ background: theme.accent, border: "none", padding: "5px 8px", borderRadius: "4px" }}>OK</button>
+                     </div>
+                   ) : (<div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>)}
+                 </div>
+                 {isAdmin && editingId !== h.id && (
+                   <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+                     <button onClick={() => startEdit(h)} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "10px", borderRadius: "4px" }}>EDIT</button>
+                     <button onClick={() => deleteResult(h.id)} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "4px 8px", fontSize: "10px", borderRadius: "4px" }}>DELETE</button>
+                   </div>
+                 )}
+               </div>
+             ))}
            </div>
         )}
 
         {view === "standings" && (
-          <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", color: "#FFF" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid #333", textAlign: "left" }}>
-                  <th style={{ padding: "15px", fontSize: "12px", color: theme.accent }}>RANK & TEAM</th>
-                  <th style={{ padding: "15px", fontSize: "12px", textAlign: "center" }}>MP</th>
-                  <th style={{ padding: "15px", fontSize: "12px", textAlign: "center" }}>WON</th>
-                  <th style={{ padding: "15px", fontSize: "12px", textAlign: "right", color: theme.accent }}>PTS</th>
-                </tr>
-              </thead>
+          <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "11px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "11px" }}>MP</th><th style={{ textAlign: "center", fontSize: "11px" }}>WON</th><th style={{ textAlign: "right", paddingRight: "15px", fontSize: "11px", color: theme.accent }}>PTS</th></tr></thead>
               <tbody>
                 {standings.map((team, i) => (
-                  <tr key={team.name} style={{ borderBottom: "1px solid #222", backgroundColor: i === 0 ? "rgba(173, 255, 47, 0.05)" : "transparent" }}>
-                    <td style={{ padding: "15px" }}>
-                      <span style={{ fontWeight: "900", color: i < 2 ? theme.accent : "#555", marginRight: "10px" }}>#{i + 1}</span>
-                      <span style={{ fontWeight: "700" }}>{team.name}</span>
-                    </td>
-                    <td style={{ padding: "15px", textAlign: "center" }}>{team.played}</td>
-                    <td style={{ padding: "15px", textAlign: "center" }}>{team.won}</td>
-                    <td style={{ padding: "15px", textAlign: "right", fontWeight: "900", color: theme.accent }}>{team.won}</td>
+                  <tr key={team.name} style={{ borderBottom: "1px solid #222" }}>
+                    <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "600", fontSize: "14px" }}>{team.name}</span></td>
+                    <td style={{ textAlign: "center" }}>{team.played}</td><td style={{ textAlign: "center" }}>{team.won}</td>
+                    <td style={{ textAlign: "right", paddingRight: "15px", fontWeight: "900", color: theme.accent }}>{team.won}</td>
                   </tr>
                 ))}
               </tbody>
@@ -196,59 +199,32 @@ const MWCScoreboard = () => {
           </div>
         )}
 
-        {view === "results" && (
-           <div style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
-             {history.sort((a,b)=>b.mNo - a.mNo).map((h) => (
-               <div key={h.id} style={{ display: "flex", alignItems: "center", padding: "18px", borderBottom: "1px solid #222" }}>
-                 <div style={{ flex: 1 }}>
-                   <div style={{ fontWeight: "800", fontSize: "15px" }}>{h.t1} vs {h.t2}</div>
-                   <div style={{ fontSize: "13px", color: "#EEE", marginTop: "4px" }}>{h.players}</div>
-                 </div>
-                 <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
-               </div>
-             ))}
-           </div>
-        )}
-
-        {/* ... Rest of Schedule and Info tabs remain the same ... */}
         {view === "schedule" && (
            <div style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
              <div style={{ display: "flex", borderBottom: "1px solid #222" }}>
                {Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}
              </div>
              {SCHEDULE_DATA[activeDay].map((m, i) => (
-               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222", alignItems: "center" }}>
+               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                  <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
-                 <div style={{ textAlign: "right" }}>
-                   <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} vs {m.t2}</div>
-                   <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px", textTransform: "uppercase" }}>{m.type}</div>
-                 </div>
+                 <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} vs {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type}</div></div>
                </div>
              ))}
            </div>
         )}
 
         {view === "info" && (
-          <div style={{ minHeight: "60vh" }}>
+          <div>
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>RULES</button>
-              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "1px solid #333", borderRadius: "10px", fontWeight: "800" }}>TEAMS</button>
+              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "800" }}>RULES</button>
+              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "800" }}>TEAMS</button>
             </div>
             {infoTab === "rules" ? (
-              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333", lineHeight: "1.8" }}>
-                <h3 style={{ color: theme.accent, marginTop: 0 }}>Tournament Guidelines</h3>
-                <ul style={{ paddingLeft: "20px", color: "#EEE" }}>
-                  <li>Matches: Best of 3 sets to 21 points.</li>
-                  <li>Golden Point: At 20-all, next point wins.</li>
-                </ul>
-              </div>
+              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ paddingLeft: "20px", color: "#EEE", lineHeight: "1.8" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                    <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "12px", textTransform: "uppercase" }}>{t}</h4>
-                    {ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD", padding: "3px 0" }}>{p}</div>)}
-                  </div>
+                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "11px", color: "#DDD" }}>{p}</div>)}</div>
                 ))}
               </div>
             )}
@@ -256,12 +232,10 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(10px)", borderTop: "1px solid #333", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
+      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(10px)", borderTop: "1px solid #333", paddingBottom: "30px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
-            <div style={{ fontSize: "22px", marginBottom: "6px" }}>
-              {v === "live" ? "🎾" : v === "results" ? "🏆" : v === "standings" ? "📊" : v === "schedule" ? "📅" : "📋"}
-            </div>
+            <div style={{ fontSize: "20px", marginBottom: "5px" }}>{v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}</div>
             {v.toUpperCase()}
           </button>
         ))}
