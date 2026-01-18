@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- CONFIGURATION ---
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -25,7 +24,7 @@ const SCHEDULE_DATA = {
     { time: "09:00 AM", type: "Singles", t1: "Alpha", t2: "Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Charlie", t2: "Delta" },
     { time: "04:00 PM", type: "Singles", t1: "Alpha", t2: "Delta" },
-    { time: "5:00 PM", type: "Doubles", t1: "Bravo", t2: "Delta" },
+    { time: "05:00 PM", type: "Doubles", t1: "Bravo", t2: "Delta" },
   ],
   "Feb 8th": [
     { time: "09:00 AM", type: "Doubles", t1: "Bravo", t2: "Delta" },
@@ -48,6 +47,7 @@ const MWCScoreboard = () => {
   const [infoTab, setInfoTab] = useState("rules");
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
@@ -67,8 +67,10 @@ const MWCScoreboard = () => {
       if (p === null) return; 
       if (p === "121212") {
         setIsAdmin(true);
+        setLoginError(false);
       } else {
-        alert("Incorrect PIN");
+        setLoginError(true);
+        setTimeout(() => setLoginError(false), 3000);
       }
     }
   };
@@ -138,7 +140,8 @@ const MWCScoreboard = () => {
               <span style={{ fontSize: "18px" }}>8</span><span style={{ fontSize: "8px", verticalAlign: "top" }}>th</span> Edition
             </div>
           </div>
-          <div style={{ minWidth: "85px", textAlign: "right" }}>
+          <div style={{ minWidth: "85px", textAlign: "right", position: "relative" }}>
+            {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
             <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>
               {isAdmin ? "LOGOUT" : "UMPIRE"}
             </button>
@@ -148,7 +151,7 @@ const MWCScoreboard = () => {
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
-           <div>
+           <div className="fade-in">
              {isAdmin && (
                <select style={{ width: "100%", padding: "12px", background: "#111", color: theme.accent, border: "1px solid #333", borderRadius: "8px", marginBottom: "10px", fontSize: "16px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}>
                  <option value="Singles">Singles Match</option><option value="Doubles">Doubles Match</option>
@@ -184,7 +187,7 @@ const MWCScoreboard = () => {
         )}
 
         {view === "results" && (
-           <div style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
+           <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
              {history.map((h) => (
                <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
                  <div style={{ display: "flex", alignItems: "center" }}>
@@ -217,7 +220,7 @@ const MWCScoreboard = () => {
         )}
 
         {view === "standings" && (
-          <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
+          <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "center", fontSize: "10px" }}>WON</th><th style={{ textAlign: "right", paddingRight: "15px", fontSize: "10px", color: theme.accent }}>PTS</th></tr></thead>
               <tbody>{standings.map((team, i) => (
@@ -232,7 +235,7 @@ const MWCScoreboard = () => {
         )}
 
         {view === "schedule" && (
-           <div style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
+           <div className="fade-in" style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
              <div style={{ display: "flex", borderBottom: "1px solid #222" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}</div>
              {SCHEDULE_DATA[activeDay].map((m, i) => (
                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
@@ -244,7 +247,7 @@ const MWCScoreboard = () => {
         )}
 
         {view === "info" && (
-          <div>
+          <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
               <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900" }}>RULES</button>
               <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900" }}>TEAMS</button>
@@ -268,6 +271,12 @@ const MWCScoreboard = () => {
           </button>
         ))}
       </nav>
+
+      <style>{`
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        button:active { transform: scale(0.95); transition: 0.1s; }
+      `}</style>
     </div>
   );
 };
