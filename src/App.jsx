@@ -258,15 +258,17 @@ const MWCScoreboard = () => {
         )}
 
         {view === "schedule" && (
-           <div className="fade-in" style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
-             <div style={{ display: "flex", borderBottom: "1px solid #222" }}>
+           <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+             <div style={{ display: "flex", gap: "10px", padding: "12px", borderBottom: "1px solid #222" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
                  <button key={d} onClick={() => setActiveDay(d)} style={{ 
-                    flex: 1, padding: "15px", 
-                    background: activeDay === d ? theme.accent : "#050505", 
+                    flex: 1, padding: "12px", 
+                    background: activeDay === d ? theme.accent : "#111", 
                     color: activeDay === d ? "#000" : "#666", 
                     border: "none", fontWeight: "900", fontSize: "12px",
-                    transition: "0.2s"
+                    borderRadius: "30px",
+                    transition: "all 0.3s ease",
+                    boxShadow: activeDay === d ? `0 0 12px ${theme.accent}33` : "none"
                  }}>
                    {d.toUpperCase()}
                  </button>
