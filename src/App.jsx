@@ -14,10 +14,10 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "OFFICIAL BALL PARTNER", name: "Wilson Sports" },
-  { label: "OFFICIAL HYDRATION PARTNER", name: "AquaPure" },
-  { label: "OFFICIAL REFRESHMENT PARTNER", name: "Classic Brew Tea" },
-  { label: "OFFICIAL NUTRITION PARTNER", name: "Energy Bites" },
+  { label: "TENNIS BALLS", name: "Wilson Sports" },
+  { label: "HYDRATION", name: "AquaPure" },
+  { label: "TEA", name: "Classic Brew" },
+  { label: "SNACKS", name: "Energy Bites" },
 ];
 
 const OFFICIALS = {
@@ -259,7 +259,19 @@ const MWCScoreboard = () => {
 
         {view === "schedule" && (
            <div className="fade-in" style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
-             <div style={{ display: "flex", borderBottom: "1px solid #222" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}</div>
+             <div style={{ display: "flex", borderBottom: "1px solid #222" }}>
+               {Object.keys(SCHEDULE_DATA).map(d => (
+                 <button key={d} onClick={() => setActiveDay(d)} style={{ 
+                    flex: 1, padding: "15px", 
+                    background: activeDay === d ? theme.accent : "#050505", 
+                    color: activeDay === d ? "#000" : "#666", 
+                    border: "none", fontWeight: "900", fontSize: "12px",
+                    transition: "0.2s"
+                 }}>
+                   {d.toUpperCase()}
+                 </button>
+               ))}
+             </div>
              {SCHEDULE_DATA[activeDay].map((m, i) => (
                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                  <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
