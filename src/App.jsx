@@ -48,7 +48,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-// --- UNIFORM SVG ICONS ---
+// --- ICONS ---
 const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -63,7 +63,7 @@ const RacquetIcon = ({ color, size = 22 }) => (
     <path d="M10.5 13.5L3 21" />
     <path d="M13 7l4 4" />
     <path d="M11 9l4 4" />
-    <circle cx="20" cy="20" r="2" fill={color} />
+    <circle cx="20" cy="20" r="2.5" fill={color} stroke="none" />
   </svg>
 );
 
@@ -86,14 +86,14 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666" };
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FF4500" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
   const handleLogin = () => {
     if (isAdmin) { setIsAdmin(false); } 
     else {
-      const p = window.prompt("Admin PIN:");
+      const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
       else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
     }
@@ -208,21 +208,19 @@ const MWCScoreboard = () => {
              )}
 
              {[1, 2].map(n => (
-               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative" }}>
+               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.server}` : "1px solid #222", textAlign: "center", position: "relative" }}>
                  
-                 {/* Team Header Label */}
                  <div style={{ position: "absolute", top: "15px", left: "15px" }}>
                     <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: 0 }}>TEAM {n}</p>
                  </div>
 
-                 {/* BOTTOM LEFT: Server Icon or Setup */}
                  <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                     {isAdmin && !match.server && match.t1 && match.t2 ? (
-                      <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.accent}`, color: theme.accent, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px" }}>
-                         <RacquetIcon color={theme.accent} size={12} /> SET SERVER
+                      <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.server}`, color: theme.server, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
+                         <RacquetIcon color={theme.server} size={12} /> SET SERVER
                       </button>
                     ) : (
-                      match.server === n && <RacquetIcon color={theme.accent} size={20} />
+                      match.server === n && <RacquetIcon color={theme.server} size={22} />
                     )}
                  </div>
                  
