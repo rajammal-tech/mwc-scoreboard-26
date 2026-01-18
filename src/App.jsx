@@ -14,10 +14,15 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "🎾 TENNIS BALLS", name: "Wilson Sports" },
-  { label: "🍳 BREAKFAST", name: "The Morning Club" },
-  { label: "💧 HYDRATION", name: "AquaPure" },
+  { label: "OFFICIAL BALL PARTNER", name: "Wilson Sports" },
+  { label: "OFFICIAL HYDRATION PARTNER", name: "AquaPure" },
+  { label: "OFFICIAL REFRESHMENT PARTNER", name: "Classic Brew Tea" },
+  { label: "OFFICIAL NUTRITION PARTNER", name: "Energy Bites" },
 ];
+
+const OFFICIALS = {
+  chairUmpire: "Raphael Rodgers"
+};
 
 const TEAM_ROSTERS = {
   "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
@@ -157,7 +162,7 @@ const MWCScoreboard = () => {
 
       {/* --- SPONSOR TICKER --- */}
       <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
-        <div style={{ display: "inline-block", animation: "ticker 25s linear infinite" }}>
+        <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
           {[...SPONSORS, ...SPONSORS].map((s, i) => (
             <span key={i} style={{ margin: "0 30px", fontSize: "10px", fontWeight: "800" }}>
               <span style={{ color: theme.accent, marginRight: "5px" }}>{s.label}:</span>
@@ -267,9 +272,10 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "11px" }}>RULES</button>
-              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "11px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("sponsors")} style={{ flex: 1, padding: "14px", background: infoTab === "sponsors" ? theme.accent : "#111", color: infoTab === "sponsors" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "11px" }}>SPONSORS</button>
+              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>RULES</button>
+              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
+              <button onClick={() => setInfoTab("sponsors")} style={{ flex: 1, padding: "14px", background: infoTab === "sponsors" ? theme.accent : "#111", color: infoTab === "sponsors" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>SPONSORS</button>
+              <button onClick={() => setInfoTab("officials")} style={{ flex: 1, padding: "14px", background: infoTab === "officials" ? theme.accent : "#111", color: infoTab === "officials" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>OFFICIALS</button>
             </div>
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ paddingLeft: "20px", color: "#EEE", lineHeight: "2" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>
@@ -287,6 +293,12 @@ const MWCScoreboard = () => {
                     <div style={{ fontSize: "18px", fontWeight: "800" }}>{s.name}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {infoTab === "officials" && (
+              <div style={{ background: theme.card, padding: "30px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
+                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "10px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
+                <div style={{ fontSize: "24px", fontWeight: "900", color: "#FFF" }}>{OFFICIALS.chairUmpire}</div>
               </div>
             )}
           </div>
