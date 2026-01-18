@@ -72,7 +72,6 @@ const MWCScoreboard = () => {
   const [history, setHistory] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
-  // Updated match state to include 'server' (null, 1, or 2)
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -153,7 +152,6 @@ const MWCScoreboard = () => {
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
-  // Helper to update score and swap server
   const handleScoreUpdate = (teamNum, currentScore) => {
     const newScore = Math.max(0, currentScore);
     const nextServer = match.server === 1 ? 2 : 1;
@@ -200,21 +198,20 @@ const MWCScoreboard = () => {
                </select>
              )}
 
-             {isAdmin && !match.server && match.t1 && match.t2 && (
-               <div style={{ background: "#adff2f1a", padding: "15px", borderRadius: "10px", border: "1px dashed #adff2f", textAlign: "center", marginBottom: "15px" }}>
-                 <p style={{ margin: "0 0 10px 0", fontSize: "12px", fontWeight: "bold", color: theme.accent }}>SELECT FIRST SERVER TO START MATCH</p>
-                 <div style={{ display: "flex", gap: "10px" }}>
-                   <button onClick={() => sync({ ...match, server: 1 })} style={{ flex: 1, padding: "10px", background: "#222", border: "1px solid #444", color: "#FFF", borderRadius: "8px", fontSize: "11px" }}>{match.t1 || "TEAM 1"}</button>
-                   <button onClick={() => sync({ ...match, server: 2 })} style={{ flex: 1, padding: "10px", background: "#222", border: "1px solid #444", color: "#FFF", borderRadius: "8px", fontSize: "11px" }}>{match.t2 || "TEAM 2"}</button>
-                 </div>
-               </div>
-             )}
-
              {[1, 2].map(n => (
                <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative" }}>
+                 
+                 {/* Top Left Corner: Server Selection or Display */}
                  <div style={{ position: "absolute", top: "15px", left: "15px", display: "flex", alignItems: "center", gap: "5px" }}>
                     <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: 0 }}>TEAM {n}</p>
-                    {match.server === n && <TennisBallIcon color={theme.accent} size={14} />}
+                    
+                    {isAdmin && !match.server && match.t1 && match.t2 ? (
+                      <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.accent}`, color: theme.accent, fontSize: "8px", padding: "2px 6px", borderRadius: "4px", marginLeft: "5px", display: "flex", alignItems: "center", gap: "3px" }}>
+                         <TennisBallIcon color={theme.accent} size={10} /> SET SERVER
+                      </button>
+                    ) : (
+                      match.server === n && <TennisBallIcon color={theme.accent} size={14} />
+                    )}
                  </div>
                  
                  {isAdmin ? (
@@ -226,10 +223,11 @@ const MWCScoreboard = () => {
                  ) : (
                    <div style={{ marginTop: "10px" }}><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
                  )}
+                 
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                   {isAdmin && <button disabled={!match.server} onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.3 : 1 }}>-</button>}
-                   <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px" }}>{match[`s${n}`] || 0}</span>
-                   {isAdmin && <button disabled={!match.server} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: !match.server ? 0.3 : 1 }}>+</button>}
+                   {isAdmin && <button disabled={!match.server} onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>-</button>}
+                   <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
+                   {isAdmin && <button disabled={!match.server} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>+</button>}
                  </div>
                </div>
              ))}
