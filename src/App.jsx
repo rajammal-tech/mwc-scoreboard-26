@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 2.0 (MODIFIED TEXT ONLY) ---
+// --- MWC-Open-Beta-completion 2.0 ---
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -48,6 +48,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
+// --- ICONS ---
 const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
