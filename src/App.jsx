@@ -21,7 +21,6 @@ const SPONSORS = [
 
 const COMMUNITY_TEAM = { 
   chairUmpire: "Raphael Rodgers",
-  // Reordered: Nagendra Prasad first, Ram second, then others
   crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
 };
 
@@ -48,6 +47,15 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
+
+// --- UNIFORM SVG ICONS ---
+const TennisBallIcon = ({ color }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "5px" }}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
+    <path d="M18.5 5.5C16.5 8 15.5 11.5 15.5 15s1 7 3 9.5" transform="rotate(30 12 12)" />
+  </svg>
+);
 
 const GreenCheck = ({ color }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
@@ -150,15 +158,15 @@ const MWCScoreboard = () => {
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          <div style={{ minWidth: "85px", display: "flex", flexDirection: "column", gap: "5px" }}>
-            <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} LIVE</div>
+          <div style={{ minWidth: "95px", display: "flex", flexDirection: "column", gap: "5px" }}>
+            <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
             <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8<span style={{ fontSize: "8px", verticalAlign: "top" }}>th</span> Edition</div>
           </div>
-          <div style={{ minWidth: "85px", textAlign: "right", position: "relative" }}>
+          <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
             <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button>
           </div>
@@ -329,7 +337,13 @@ const MWCScoreboard = () => {
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
-            <div style={{ fontSize: "22px", marginBottom: "5px" }}>{v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}</div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+                {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} /> : 
+                 v === "results" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>✅</span> : 
+                 v === "standings" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>🏆</span> : 
+                 v === "schedule" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>📅</span> : 
+                 <span style={{fontSize: "22px", marginBottom: "5px"}}>📋</span>}
+            </div>
             {v.toUpperCase()}
           </button>
         ))}
@@ -339,6 +353,8 @@ const MWCScoreboard = () => {
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .pulse { animation: softPulse 2s infinite; }
+        @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
       `}</style>
     </div>
