@@ -21,7 +21,8 @@ const SPONSORS = [
 
 const COMMUNITY_TEAM = { 
   chairUmpire: "Raphael Rodgers",
-  crew: ["Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Nagendra Prasad", "Chetan"]
+  // Reordered: Nagendra Prasad first, Ram second, then others
+  crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
 };
 
 const TEAM_ROSTERS = {
@@ -295,7 +296,7 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              {["rules", "teams", "sponsors", "hosts"].map(tab => (
+              {["rules", "teams", "sponsors", "crew"].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
@@ -312,12 +313,11 @@ const MWCScoreboard = () => {
               </div>
             )}
             {infoTab === "sponsors" && <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>{SPONSORS.map((s, i) => (<div key={i} style={{ background: theme.card, padding: "20px", borderRadius: "12px", border: "1px solid #222", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div><div style={{ fontSize: "18px", fontWeight: "800" }}>{s.name}</div></div>))}</div>}
-            {infoTab === "hosts" && (
+            {infoTab === "crew" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333" }}>
-                  <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "12px", textAlign: "center" }}>CREW</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>
-                    {COMMUNITY_TEAM.crew.map((name, i) => (<span key={i} style={{ background: "#222", padding: "6px 14px", borderRadius: "20px", fontSize: "12px", border: "1px solid #333", color: "#EEE", fontWeight: "600" }}>{name}</span>))}
+                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {COMMUNITY_TEAM.crew.map((name, i) => (<div key={i} style={{ background: "#222", padding: "10px", borderRadius: "10px", fontSize: "14px", border: "1px solid #333", color: "#EEE", fontWeight: "600" }}>{name}</div>))}
                   </div>
                 </div>
               </div>
