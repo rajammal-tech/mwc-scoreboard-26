@@ -139,6 +139,7 @@ const MWCScoreboard = () => {
             zoom: zoomLevel, WebkitTextSizeAdjust: "100%"
          }}>
       
+      {/* HEADER SECTION */}
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
           <div style={{ minWidth: "85px", display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -160,7 +161,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* --- SPONSOR TICKER --- */}
+      {/* SPONSOR TICKER */}
       <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
         <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
           {[...SPONSORS, ...SPONSORS].map((s, i) => (
@@ -173,6 +174,8 @@ const MWCScoreboard = () => {
       </div>
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
+        
+        {/* LIVE SCORE VIEW */}
         {view === "live" && (
            <div className="fade-in">
              {isAdmin && (
@@ -209,6 +212,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+        {/* RESULTS VIEW */}
         {view === "results" && (
            <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
              {history.length === 0 ? <div style={{padding: "20px", textAlign: "center", color: "#666"}}>No results yet</div> : history.map((h) => (
@@ -242,6 +246,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+        {/* STANDINGS VIEW */}
         {view === "standings" && (
           <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -257,47 +262,72 @@ const MWCScoreboard = () => {
           </div>
         )}
 
+        {/* SCHEDULE VIEW (UPDATED WITH SMOOTH EDGES) */}
         {view === "schedule" && (
-           <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-             <div style={{ display: "flex", gap: "10px", padding: "12px", borderBottom: "1px solid #222" }}>
+           <div className="fade-in">
+             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
                  <button key={d} onClick={() => setActiveDay(d)} style={{ 
-                    flex: 1, padding: "12px", 
+                    flex: 1, 
+                    padding: "14px", 
                     background: activeDay === d ? theme.accent : "#111", 
-                    color: activeDay === d ? "#000" : "#666", 
-                    border: "none", fontWeight: "900", fontSize: "12px",
-                    borderRadius: "30px",
-                    transition: "all 0.3s ease",
-                    boxShadow: activeDay === d ? `0 0 12px ${theme.accent}33` : "none"
+                    color: activeDay === d ? "#000" : "#FFF", 
+                    border: "none", 
+                    borderRadius: "12px", // Matches your Info tabs for consistent smooth edges
+                    fontWeight: "900", 
+                    fontSize: "10px",
+                    textTransform: "uppercase"
                  }}>
-                   {d.toUpperCase()}
+                   {d}
                  </button>
                ))}
              </div>
-             {SCHEDULE_DATA[activeDay].map((m, i) => (
-               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
-                 <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
-                 <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} vs {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div></div>
-               </div>
-             ))}
+             <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+               {SCHEDULE_DATA[activeDay].map((m, i) => (
+                 <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
+                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                   <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} vs {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div></div>
+                 </div>
+               ))}
+             </div>
            </div>
         )}
 
+        {/* INFO VIEW */}
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              <button onClick={() => setInfoTab("rules")} style={{ flex: 1, padding: "14px", background: infoTab === "rules" ? theme.accent : "#111", color: infoTab === "rules" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>RULES</button>
-              <button onClick={() => setInfoTab("teams")} style={{ flex: 1, padding: "14px", background: infoTab === "teams" ? theme.accent : "#111", color: infoTab === "teams" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("sponsors")} style={{ flex: 1, padding: "14px", background: infoTab === "sponsors" ? theme.accent : "#111", color: infoTab === "sponsors" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>SPONSORS</button>
-              <button onClick={() => setInfoTab("officials")} style={{ flex: 1, padding: "14px", background: infoTab === "officials" ? theme.accent : "#111", color: infoTab === "officials" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>OFFICIALS</button>
+              {["rules", "teams", "sponsors", "officials"].map(tab => (
+                <button key={tab} onClick={() => setInfoTab(tab)} style={{ 
+                  flex: 1, padding: "14px", 
+                  background: infoTab === tab ? theme.accent : "#111", 
+                  color: infoTab === tab ? "#000" : "#FFF", 
+                  border: "none", borderRadius: "10px", 
+                  fontWeight: "900", fontSize: "10px", 
+                  textTransform: "uppercase" 
+                }}>
+                  {tab}
+                </button>
+              ))}
             </div>
             {infoTab === "rules" && (
-              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ paddingLeft: "20px", color: "#EEE", lineHeight: "2" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>
+              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
+                <ul style={{ paddingLeft: "20px", color: "#EEE", lineHeight: "2" }}>
+                  <li>Best of 3 sets to 21 points.</li>
+                  <li>Golden Point at 20-all.</li>
+                  <li>1 Point per match win.</li>
+                </ul>
+              </div>
             )}
             {infoTab === "teams" && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-                <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>
-              ))}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                  <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                    <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
+                    {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}
+                  </div>
+                ))}
+              </div>
             )}
             {infoTab === "sponsors" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -319,10 +349,13 @@ const MWCScoreboard = () => {
         )}
       </div>
 
+      {/* FOOTER NAVIGATION */}
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
-            <div style={{ fontSize: "22px", marginBottom: "5px" }}>{v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}</div>
+            <div style={{ fontSize: "22px", marginBottom: "5px" }}>
+              {v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}
+            </div>
             {v.toUpperCase()}
           </button>
         ))}
