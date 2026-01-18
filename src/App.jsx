@@ -295,14 +295,14 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              {["rules", "credits", "sponsors", "community"].map(tab => (
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab === "community" ? "TEAM" : tab}</button>
+              {["rules", "teams", "sponsors", "credits"].map(tab => (
+                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
             {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2", margin: 0, paddingLeft: "20px" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>}
-            {infoTab === "credits" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>))}</div>}
+            {infoTab === "teams" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>))}</div>}
             {infoTab === "sponsors" && <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>{SPONSORS.map((s, i) => (<div key={i} style={{ background: theme.card, padding: "20px", borderRadius: "12px", border: "1px solid #222", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div><div style={{ fontSize: "18px", fontWeight: "800" }}>{s.name}</div></div>))}</div>}
-            {infoTab === "community" && (
+            {infoTab === "credits" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
                   <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "8px" }}>CHAIR UMPIRE</div>
