@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- VERSION 2.2 (BASED ON 2.0 CORE) ---
+// --- MWC-Open-Beta-completion 2.0 ---
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -24,23 +24,22 @@ const COMMUNITY_TEAM = {
   crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
 };
 
-// Updated Team names applied to the 2.0 logic
 const TEAM_ROSTERS = {
-  "Apex-Servers": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-  "Pro-Spinners": ["Kiran", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
-  "Power-Smashers": ["Chetan", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
-  "Rapid-Retrievers": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
+  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
+  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
+  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
+  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
 };
 
 const SCHEDULE_DATA = {
   "Feb 7th": [
-    { time: "09:00 AM", type: "Singles", t1: "Apex-Servers", t2: "Pro-Spinners" },
-    { time: "10:30 AM", type: "Doubles", t1: "Power-Smashers", t2: "Rapid-Retrievers" },
-    { time: "04:00 PM", type: "Singles", t1: "Apex-Servers", t2: "Rapid-Retrievers" },
-    { time: "05:00 PM", type: "Doubles", t1: "Pro-Spinners", t2: "Rapid-Retrievers" },
+    { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
+    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Team Delta" },
+    { time: "05:00 PM", type: "Doubles", t1: "Team Bravo", t2: "Team Charlie" },
   ],
   "Feb 8th": [
-    { time: "09:00 AM", type: "Doubles", t1: "Pro-Spinners", t2: "Rapid-Retrievers" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
 
