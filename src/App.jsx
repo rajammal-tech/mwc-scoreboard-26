@@ -345,7 +345,7 @@ const MWCScoreboard = () => {
             {infoTab === "teams" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center" }}>
-                   <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>TOURNAMENT CHAIR UMPIRE</div>
+                   <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
