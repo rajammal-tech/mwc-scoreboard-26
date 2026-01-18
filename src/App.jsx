@@ -53,14 +53,26 @@ const MWCScoreboard = () => {
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   const [viewers, setViewers] = useState(1);
-  const [zoomLevel, setZoomLevel] = useState(1); // Zoom State: 1, 1.1, or 1.2
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666" };
 
-  // Cycle through zoom levels: 100% -> 110% -> 120% -> back to 100%
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
-  // --- SWIPE NAVIGATION ---
+  const handleLogin = () => {
+    if (isAdmin) {
+      setIsAdmin(false);
+    } else {
+      const p = window.prompt("Admin PIN:");
+      if (p === null) return; 
+      if (p === "121212") {
+        setIsAdmin(true);
+      } else {
+        alert("Incorrect PIN");
+      }
+    }
+  };
+
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
   const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
@@ -110,31 +122,24 @@ const MWCScoreboard = () => {
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
          style={{ 
             backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", touchAction: "pan-y",
-            zoom: zoomLevel, // This handles the visual scaling on most browsers
+            zoom: zoomLevel,
             WebkitTextSizeAdjust: "100%"
          }}>
       
-      {/* HEADER */}
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          
           <div style={{ minWidth: "85px", display: "flex", flexDirection: "column", gap: "5px" }}>
             <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
-            <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>
-              A± {Math.round(zoomLevel * 100)}%
-            </button>
+            <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
           </div>
-
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
             <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px", marginTop: "1px" }}>
               <span style={{ fontSize: "18px" }}>8</span><span style={{ fontSize: "8px", verticalAlign: "top" }}>th</span> Edition
             </div>
           </div>
-
           <div style={{ minWidth: "85px", textAlign: "right" }}>
-            <button onClick={() => { if(isAdmin) setIsAdmin(false); else { const p = window.prompt("Admin PIN:"); if(p==="121212") setIsAdmin(true); }}} 
-                    style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>
+            <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>
               {isAdmin ? "LOGOUT" : "UMPIRE"}
             </button>
           </div>
@@ -142,8 +147,6 @@ const MWCScoreboard = () => {
       </header>
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
-        
-        {/* LIVE VIEW */}
         {view === "live" && (
            <div>
              {isAdmin && (
@@ -180,7 +183,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* RESULTS VIEW */}
         {view === "results" && (
            <div style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
              {history.map((h) => (
@@ -214,7 +216,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* STANDINGS VIEW */}
         {view === "standings" && (
           <div style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -230,7 +231,6 @@ const MWCScoreboard = () => {
           </div>
         )}
 
-        {/* SCHEDULE VIEW */}
         {view === "schedule" && (
            <div style={{ background: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
              <div style={{ display: "flex", borderBottom: "1px solid #222" }}>{Object.keys(SCHEDULE_DATA).map(d => <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "15px", background: activeDay === d ? "transparent" : "#050505", color: activeDay === d ? theme.accent : "#666", border: "none", fontWeight: "bold", borderBottom: activeDay === d ? `2px solid ${theme.accent}` : "none" }}>{d}</button>)}</div>
@@ -243,7 +243,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* INFO VIEW */}
         {view === "info" && (
           <div>
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
@@ -261,7 +260,6 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      {/* BOTTOM NAV */}
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
