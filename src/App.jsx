@@ -14,11 +14,15 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "CERTIFICATES", name: "Gaadi Saathi - Ramanujam" },
   { label: "TENNIS BALLS", name: "???" },
+  { label: "REFRESHMENTS", name: "???" },
+  { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
 
-const OFFICIALS = { chairUmpire: "Raphael Rodgers" };
+const OFFICIALS = { 
+  chairUmpire: "Raphael Rodgers",
+  organizers: ["Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Nagendra Prasad", "Chetan"]
+};
 
 const TEAM_ROSTERS = {
   "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
@@ -118,7 +122,6 @@ const MWCScoreboard = () => {
     return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won || b.played - a.played);
   }, [history]);
 
-  // --- MVP LOGIC ---
   const playerStats = useMemo(() => {
     const stats = {};
     history.forEach((m) => {
@@ -127,10 +130,8 @@ const MWCScoreboard = () => {
       const team1Players = sides[0].split("/").map(p => p.trim());
       const team2Players = sides[1].split("/").map(p => p.trim());
       const allMatchPlayers = [...team1Players, ...team2Players];
-
       allMatchPlayers.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0 }; });
       allMatchPlayers.forEach(p => stats[p].mp += 1);
-
       if (Number(m.s1) > Number(m.s2)) team1Players.forEach(p => stats[p].mw += 1);
       else if (Number(m.s2) > Number(m.s1)) team2Players.forEach(p => stats[p].mw += 1);
     });
@@ -298,10 +299,23 @@ const MWCScoreboard = () => {
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab}</button>
               ))}
             </div>
-            {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>}
+            {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2", margin: 0, paddingLeft: "20px" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>}
             {infoTab === "teams" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>))}</div>}
             {infoTab === "sponsors" && <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>{SPONSORS.map((s, i) => (<div key={i} style={{ background: theme.card, padding: "20px", borderRadius: "12px", border: "1px solid #222", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div><div style={{ fontSize: "18px", fontWeight: "800" }}>{s.name}</div></div>))}</div>}
-            {infoTab === "officials" && <div style={{ background: theme.card, padding: "30px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "10px" }}>CHAIR UMPIRE</div><div style={{ fontSize: "24px", fontWeight: "900" }}>{OFFICIALS.chairUmpire}</div></div>}
+            {infoTab === "officials" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
+                  <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "8px" }}>CHAIR UMPIRE</div>
+                  <div style={{ fontSize: "20px", fontWeight: "900" }}>{OFFICIALS.chairUmpire}</div>
+                </div>
+                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333" }}>
+                  <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "12px", textAlign: "center" }}>ORGANIZING COMMITTEE</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>
+                    {OFFICIALS.organizers.map((name, i) => (<span key={i} style={{ background: "#222", padding: "6px 12px", borderRadius: "20px", fontSize: "12px", border: "1px solid #333" }}>{name}</span>))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
