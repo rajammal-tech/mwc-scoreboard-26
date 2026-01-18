@@ -14,16 +14,18 @@ const firebaseConfig = {
 };
 
 const TEAM_ROSTERS = {
-  "Team Alpha": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-  "Team Bravo": ["P11", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
-  "Team Charlie": ["P21", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
-  "Team Delta": ["P31", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
+  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
+  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
+  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
+  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
 };
 
 const SCHEDULE_DATA = {
   "Feb 7th": [
     { time: "09:00 AM", type: "Singles", t1: "Alpha", t2: "Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Charlie", t2: "Delta" },
+    { time: "04:00 PM", type: "Singles", t1: "Alpha", t2: "Delta" },
+    { time: "5:00 PM", type: "Doubles", t1: "Bravo", t2: "Delta" },
   ],
   "Feb 8th": [
     { time: "09:00 AM", type: "Doubles", t1: "Bravo", t2: "Delta" },
