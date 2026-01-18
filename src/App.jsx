@@ -54,7 +54,7 @@ const MWCScoreboard = () => {
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [history, setHistory] = useState([]);
-  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: 0 });
+  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles" });
   const [viewers, setViewers] = useState(1);
 
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF" };
@@ -96,27 +96,24 @@ const MWCScoreboard = () => {
         {view === "live" && (
            <div className="fade-in">
              {[1, 2].map(n => (
-               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `2px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative" }}>
-                 {match.server === n && <div style={{ position: "absolute", top: "10px", right: "15px", fontSize: "18px" }}>🎾</div>}
+               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: "1px solid #222", textAlign: "center" }}>
+                 <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0" }}>TEAM {n}</p>
                  {isAdmin ? (
-                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                     <select value={match[`t${n}`]} onChange={(e) => sync({...match, [`t${n}`]: e.target.value})} style={{ background: "#000", color: "#FFF", padding: "10px" }}><option value="">Select Team</option>{TEAMS.map(t => <option key={t}>{t}</option>)}</select>
-                     <button onClick={() => sync({...match, server: n})} style={{ background: "#333", color: theme.accent, fontSize: "10px", padding: "5px" }}>SET SERVICE</button>
-                   </div>
+                   <select value={match[`t${n}`]} onChange={(e) => sync({...match, [`t${n}`]: e.target.value})} style={{ background: "#000", color: "#FFF", padding: "10px", width: "100%" }}><option value="">Select Team</option>{TEAMS.map(t => <option key={t}>{t}</option>)}</select>
                  ) : (
-                   <h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || `Team ${n}`}</h2>
+                   <h2 style={{ fontSize: "28px", margin: 0 }}>{match[`t${n}`] || `---`}</h2>
                  )}
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                   {isAdmin && <button onClick={() => sync({...match, [`s${n}`]: Math.max(0, match[`s${n}`]-1)})} style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#222", color: "red" }}>-</button>}
-                   <span style={{ fontSize: "70px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span>
-                   {isAdmin && <button onClick={() => sync({...match, [`s${n}`]: (match[`s${n}`] || 0) + 1, server: n === 1 ? 2 : 1})} style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#222", color: theme.accent }}>+</button>}
+                   {isAdmin && <button onClick={() => sync({...match, [`s${n}`]: Math.max(0, match[`s${n}`]-1)})} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: "red", border: "none", fontSize: "20px" }}>-</button>}
+                   <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px" }}>{match[`s${n}`] || 0}</span>
+                   {isAdmin && <button onClick={() => sync({...match, [`s${n}`]: (match[`s${n}`] || 0) + 1})} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: theme.accent, border: "none", fontSize: "20px" }}>+</button>}
                  </div>
                </div>
              ))}
              {isAdmin && match.t1 && <button onClick={() => {
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: "Match", s1: match.s1, s2: match.s2, time: new Date().toLocaleTimeString() });
-                sync({ t1: "", t2: "", s1: 0, s2: 0, mType: "Singles", server: 0 });
-             }} style={{ width: "100%", padding: "15px", background: theme.accent, color: "#000", fontWeight: "900", borderRadius: "10px", marginTop: "10px" }}>FINALIZE</button>}
+                sync({ t1: "", t2: "", s1: 0, s2: 0, mType: "Singles" });
+             }} style={{ width: "100%", padding: "15px", background: theme.accent, color: "#000", fontWeight: "900", borderRadius: "10px", marginTop: "10px", border: "none" }}>FINALIZE MATCH</button>}
            </div>
         )}
 
@@ -142,12 +139,15 @@ const MWCScoreboard = () => {
 
         {view === "schedule" && (
           <div className="fade-in">
-            {Object.keys(SCHEDULE_DATA).map(day => (
-              <div key={day} style={{ marginBottom: "20px" }}>
-                <h3 style={{ color: theme.accent, borderBottom: "1px solid #333", paddingBottom: "5px" }}>{day}</h3>
-                {SCHEDULE_DATA[day].map((m, i) => (
-                  <div key={i} style={{ background: theme.card, padding: "10px", borderRadius: "8px", marginBottom: "5px" }}>{m.time}: {m.t1} vs {m.t2}</div>
-                ))}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+               {Object.keys(SCHEDULE_DATA).map(day => (
+                 <button key={day} onClick={() => setActiveDay(day)} style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "none", background: activeDay === day ? theme.accent : "#222", color: activeDay === day ? "#000" : "#FFF", fontWeight: "bold" }}>{day.toUpperCase()}</button>
+               ))}
+            </div>
+            {SCHEDULE_DATA[activeDay].map((m, i) => (
+              <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", marginBottom: "10px", border: "1px solid #222" }}>
+                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{m.time} • {m.type.toUpperCase()}</div>
+                <div style={{ fontSize: "16px", fontWeight: "bold", marginTop: "5px" }}>{m.t1} vs {m.t2}</div>
               </div>
             ))}
           </div>
@@ -160,27 +160,28 @@ const MWCScoreboard = () => {
                 <button key={t} onClick={() => setInfoTab(t)} style={{ flex: 1, padding: "10px", fontSize: "10px", background: infoTab === t ? theme.accent : "#222", color: infoTab === t ? "#000" : "#FFF", border: "none", borderRadius: "5px" }}>{t.toUpperCase()}</button>
               ))}
             </div>
-            {infoTab === "rules" && <div style={{ background: theme.card, padding: "15px", borderRadius: "10px" }}><ul><li>Best of 3 sets to 21.</li><li>Golden Point at 20-all.</li></ul></div>}
-            {infoTab === "teams" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([n, r]) => (<div key={n} style={{ background: theme.card, padding: "10px", borderRadius: "8px" }}><div style={{ color: theme.accent, fontWeight: "bold", fontSize: "10px" }}>{n}</div>{r.map(p => <div key={p} style={{ fontSize: "12px" }}>{p}</div>)}</div>))}</div>}
+            {infoTab === "rules" && <div style={{ background: theme.card, padding: "15px", borderRadius: "10px" }}><ul style={{ lineHeight: "2" }}><li>Best of 3 sets to 21.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>}
+            {infoTab === "teams" && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>{Object.entries(TEAM_ROSTERS).map(([n, r]) => (<div key={n} style={{ background: theme.card, padding: "10px", borderRadius: "8px", border: "1px solid #333" }}><div style={{ color: theme.accent, fontWeight: "bold", fontSize: "10px", marginBottom: "5px" }}>{n}</div>{r.map(p => <div key={p} style={{ fontSize: "12px", opacity: 0.8 }}>{p}</div>)}</div>))}</div>}
+            {infoTab === "sponsors" && <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>{SPONSORS.map((s, i) => (<div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px" }}>{s.label}</div><div style={{ fontSize: "18px", fontWeight: "bold" }}>{s.name}</div></div>))}</div>}
             {infoTab === "credits" && (
               <div style={{ background: theme.card, padding: "20px", borderRadius: "10px", textAlign: "center" }}>
-                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold" }}>CHAIR UMPIRE</div>
-                <div style={{ fontSize: "18px", marginBottom: "15px" }}>{COMMUNITY_TEAM.chairUmpire}</div>
-                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold" }}>CREW</div>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "5px" }}>{COMMUNITY_TEAM.crew.map(c => <span key={c} style={{ background: "#000", padding: "5px 10px", borderRadius: "15px", fontSize: "12px" }}>{c}</span>)}</div>
+                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold", marginBottom: "5px" }}>CHAIR UMPIRE</div>
+                <div style={{ fontSize: "20px", fontWeight: "900", marginBottom: "15px" }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "bold", marginBottom: "10px" }}>CREW</div>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>{COMMUNITY_TEAM.crew.map(c => <span key={c} style={{ background: "#222", padding: "6px 12px", borderRadius: "20px", fontSize: "12px", border: "1px solid #333" }}>{c}</span>)}</div>
               </div>
             )}
           </div>
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(0,0,0,0.9)", borderTop: "1px solid #222", padding: "10px 0 30px" }}>
+      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(0,0,0,0.95)", borderTop: "1px solid #222", padding: "15px 0 35px", zIndex: 100 }}>
         {VIEWS.map(v => <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "bold" }}>{v.toUpperCase()}</button>)}
       </nav>
 
       <style>{`
         .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
   );
