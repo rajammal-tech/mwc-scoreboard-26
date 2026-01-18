@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- CONFIGURATION ---
+// --- VERSION 2.0 CONFIGURATION ---
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -188,6 +188,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
+      {/* Ticker Sponsor Section */}
       <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
         <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
           {[...SPONSORS, ...SPONSORS].map((s, i) => (
@@ -210,13 +211,14 @@ const MWCScoreboard = () => {
              {[1, 2].map(n => (
                <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "border 0.3s ease" }}>
                  
+                 {/* BOTTOM LEFT SERVICE STATUS */}
                  <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                     {isAdmin && !match.server && match.t1 && match.t2 ? (
                       <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.server}`, color: theme.server, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
                          <RacquetIcon color={theme.server} size={12} /> SET SERVER
                       </button>
                     ) : (
-                      match.server === n && <RacquetIcon color={theme.server} size={24} />
+                      match.server === n && <RacquetIcon color={theme.server} size={26} />
                     )}
                  </div>
                  
@@ -247,6 +249,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+        {/* STANDINGS VIEW */}
         {view === "standings" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
@@ -281,9 +284,10 @@ const MWCScoreboard = () => {
           </div>
         )}
 
+        {/* RESULTS VIEW */}
         {view === "results" && (
            <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
-             {history.map((h) => (
+             {history.length === 0 ? <p style={{textAlign:"center", padding: "40px", color: "#555"}}>No results yet.</p> : history.map((h) => (
                <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
                  <div style={{ display: "flex", alignItems: "center" }}>
                    <div style={{ flex: 1 }}>
@@ -310,6 +314,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+        {/* SCHEDULE VIEW */}
         {view === "schedule" && (
            <div className="fade-in">
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
@@ -328,6 +333,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+        {/* INFO VIEW */}
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
