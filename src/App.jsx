@@ -14,10 +14,8 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "TENNIS BALLS", name: "Wilson Sports" },
-  { label: "HYDRATION", name: "AquaPure" },
-  { label: "TEA", name: "Classic Brew" },
-  { label: "SNACKS", name: "Energy Bites" },
+  { label: "CERTIFICATES", name: "Gaadi Saathi - Ramanujam" },
+  { label: "TENNIS BALLS", name: "???" },
 ];
 
 const OFFICIALS = { chairUmpire: "Raphael Rodgers" };
