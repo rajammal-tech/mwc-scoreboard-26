@@ -57,6 +57,16 @@ const TennisBallIcon = ({ color, size = 22 }) => (
   </svg>
 );
 
+const RacquetIcon = ({ color, size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="15" cy="9" r="6" />
+    <path d="M10.5 13.5L3 21" />
+    <path d="M13 7l4 4" />
+    <path d="M11 9l4 4" />
+    <circle cx="20" cy="20" r="2" fill={color} />
+  </svg>
+);
+
 const GreenCheck = ({ color }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
     <polyline points="20 6 9 17 4 12"></polyline>
@@ -153,9 +163,8 @@ const MWCScoreboard = () => {
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
-    const newScore = Math.max(0, currentScore);
     const nextServer = match.server === 1 ? 2 : 1;
-    sync({ ...match, [`s${teamNum}`]: newScore, server: nextServer });
+    sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
   };
 
   return (
@@ -201,16 +210,19 @@ const MWCScoreboard = () => {
              {[1, 2].map(n => (
                <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative" }}>
                  
-                 {/* Top Left Corner: Server Selection or Display */}
-                 <div style={{ position: "absolute", top: "15px", left: "15px", display: "flex", alignItems: "center", gap: "5px" }}>
+                 {/* Team Header Label */}
+                 <div style={{ position: "absolute", top: "15px", left: "15px" }}>
                     <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: 0 }}>TEAM {n}</p>
-                    
+                 </div>
+
+                 {/* BOTTOM LEFT: Server Icon or Setup */}
+                 <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                     {isAdmin && !match.server && match.t1 && match.t2 ? (
-                      <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.accent}`, color: theme.accent, fontSize: "8px", padding: "2px 6px", borderRadius: "4px", marginLeft: "5px", display: "flex", alignItems: "center", gap: "3px" }}>
-                         <TennisBallIcon color={theme.accent} size={10} /> SET SERVER
+                      <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.accent}`, color: theme.accent, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px" }}>
+                         <RacquetIcon color={theme.accent} size={12} /> SET SERVER
                       </button>
                     ) : (
-                      match.server === n && <TennisBallIcon color={theme.accent} size={14} />
+                      match.server === n && <RacquetIcon color={theme.accent} size={20} />
                     )}
                  </div>
                  
