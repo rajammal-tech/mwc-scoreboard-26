@@ -31,41 +31,33 @@ const TEAM_ROSTERS = {
   "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
 };
 
+const SCHEDULE_DATA = {
+  "Feb 7th": [
+    { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
+    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Team Delta" },
+    { time: "05:00 PM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
+  ],
+  "Feb 8th": [
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
+  ],
+};
+
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const GreenCheck = ({ color }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-);
-
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
   const [infoTab, setInfoTab] = useState("rules");
+  const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
-  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: 1 });
+  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
-  const [zoomLevel, setZoomLevel] = useState(1);
 
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666" };
-
-  const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
-
-  const handleLogin = () => {
-    if (isAdmin) { setIsAdmin(false); } 
-    else {
-      const p = window.prompt("Admin PIN:");
-      if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
-      else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
-    }
-  };
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#444" };
 
   useEffect(() => {
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
@@ -76,12 +68,17 @@ const MWCScoreboard = () => {
       } else setHistory([]);
     });
     const myPresenceRef = push(ref(db, "presence/"));
-    onValue(ref(db, ".info/connected"), (snap) => {
-      if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
-    });
     onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
     return () => remove(myPresenceRef);
   }, []);
+
+  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
+
+  const addPoint = (teamNum) => {
+    if (match.server === null) return;
+    const nextServer = match.server === 1 ? 2 : 1;
+    sync({ ...match, [`s${teamNum}`]: (match[`s${teamNum}`] || 0) + 1, server: nextServer });
+  };
 
   const standings = useMemo(() => {
     const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0 }; return acc; }, {});
@@ -91,110 +88,162 @@ const MWCScoreboard = () => {
       if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; }
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
-    return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won || b.played - a.played);
+    return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won);
   }, [history]);
-
-  const playerStats = useMemo(() => {
-    const stats = {};
-    history.forEach((m) => {
-      const sides = m.players.split(" vs ");
-      if (sides.length !== 2) return;
-      const t1p = sides[0].split("/").map(p => p.trim());
-      const t2p = sides[1].split("/").map(p => p.trim());
-      const all = [...t1p, ...t2p];
-      all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0 }; });
-      all.forEach(p => stats[p].mp += 1);
-      if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1);
-      else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1);
-    });
-    const sorted = Object.values(stats).sort((a, b) => b.mw - a.mw);
-    const maxWins = sorted.length > 0 ? sorted[0].mw : 0;
-    return { sorted, maxWins };
-  }, [history]);
-
-  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
-  const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   return (
-    <div style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
+    <div style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", paddingBottom: "110px", fontFamily: "sans-serif" }}>
       
-      <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          <div style={{ minWidth: "85px", display: "flex", flexDirection: "column", gap: "5px" }}>
-            <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} LIVE</div>
-            <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
-          </div>
-          <div style={{ textAlign: "center", flex: 1 }}>
-            <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8<span style={{ fontSize: "8px", verticalAlign: "top" }}>th</span> Edition</div>
-          </div>
-          <div style={{ minWidth: "85px", textAlign: "right", position: "relative" }}>
-            {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
-            <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button>
-          </div>
-        </div>
+      <header style={{ padding: "20px", textAlign: "center", borderBottom: "1px solid #222" }}>
+        <h1 style={{ color: theme.accent, margin: 0, fontSize: "22px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
+        <div style={{ fontSize: "10px", fontWeight: "bold", marginTop: "5px" }}>● {viewers} WATCHING LIVE</div>
+        <button onClick={() => {const p = window.prompt("Admin PIN:"); if(p==="121212") setIsAdmin(!isAdmin)}} 
+                style={{ marginTop: "12px", padding: "6px 15px", borderRadius: "20px", fontSize: "10px", fontWeight: "900", background: isAdmin ? theme.accent : "#222", color: isAdmin ? "#000" : "#FFF", border: "none" }}>
+          {isAdmin ? "EXIT UMPIRE MODE" : "UMPIRE LOGIN"}
+        </button>
       </header>
 
-      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
+      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "15px" }}>
+        
         {view === "live" && (
-           <div className="fade-in">
-             {isAdmin && (
-               <select style={{ width: "100%", padding: "12px", background: "#111", color: theme.accent, border: "1px solid #333", borderRadius: "8px", marginBottom: "10px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}>
-                 <option value="Singles">Singles</option><option value="Doubles">Doubles</option>
-               </select>
-             )}
-             {[1, 2].map(n => (
-               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `2px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative" }}>
-                 <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: "0 0 10px 0" }}>TEAM {n}</p>
-                 
-                 {isAdmin ? (
-                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                     <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "" })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
-                     <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
-                     {match.mType === "Doubles" && <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
-                   </div>
-                 ) : (
-                   <div><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
-                 )}
-                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                   {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333" }}>-</button>}
-                   
-                   <div style={{ position: "relative" }}>
-                     <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span>
-                     {/* Serving Ball Icon */}
-                     {(match.server === n || isAdmin) && (
-                       <div 
-                        onClick={() => isAdmin && sync({ ...match, server: n })}
-                        style={{ 
-                          position: "absolute", top: "10px", right: "-10px", fontSize: "20px", cursor: isAdmin ? "pointer" : "default",
-                          filter: match.server === n ? "none" : "grayscale(1) opacity(0.2)",
-                          animation: match.server === n ? "pulse 1.5s infinite" : "none"
-                        }}>🎾</div>
-                     )}
-                   </div>
-                   
-                   {isAdmin && <button onClick={() => sync({ ...match, [`s${n}`]: (match[`s${n}`] || 0) + 1 })} style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333" }}>+</button>}
-                 </div>
+          <div className="fade-in">
+            {isAdmin && !match.server && (
+              <div style={{ background: "#332200", color: "#FFCC00", padding: "12px", borderRadius: "10px", fontSize: "11px", fontWeight: "bold", textAlign: "center", marginBottom: "15px", border: "1px solid #FFCC00" }}>
+                PICK WHO IS SERVING TO START THE MATCH
+              </div>
+            )}
+            
+            {[1, 2].map(n => (
+              <div key={n} style={{ background: theme.card, padding: "25px", borderRadius: "20px", marginBottom: "15px", border: match.server === n ? `2px solid ${theme.accent}` : "1px solid #222", position: "relative", textAlign: "center" }}>
+                <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "10px" }}>TEAM {n}</div>
+                
+                {isAdmin ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <select value={match[`t${n}`]} onChange={(e) => sync({...match, [`t${n}`]: e.target.value})} style={{ background: "#000", color: "#FFF", padding: "12px", borderRadius: "8px", border: "1px solid #333" }}>
+                      <option value="">Select Team</option>
+                      {TEAMS.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                    {!match.server && <button onClick={() => sync({...match, server: n})} style={{ background: theme.accent, color: "#000", padding: "8px", fontSize: "10px", fontWeight: "900", borderRadius: "5px", border: "none" }}>SELECT TO SERVE</button>}
+                  </div>
+                ) : (
+                  <h2 style={{ margin: 0, fontSize: "28px" }}>{match[`t${n}`] || "---"}</h2>
+                )}
+                
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "20px" }}>
+                  {isAdmin && <button disabled={!match.server} onClick={() => sync({...match, [`s${n}`]: Math.max(0, match[`s${n}`]-1)})} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: "red", border: "none", fontSize: "20px" }}>-</button>}
+                  <div style={{ position: "relative" }}>
+                    <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server ? 0.2 : 1 }}>{match[`s${n}`] || 0}</span>
+                    {match.server === n && <div style={{ position: "absolute", top: "-10px", right: "-15px", fontSize: "24px", animation: "pulse 1.5s infinite" }}>🎾</div>}
+                  </div>
+                  {isAdmin && <button disabled={!match.server} onClick={() => addPoint(n)} style={{ width: "45px", height: "45px", borderRadius: "50%", background: "#222", color: theme.accent, border: "none", fontSize: "20px" }}>+</button>}
+                </div>
+              </div>
+            ))}
+
+            {isAdmin && match.t1 && match.t2 && (
+              <button onClick={() => {
+                const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: "Live Match", s1: match.s1, s2: match.s2, time: ts });
+                sync({ t1: "", t2: "", s1: 0, s2: 0, mType: "Singles", server: null });
+              }} style={{ width: "100%", padding: "20px", background: theme.accent, color: "#000", fontWeight: "900", borderRadius: "15px", border: "none", fontSize: "16px" }}>FINALIZE & SAVE RESULT</button>
+            )}
+          </div>
+        )}
+
+        {view === "results" && (
+          <div className="fade-in">
+            {history.length === 0 && <div style={{ textAlign: "center", opacity: 0.5, marginTop: "50px" }}>No results yet</div>}
+            {history.map(h => (
+              <div key={h.id} style={{ background: theme.card, padding: "20px", borderRadius: "15px", marginBottom: "12px", border: "1px solid #222", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontWeight: "800", fontSize: "15px" }}>{h.t1} <span style={{ color: theme.muted }}>vs</span> {h.t2}</div>
+                  <div style={{ fontSize: "10px", color: theme.accent, marginTop: "5px", fontWeight: "bold" }}>{h.time}</div>
+                </div>
+                <div style={{ fontSize: "24px", fontWeight: "900", color: theme.accent }}>{h.s1} - {h.s2}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {view === "standings" && (
+          <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+            <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+              <thead style={{ background: "#080808" }}>
+                <tr>
+                  <th style={{ padding: "15px", fontSize: "12px", color: theme.accent }}>TEAM</th>
+                  <th style={{ padding: "15px", fontSize: "12px" }}>MP</th>
+                  <th style={{ padding: "15px", fontSize: "12px", color: theme.accent }}>WINS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {standings.map((t, i) => (
+                  <tr key={t.name} style={{ borderBottom: "1px solid #222" }}>
+                    <td style={{ padding: "15px", fontWeight: "bold" }}>#{i+1} {t.name}</td>
+                    <td style={{ padding: "15px" }}>{t.played}</td>
+                    <td style={{ padding: "15px", color: theme.accent, fontWeight: "900", fontSize: "18px" }}>{t.won}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {view === "schedule" && (
+          <div className="fade-in">
+             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+               {Object.keys(SCHEDULE_DATA).map(day => (
+                 <button key={day} onClick={() => setActiveDay(day)} style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "none", background: activeDay === day ? theme.accent : "#222", color: activeDay === day ? "#000" : "#FFF", fontWeight: "bold" }}>{day.toUpperCase()}</button>
+               ))}
+             </div>
+             {SCHEDULE_DATA[activeDay].map((m, i) => (
+               <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", marginBottom: "10px", border: "1px solid #222" }}>
+                 <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{m.time} • {m.type.toUpperCase()}</div>
+                 <div style={{ fontSize: "16px", fontWeight: "bold", marginTop: "5px" }}>{m.t1} vs {m.t2}</div>
                </div>
              ))}
-             {isAdmin && match.t1 && <button onClick={() => {
-                const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
-                const now = new Date();
-                const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
-                sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: 1 });
-             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>FINALIZE MATCH</button>}
-           </div>
+          </div>
         )}
 
         {view === "info" && (
           <div className="fade-in">
-            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              {["rules", "teams", "sponsors", "credits"].map(tab => (
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab}</button>
+            <div style={{ display: "flex", gap: "5px", marginBottom: "15px" }}>
+              {["rules", "teams", "sponsors", "credits"].map(t => (
+                <button key={t} onClick={() => setInfoTab(t)} style={{ flex: 1, padding: "12px", fontSize: "10px", background: infoTab === t ? theme.accent : "#111", color: infoTab === t ? "#000" : "#FFF", border: "none", borderRadius: "8px", fontWeight: "bold" }}>{t.toUpperCase()}</button>
               ))}
             </div>
-            {/* ... other tabs ... */}
+
+            {infoTab === "rules" && (
+              <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #222" }}>
+                <ul style={{ lineHeight: "2", fontSize: "14px", paddingLeft: "20px" }}>
+                  <li>Best of 3 sets to 21 points.</li>
+                  <li>Golden Point at 20-all.</li>
+                  <li>1 Point per match win.</li>
+                </ul>
+              </div>
+            )}
+
+            {infoTab === "teams" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {Object.entries(TEAM_ROSTERS).map(([name, roster]) => (
+                  <div key={name} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                    <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "8px" }}>{name.toUpperCase()}</div>
+                    {roster.map(p => <div key={p} style={{ fontSize: "12px", opacity: 0.8, marginBottom: "3px" }}>{p}</div>)}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {infoTab === "sponsors" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {SPONSORS.map((s, i) => (
+                  <div key={i} style={{ background: theme.card, padding: "20px", borderRadius: "12px", textAlign: "center", border: "1px solid #222" }}>
+                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div>
+                    <div style={{ fontSize: "20px", fontWeight: "800", marginTop: "5px" }}>{s.name}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {infoTab === "credits" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
@@ -213,10 +262,10 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
+      <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(10px)", borderTop: "1px solid #222", padding: "10px 0 35px", zIndex: 100 }}>
         {VIEWS.map(v => (
-          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
-            <div style={{ fontSize: "22px", marginBottom: "5px" }}>{v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}</div>
+          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#666", fontSize: "9px", fontWeight: "bold" }}>
+            <div style={{ fontSize: "20px", marginBottom: "4px" }}>{v === "live" ? "🎾" : v === "results" ? "✅" : v === "standings" ? "🏆" : v === "schedule" ? "📅" : "📋"}</div>
             {v.toUpperCase()}
           </button>
         ))}
@@ -225,7 +274,7 @@ const MWCScoreboard = () => {
       <style>{`
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
       `}</style>
     </div>
   );
