@@ -208,19 +208,15 @@ const MWCScoreboard = () => {
              )}
 
              {[1, 2].map(n => (
-               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.server}` : "1px solid #222", textAlign: "center", position: "relative" }}>
+               <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "border 0.3s ease" }}>
                  
-                 <div style={{ position: "absolute", top: "15px", left: "15px" }}>
-                    <p style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", margin: 0 }}>TEAM {n}</p>
-                 </div>
-
                  <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                     {isAdmin && !match.server && match.t1 && match.t2 ? (
                       <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.server}`, color: theme.server, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
                          <RacquetIcon color={theme.server} size={12} /> SET SERVER
                       </button>
                     ) : (
-                      match.server === n && <RacquetIcon color={theme.server} size={22} />
+                      match.server === n && <RacquetIcon color={theme.server} size={24} />
                     )}
                  </div>
                  
@@ -231,7 +227,7 @@ const MWCScoreboard = () => {
                      {match.mType === "Doubles" && <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
                    </div>
                  ) : (
-                   <div style={{ marginTop: "10px" }}><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
+                   <div style={{ marginTop: "10px" }}><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
                  )}
                  
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
