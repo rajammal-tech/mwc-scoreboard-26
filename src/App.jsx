@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 5.5 ----
+// --- MWC-Open-Beta-completion 5.6 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -361,15 +361,16 @@ const MWCScoreboard = () => {
 
         {view === "info" && (
           <div className="fade-in">
-            {/* Main Tabs Container */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "15px" }}>
+            {/* SINGLE LINE TABS: Using flex-nowrap and overflow-x-auto */}
+            <div style={{ display: "flex", gap: "5px", marginBottom: "15px", overflowX: "auto", paddingBottom: "5px", scrollbarWidth: "none", msOverflowStyle: "none" }}>
               {["rules", "teams", "crew", "sponsors"].map(tab => (
                 <button 
                    key={tab} 
                    onClick={() => setInfoTab(tab)} 
                    style={{ 
-                     flex: "1 1 45%", 
-                     padding: "14px", 
+                     flex: "1 0 auto", 
+                     minWidth: "85px",
+                     padding: "12px 5px", 
                      background: infoTab === tab ? theme.accent : "#111", 
                      color: infoTab === tab ? "#000" : "#FFF", 
                      border: "none", 
@@ -395,7 +396,6 @@ const MWCScoreboard = () => {
 
             {infoTab === "teams" && (
               <div className="fade-in">
-                {/* Chair Umpire Highlight */}
                 <div style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center", marginBottom: "15px" }}>
                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
