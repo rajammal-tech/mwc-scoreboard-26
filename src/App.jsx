@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 4.2 ----
+// --- MWC-Open-Beta-completion 4.3 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -179,7 +179,7 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    if (s1 === 5 && s2 === 5) return false; // Equal, no set point yet
+    if (s1 === 5 && s2 === 5) return false; 
     if (teamNum === 1) return s1 >= 5 && (s1 > s2);
     if (teamNum === 2) return s2 >= 5 && (s2 > s1);
     return false;
@@ -228,9 +228,9 @@ const MWCScoreboard = () => {
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
                return (
-                 <div key={n} className={setPoint ? "serving-for-set" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.4s ease", boxShadow: setPoint ? `0 0 20px ${theme.accent}33` : "none" }}>
+                 <div key={n} className={setPoint ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.5s ease" }}>
                    
-                   {setPoint && <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "4px 12px", borderRadius: "10px", letterSpacing: "1px", zIndex: 5 }}>SERVING FOR THE SET</div>}
+                   {setPoint && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "5px 15px", borderRadius: "20px", letterSpacing: "1px", zIndex: 10, boxShadow: "0 4px 15px rgba(173, 255, 47, 0.4)" }}>SERVING FOR THE SET</div>}
 
                    <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
@@ -270,7 +270,7 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* Remaining Tabs (Standings, Results, Schedule, Info) remain unchanged from 4.1 */}
+        {/* Other views (Standings, Results, etc.) unchanged */}
         {view === "standings" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
@@ -408,14 +408,24 @@ const MWCScoreboard = () => {
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
         
-        /* Set Point Beautification */
-        .serving-for-set {
-          animation: setPointGlow 2s infinite alternate;
-          border-color: #adff2f !important;
+        /* Version 4.3 - Serving for the Set Animations */
+        .serving-card-active {
+          animation: breathingGlow 3s infinite ease-in-out;
         }
-        @keyframes setPointGlow {
-          from { box-shadow: 0 0 10px rgba(173, 255, 47, 0.2); border-color: #adff2f; }
-          to { box-shadow: 0 0 25px rgba(173, 255, 47, 0.5); border-color: #FFF; }
+
+        @keyframes breathingGlow {
+          0% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
+          50% { border-color: #FFF; box-shadow: 0 0 25px rgba(173, 255, 47, 0.5); }
+          100% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
+        }
+
+        .set-point-blinker {
+          animation: badgeBlink 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes badgeBlink {
+          from { opacity: 1; transform: translateX(-50%) scale(1); }
+          to { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
         }
       `}</style>
     </div>
