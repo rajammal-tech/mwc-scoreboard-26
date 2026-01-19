@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 5.4 ----
+// --- MWC-Open-Beta-completion 5.5 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -76,7 +76,6 @@ const GreenCheck = ({ color }) => (
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
   const [infoTab, setInfoTab] = useState("rules");
-  const [creditsTab, setCreditsTab] = useState("crew");
   const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
@@ -362,10 +361,25 @@ const MWCScoreboard = () => {
 
         {view === "info" && (
           <div className="fade-in">
-            {/* Top Level Menu */}
-            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              {["rules", "teams", "credits"].map(tab => (
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
+            {/* Main Tabs Container */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "15px" }}>
+              {["rules", "teams", "crew", "sponsors"].map(tab => (
+                <button 
+                   key={tab} 
+                   onClick={() => setInfoTab(tab)} 
+                   style={{ 
+                     flex: "1 1 45%", 
+                     padding: "14px", 
+                     background: infoTab === tab ? theme.accent : "#111", 
+                     color: infoTab === tab ? "#000" : "#FFF", 
+                     border: "none", 
+                     borderRadius: "10px", 
+                     fontWeight: "900", 
+                     fontSize: "10px", 
+                     textTransform: "uppercase" 
+                   }}>
+                   {tab.toUpperCase()}
+                </button>
               ))}
             </div>
 
@@ -398,32 +412,25 @@ const MWCScoreboard = () => {
               </div>
             )}
 
-            {infoTab === "credits" && (
-              <div className="fade-in">
-                {/* Inner Navigation - Similar to Schedule */}
-                <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-                  {["crew", "sponsors"].map(sub => (
-                    <button key={sub} onClick={() => setCreditsTab(sub)} style={{ flex: 1, padding: "10px", background: creditsTab === sub ? "#333" : "#111", color: creditsTab === sub ? theme.accent : "#888", border: creditsTab === sub ? `1px solid ${theme.accent}` : "1px solid #222", borderRadius: "8px", fontWeight: "900", fontSize: "10px" }}>{sub.toUpperCase()}</button>
+            {infoTab === "crew" && (
+              <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "15px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  {COMMUNITY_TEAM.crew.map((name, i) => (
+                    <div key={i} style={{ background: "#050505", padding: "12px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name}</div>
                   ))}
                 </div>
+              </div>
+            )}
 
-                <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden", padding: "15px" }}>
-                  {creditsTab === "crew" ? (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                      {COMMUNITY_TEAM.crew.map((name, i) => (
-                        <div key={i} style={{ background: "#050505", padding: "12px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name}</div>
-                      ))}
+            {infoTab === "sponsors" && (
+              <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "15px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {SPONSORS.map((s, i) => (
+                    <div key={i} style={{ background: "#050505", padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
+                      <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "2px" }}>{s.label}</div>
+                      <div style={{ fontSize: "16px", fontWeight: "800" }}>{s.name}</div>
                     </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      {SPONSORS.map((s, i) => (
-                        <div key={i} style={{ background: "#050505", padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
-                          <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "2px" }}>{s.label}</div>
-                          <div style={{ fontSize: "16px", fontWeight: "800" }}>{s.name}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}
