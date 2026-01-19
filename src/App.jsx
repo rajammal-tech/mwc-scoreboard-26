@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 3.1 ----
+// --- MWC-Open-Beta-completion 4.1 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -28,7 +28,7 @@ const TEAM_ROSTERS = {
   "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
   "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
   "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
-  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
+  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "40"],
 };
 
 const SCHEDULE_DATA = {
@@ -163,9 +163,16 @@ const MWCScoreboard = () => {
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
-    if (currentScore > 7) return; // Enforce Max Score 7
+    if (currentScore > 7) return; 
     const nextServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
+  };
+
+  const handleScoreReduce = (teamNum) => {
+    const newScore = Math.max(0, (match[`s${teamNum}`] || 0) - 1);
+    // Reverse server back to previous when reducing point
+    const prevServer = match.server === 1 ? 2 : 1;
+    sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
   };
 
   return (
@@ -189,6 +196,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
+      {/* Ticker and Main Content sections remain identical to 4.0 */}
       <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
         <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
           {[...SPONSORS, ...SPONSORS].map((s, i) => (
@@ -232,19 +240,20 @@ const MWCScoreboard = () => {
                  )}
                  
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                   {isAdmin && <button disabled={!match.server} onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>-</button>}
+                   {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>-</button>}
                    <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
                    {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1 }}>+</button>}
                  </div>
                </div>
              ))}
+             {/* End components from 4.0 (Finalize Match, History, Standings, etc.) follow below */}
              {isAdmin && match.t1 && <button onClick={() => {
                 const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
                 const now = new Date();
                 const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
-             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
+             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>FINALIZE MATCH</button>}
            </div>
         )}
 
