@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 2.0 ----
+// --- MWC-Open-Beta-completion 3.1 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -163,6 +163,7 @@ const MWCScoreboard = () => {
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
+    if (currentScore > 7) return; // Enforce Max Score 7
     const nextServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
   };
@@ -188,7 +189,6 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* Ticker Sponsor Section */}
       <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
         <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
           {[...SPONSORS, ...SPONSORS].map((s, i) => (
@@ -211,7 +211,6 @@ const MWCScoreboard = () => {
              {[1, 2].map(n => (
                <div key={n} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "border 0.3s ease" }}>
                  
-                 {/* BOTTOM LEFT SERVICE STATUS */}
                  <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                     {isAdmin && !match.server && match.t1 && match.t2 ? (
                       <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.server}`, color: theme.server, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
@@ -235,7 +234,7 @@ const MWCScoreboard = () => {
                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
                    {isAdmin && <button disabled={!match.server} onClick={() => sync({ ...match, [`s${n}`]: Math.max(0, match[`s${n}`] - 1) })} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>-</button>}
                    <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
-                   {isAdmin && <button disabled={!match.server} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: !match.server ? 0.2 : 1 }}>+</button>}
+                   {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "50px", height: "50px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1 }}>+</button>}
                  </div>
                </div>
              ))}
@@ -249,7 +248,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* STANDINGS VIEW */}
         {view === "standings" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
@@ -284,7 +282,6 @@ const MWCScoreboard = () => {
           </div>
         )}
 
-        {/* RESULTS VIEW */}
         {view === "results" && (
            <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", overflow: "hidden", border: "1px solid #222" }}>
              {history.length === 0 ? <p style={{textAlign:"center", padding: "40px", color: "#555"}}>No results yet.</p> : history.map((h) => (
@@ -314,7 +311,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* SCHEDULE VIEW */}
         {view === "schedule" && (
            <div className="fade-in">
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
@@ -333,7 +329,6 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {/* INFO VIEW */}
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
@@ -341,11 +336,11 @@ const MWCScoreboard = () => {
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
-            {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2", margin: 0, paddingLeft: "20px" }}><li>Best of 3 sets to 21 points.</li><li>Golden Point at 20-all.</li><li>1 Point per match win.</li></ul></div>}
+            {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2", margin: 0, paddingLeft: "20px" }}><li>Best of 3 sets to 7 points.</li><li>Golden Point at 6-all.</li><li>1 Point per match win.</li></ul></div>}
             {infoTab === "teams" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center" }}>
-                   <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>TOURNAMENT CHAIR UMPIRE</div>
+                   <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
