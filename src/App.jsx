@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 5.0 (STABLE) ----
+// --- MWC-Open-Beta-completion 5.2 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -230,22 +230,7 @@ const MWCScoreboard = () => {
                  <div key={n} className={setPoint ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.5s ease" }}>
                    
                    {setPoint && (
-                     <div className="set-point-blinker" style={{ 
-                       position: "absolute", 
-                       top: "-12px", 
-                       left: "50%", 
-                       transform: "translateX(-50%)", 
-                       background: theme.accent, 
-                       color: "#000", 
-                       fontSize: "10px", 
-                       fontWeight: "900", 
-                       padding: "5px 15px", 
-                       borderRadius: "20px", 
-                       letterSpacing: "1px", 
-                       zIndex: 100, 
-                       boxShadow: `0 0 15px ${theme.accent}`,
-                       border: "2px solid #000"
-                     }}>
+                     <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "5px 15px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 15px ${theme.accent}`, border: "2px solid #000" }}>
                        SERVING FOR THE SET
                      </div>
                    )}
@@ -377,29 +362,46 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              {["rules", "teams", "sponsors", "crew"].map(tab => (
+              {["rules", "teams", "credits"].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: 1, padding: "14px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
+            
             {infoTab === "rules" && <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}><ul style={{ color: "#EEE", lineHeight: "2", margin: 0, paddingLeft: "20px" }}><li>Best of 3 sets to 7 points.</li><li>Golden Point at 6-all.</li><li>1 Point per match win.</li></ul></div>}
+            
             {infoTab === "teams" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>))}
+              </div>
+            )}
+
+            {infoTab === "credits" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                {/* Chair Umpire Section */}
                 <div style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center" }}>
                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (<div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}><h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>{ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD" }}>{p}</div>)}</div>))}
-                </div>
-              </div>
-            )}
-            {infoTab === "sponsors" && <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>{SPONSORS.map((s, i) => (<div key={i} style={{ background: theme.card, padding: "20px", borderRadius: "12px", border: "1px solid #222", textAlign: "center" }}><div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div><div style={{ fontSize: "18px", fontWeight: "800" }}>{s.name}</div></div>))}</div>}
-            {infoTab === "crew" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #333", textAlign: "center" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    {COMMUNITY_TEAM.crew.map((name, i) => (<div key={i} style={{ background: "#222", padding: "10px", borderRadius: "10px", fontSize: "14px", border: "1px solid #333", color: "#EEE", fontWeight: "600" }}>{name}</div>))}
+
+                {/* Organizing Crew Section */}
+                <div style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                  <div style={{ color: "#AAA", fontSize: "10px", fontWeight: "900", textAlign: "center", marginBottom: "12px" }}>ORGANIZING CREW</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    {COMMUNITY_TEAM.crew.map((name, i) => (
+                      <div key={i} style={{ background: "#222", padding: "8px", borderRadius: "8px", fontSize: "12px", textAlign: "center", color: "#EEE" }}>{name}</div>
+                    ))}
                   </div>
+                </div>
+
+                {/* Sponsors Section */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <div style={{ color: "#AAA", fontSize: "10px", fontWeight: "900", textAlign: "center" }}>TOURNAMENT SPONSORS</div>
+                  {SPONSORS.map((s, i) => (
+                    <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222", textAlign: "center" }}>
+                      <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900" }}>{s.label}</div>
+                      <div style={{ fontSize: "16px", fontWeight: "800" }}>{s.name}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
