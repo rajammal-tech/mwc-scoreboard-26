@@ -244,7 +244,7 @@ const MWCScoreboard = () => {
                 const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
-             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>FINALIZE MATCH</button>}
+             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
