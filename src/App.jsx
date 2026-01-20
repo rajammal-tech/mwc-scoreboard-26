@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 7.2 (ELEGANT SERVICE FOCUS) ----
+// --- MWC-Open-Stable-Build 7.3 (REFINED UMPIRE UX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -205,10 +205,12 @@ const MWCScoreboard = () => {
     color: isDisabled ? theme.accent : "#FFF",
     border: "1px solid #333",
     borderRadius: "8px",
-    fontSize: isDisabled ? "16px" : "14px",
+    fontSize: isDisabled ? "14px" : "14px",
     fontWeight: isDisabled ? "900" : "normal",
+    textAlign: isDisabled ? "center" : "left",
     opacity: 1, 
-    WebkitTextFillColor: isDisabled ? theme.accent : "initial" 
+    WebkitTextFillColor: isDisabled ? theme.accent : "initial",
+    appearance: isDisabled ? "none" : "auto"
   });
 
   return (
@@ -223,7 +225,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.2</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.3</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -292,17 +294,30 @@ const MWCScoreboard = () => {
                    </div>
                    
                    {isAdmin ? (
-                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                       <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px", textAlign: "center" }}>
+                       {/* Team Selector - Changes to Neon label when match starts */}
+                       {!isMatchInProgress ? (
+                         <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                       ) : (
+                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent }}>{match[`t${n}`]}</div>
+                       )}
                        
-                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
-                          
-                          {match.mType === "Doubles" && (
+                       {/* Player Selectors - Reduced font and neon hierarchy */}
+                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
+                          {!isMatchInProgress ? (
                             <>
-                              <span style={{ color: theme.accent, fontWeight: "900", fontSize: "18px", margin: "0 5px" }}>/</span>
-                              <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              {match.mType === "Doubles" && (
+                                <>
+                                  <span style={{ color: theme.muted, fontWeight: "900", fontSize: "14px" }}>/</span>
+                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                                </>
+                              )}
                             </>
+                          ) : (
+                            <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
+                              {match[`p${n}a`]} {match.mType === "Doubles" && ` / ${match[`p${n}b`]}`}
+                            </div>
                           )}
                        </div>
                      </div>
@@ -499,7 +514,6 @@ const MWCScoreboard = () => {
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
         
-        /* MILD WHITE BREATHE ANIMATION */
         .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
         .racquet-breathe { animation: breathingRacquet 2s infinite ease-in-out; }
 
