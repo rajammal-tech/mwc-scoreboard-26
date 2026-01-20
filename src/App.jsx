@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 7.3 (REFINED UMPIRE UX) ----
+// --- MWC-Open-Stable-Build 7.4 (BRANDING & LOGIC RESTORED) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -35,8 +35,6 @@ const SCHEDULE_DATA = {
   "Feb 7th": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
-    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Team Delta" },
-    { time: "05:00 PM", type: "Doubles", t1: "Team Bravo", t2: "Team Charlie" },
   ],
   "Feb 8th": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
@@ -188,11 +186,9 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    if (s1 >= 6 && (s1 - s2) >= 2) return false;
-    if (s2 >= 6 && (s2 - s1) >= 2) return false;
-    if (s1 === 5 && s2 === 5) return false; 
-    if (teamNum === 1) return s1 >= 5 && (s1 > s2);
-    if (teamNum === 2) return s2 >= 5 && (s2 > s1);
+    // Target is 7 points.
+    if (teamNum === 1) return s1 === 6 || (s1 === 5 && s1 > s2);
+    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2 > s1);
     return false;
   };
 
@@ -205,7 +201,7 @@ const MWCScoreboard = () => {
     color: isDisabled ? theme.accent : "#FFF",
     border: "1px solid #333",
     borderRadius: "8px",
-    fontSize: isDisabled ? "14px" : "14px",
+    fontSize: "14px",
     fontWeight: isDisabled ? "900" : "normal",
     textAlign: isDisabled ? "center" : "left",
     opacity: 1, 
@@ -225,7 +221,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.3</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8TH EDITION - V7.4</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -269,8 +265,8 @@ const MWCScoreboard = () => {
                      backgroundColor: theme.card, 
                      padding: "18px", 
                      borderRadius: "15px", 
-                     margin: "10px 0", 
-                     border: isServing ? `2.5px solid #EEE` : "1px solid #222", 
+                     margin: "15px 0", 
+                     border: isServing ? `2px solid #EEE` : "1px solid #222", 
                      textAlign: "center", 
                      position: "relative", 
                      transition: "all 0.4s ease" 
@@ -278,7 +274,7 @@ const MWCScoreboard = () => {
                  >
                    
                    {setPoint && (
-                     <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "5px 15px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 15px ${theme.accent}`, border: "2px solid #000" }}>
+                     <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 12px ${theme.accent}`, border: "2px solid #000" }}>
                        SERVING FOR THE SET
                      </div>
                    )}
@@ -289,62 +285,61 @@ const MWCScoreboard = () => {
                            <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
-                        isServing && <RacquetIcon color="#FFF" size={30} isServing={true} />
+                        isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />
                       )}
                    </div>
                    
                    {isAdmin ? (
-                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px", textAlign: "center" }}>
-                       {/* Team Selector - Changes to Neon label when match starts */}
+                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px", textAlign: "center" }}>
                        {!isMatchInProgress ? (
                          <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
                        ) : (
-                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent }}>{match[`t${n}`]}</div>
+                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
                        )}
                        
-                       {/* Player Selectors - Reduced font and neon hierarchy */}
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
                             <>
                               <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
-                                  <span style={{ color: theme.muted, fontWeight: "900", fontSize: "14px" }}>/</span>
+                                  <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
                                   <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
                               )}
                             </>
                           ) : (
                             <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
-                              {match[`p${n}a`]} {match.mType === "Doubles" && ` / ${match[`p${n}b`]}`}
+                              {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
                             </div>
                           )}
                        </div>
                      </div>
                    ) : (
                      <div style={{ marginTop: "10px" }}>
-                       <h2 style={{ fontSize: "28px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
-                       <p style={{ color: "#AAA", fontSize: "13px", fontWeight: "700" }}>
+                       <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
+                       <p style={{ color: "#AAA", fontSize: "12px", fontWeight: "700" }}>
                          {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
                        </p>
                      </div>
                    )}
                    
-                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "12px" }}>
-                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "32px", fontWeight: "900" }}>-</button>}
-                     <span style={{ fontSize: "70px", fontWeight: "900", margin: "0 20px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
-                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "32px", fontWeight: "900" }}>+</button>}
+                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
+                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "60px", height: "60px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "28px", fontWeight: "900" }}>-</button>}
+                     <span style={{ fontSize: "60px", fontWeight: "900", margin: "0 20px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
+                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "60px", height: "60px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "28px", fontWeight: "900" }}>+</button>}
                    </div>
                  </div>
                );
              })}
              {isAdmin && match.t1 && <button onClick={() => {
+                if(!window.confirm("Finalize Match?")) return;
                 const pLine = match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`;
                 const now = new Date();
                 const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
-             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
+             }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
@@ -496,10 +491,10 @@ const MWCScoreboard = () => {
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
             <div style={{ display: "flex", justifyContent: "center" }}>
                 {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} /> : 
-                 v === "results" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>✅</span> : 
-                 v === "standings" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>🏆</span> : 
-                 v === "schedule" ? <span style={{fontSize: "22px", marginBottom: "5px"}}>📅</span> : 
-                 <span style={{fontSize: "22px", marginBottom: "5px"}}>📋</span>}
+                 v === "results" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>✅</span> : 
+                 v === "standings" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>🏆</span> : 
+                 v === "schedule" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>📅</span> : 
+                 <span style={{fontSize: "20px", marginBottom: "5px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
           </button>
@@ -518,21 +513,21 @@ const MWCScoreboard = () => {
         .racquet-breathe { animation: breathingRacquet 2s infinite ease-in-out; }
 
         @keyframes breathingBorder {
-          0% { border-color: #444; box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
-          50% { border-color: #EEE; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
-          100% { border-color: #444; box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
+          0% { border-color: #333; box-shadow: 0 0 4px rgba(255, 255, 255, 0.05); }
+          50% { border-color: #EEE; box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); }
+          100% { border-color: #333; box-shadow: 0 0 4px rgba(255, 255, 255, 0.05); }
         }
 
         @keyframes breathingRacquet {
-          0% { transform: scale(1); opacity: 0.7; }
-          50% { transform: scale(1.15); opacity: 1; }
-          100% { transform: scale(1); opacity: 0.7; }
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.8; }
         }
 
-        .set-point-blinker { animation: badgeBlink 1s infinite alternate ease-in-out; }
+        .set-point-blinker { animation: badgeBlink 0.8s infinite alternate ease-in-out; }
         @keyframes badgeBlink {
           from { opacity: 1; transform: translateX(-50%) scale(1); }
-          to { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+          to { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
         }
       `}</style>
     </div>
