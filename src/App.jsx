@@ -221,7 +221,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8TH EDITION</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8th Edition</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
