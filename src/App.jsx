@@ -32,11 +32,11 @@ const TEAM_ROSTERS = {
 };
 
 const SCHEDULE_DATA = {
-  "Feb 7th": [
+  "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
   ],
-  "Feb 8th": [
+  "Feb 8": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
