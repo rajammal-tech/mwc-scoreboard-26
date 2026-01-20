@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0 (STABLE) ----
+// --- MWC-Open-Beta-completion 6.0.1 (STABLE FIX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -178,6 +178,11 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
+    
+    // --- BUG FIX: Check if game is already decided (lead of 2 at 6 or 7) ---
+    if (s1 >= 6 && (s1 - s2) >= 2) return false;
+    if (s2 >= 6 && (s2 - s1) >= 2) return false;
+
     if (s1 === 5 && s2 === 5) return false; 
     if (teamNum === 1) return s1 >= 5 && (s1 > s2);
     if (teamNum === 2) return s2 >= 5 && (s2 > s1);
