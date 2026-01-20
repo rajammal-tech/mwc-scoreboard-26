@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 7.1 (ANIMATED SERVICE FOCUS) ----
+// --- MWC-Open-Stable-Build 7.2 (ELEGANT SERVICE FOCUS) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -34,12 +34,12 @@ const TEAM_ROSTERS = {
 const SCHEDULE_DATA = {
   "Feb 7th": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Delta" },
-    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Delta" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
+    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Team Delta" },
     { time: "05:00 PM", type: "Doubles", t1: "Team Bravo", t2: "Team Charlie" },
   ],
   "Feb 8th": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Delta" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
 
@@ -67,7 +67,7 @@ const RacquetIcon = ({ color, size = 32, isServing = false }) => (
     strokeLinecap="round" 
     strokeLinejoin="round" 
     className={isServing ? "racquet-breathe" : ""}
-    style={{ filter: isServing ? `drop-shadow(0 0 8px rgba(255,255,255,0.6))` : "none" }}
+    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}
   >
     <circle cx="15" cy="9" r="6" />
     <path d="M10.5 13.5L3 21" />
@@ -223,7 +223,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.1</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.2</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -265,13 +265,13 @@ const MWCScoreboard = () => {
                    className={isServing ? "serving-card-active" : ""} 
                    style={{ 
                      backgroundColor: theme.card, 
-                     padding: "20px", 
+                     padding: "18px", 
                      borderRadius: "15px", 
                      margin: "10px 0", 
-                     border: isServing ? `3px solid ${theme.accent}` : "1px solid #222", 
+                     border: isServing ? `2.5px solid #EEE` : "1px solid #222", 
                      textAlign: "center", 
                      position: "relative", 
-                     transition: "all 0.3s ease" 
+                     transition: "all 0.4s ease" 
                    }}
                  >
                    
@@ -281,13 +281,13 @@ const MWCScoreboard = () => {
                      </div>
                    )}
 
-                   <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
+                   <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
                            <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
-                        isServing && <RacquetIcon color="#FFF" size={32} isServing={true} />
+                        isServing && <RacquetIcon color="#FFF" size={30} isServing={true} />
                       )}
                    </div>
                    
@@ -308,17 +308,17 @@ const MWCScoreboard = () => {
                      </div>
                    ) : (
                      <div style={{ marginTop: "10px" }}>
-                       <h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
-                       <p style={{ color: "#AAA", fontSize: "14px", fontWeight: "700" }}>
+                       <h2 style={{ fontSize: "28px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
+                       <p style={{ color: "#AAA", fontSize: "13px", fontWeight: "700" }}>
                          {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
                        </p>
                      </div>
                    )}
                    
-                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "75px", height: "75px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "40px", fontWeight: "900" }}>-</button>}
-                     <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
-                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "75px", height: "75px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "40px", fontWeight: "900" }}>+</button>}
+                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "12px" }}>
+                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "32px", fontWeight: "900" }}>-</button>}
+                     <span style={{ fontSize: "70px", fontWeight: "900", margin: "0 20px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
+                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "32px", fontWeight: "900" }}>+</button>}
                    </div>
                  </div>
                );
@@ -499,20 +499,20 @@ const MWCScoreboard = () => {
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
         
-        /* SYNCED BREATHE ANIMATION */
+        /* MILD WHITE BREATHE ANIMATION */
         .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
         .racquet-breathe { animation: breathingRacquet 2s infinite ease-in-out; }
 
         @keyframes breathingBorder {
-          0% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
-          50% { border-color: #FFF; box-shadow: 0 0 20px rgba(173, 255, 47, 0.5); }
-          100% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
+          0% { border-color: #444; box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
+          50% { border-color: #EEE; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+          100% { border-color: #444; box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); }
         }
 
         @keyframes breathingRacquet {
-          0% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.2); opacity: 1; }
-          100% { transform: scale(1); opacity: 0.8; }
+          0% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.15); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.7; }
         }
 
         .set-point-blinker { animation: badgeBlink 1s infinite alternate ease-in-out; }
