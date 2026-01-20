@@ -347,7 +347,7 @@ const MWCScoreboard = () => {
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
               <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS (MVP)</button>
+              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button>
             </div>
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
