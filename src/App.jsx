@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0.3 (UMPIRE UI ENHANCEMENTS) ----
+// --- MWC-Open-Beta-completion 6.0.4 (CLEAN UMPIRE UI) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -187,15 +187,15 @@ const MWCScoreboard = () => {
 
   const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
-  // UMPIRE ONLY STYLE: High-contrast Neon Green locked dropdowns
+  // UMPIRE ONLY STYLE: Just neon font and increased size when locked
   const getUmpireSelectStyle = (isDisabled) => ({
     width: "100%",
     padding: "14px",
     background: "#111",
     color: isDisabled ? theme.accent : "#FFF",
-    border: isDisabled ? `1px solid ${theme.accent}` : "1px solid #333",
+    border: "1px solid #333", // Normal border as requested
     borderRadius: "8px",
-    fontSize: isDisabled ? "16px" : "14px",
+    fontSize: isDisabled ? "18px" : "14px", // Increased size for Umpire
     fontWeight: isDisabled ? "900" : "normal",
     opacity: 1, 
     WebkitTextFillColor: isDisabled ? theme.accent : "initial" 
@@ -278,9 +278,9 @@ const MWCScoreboard = () => {
                    )}
                    
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
-                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "30px", fontWeight: "bold" }}>-</button>}
+                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "75px", height: "75px", borderRadius: "50%", background: "#222", color: "#ff4444", border: "1px solid #333", opacity: !match.server ? 0.2 : 1, fontSize: "40px", fontWeight: "900" }}>-</button>}
                      <span style={{ fontSize: "80px", fontWeight: "900", margin: "0 25px", opacity: !match.server && isAdmin ? 0.3 : 1 }}>{match[`s${n}`] || 0}</span>
-                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "65px", height: "65px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "30px", fontWeight: "bold" }}>+</button>}
+                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "75px", height: "75px", borderRadius: "50%", background: "#222", color: theme.accent, border: "1px solid #333", opacity: (!match.server || match[`s${n}`] >= 7) ? 0.2 : 1, fontSize: "40px", fontWeight: "900" }}>+</button>}
                    </div>
                  </div>
                );
