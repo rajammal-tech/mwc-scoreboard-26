@@ -84,7 +84,7 @@ const GreenCheck = ({ color }) => (
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
   const [infoTab, setInfoTab] = useState("rules");
-  const [activeDay, setActiveDay] = useState("Feb 7th");
+  const [activeDay, setActiveDay] = useState("Feb 7");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
