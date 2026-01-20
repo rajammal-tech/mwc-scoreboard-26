@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0.4 (CLEAN UMPIRE UI) ----
+// --- MWC-Open-Beta-completion 6.0.6 (ENHANCED SERVER ICON) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -56,8 +56,8 @@ const TennisBallIcon = ({ color, size = 22 }) => (
   </svg>
 );
 
-const RacquetIcon = ({ color, size = 22 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const RacquetIcon = ({ color, size = 32 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 5px rgba(255,255,255,0.3))` }}>
     <circle cx="15" cy="9" r="6" />
     <path d="M10.5 13.5L3 21" />
     <path d="M13 7l4 4" />
@@ -85,7 +85,7 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FF4500" };
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
@@ -187,15 +187,14 @@ const MWCScoreboard = () => {
 
   const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
-  // UMPIRE ONLY STYLE: Just neon font and increased size when locked
   const getUmpireSelectStyle = (isDisabled) => ({
     width: "100%",
     padding: "14px",
     background: "#111",
     color: isDisabled ? theme.accent : "#FFF",
-    border: "1px solid #333", // Normal border as requested
+    border: "1px solid #333",
     borderRadius: "8px",
-    fontSize: isDisabled ? "18px" : "14px", // Increased size for Umpire
+    fontSize: isDisabled ? "18px" : "14px",
     fontWeight: isDisabled ? "900" : "normal",
     opacity: 1, 
     WebkitTextFillColor: isDisabled ? theme.accent : "initial" 
@@ -249,7 +248,7 @@ const MWCScoreboard = () => {
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
                return (
-                 <div key={n} className={setPoint ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid ${theme.accent}` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.5s ease" }}>
+                 <div key={n} className={setPoint ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid #666` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.5s ease" }}>
                    
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "5px 15px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 15px ${theme.accent}`, border: "2px solid #000" }}>
@@ -259,11 +258,11 @@ const MWCScoreboard = () => {
 
                    <div style={{ position: "absolute", bottom: "15px", left: "15px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${theme.server}`, color: theme.server, fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
-                           <RacquetIcon color={theme.server} size={12} /> SET SERVER
+                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
+                           <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
-                        match.server === n && <RacquetIcon color={theme.server} size={26} />
+                        match.server === n && <RacquetIcon color="#FFF" size={32} />
                       )}
                    </div>
                    
@@ -291,7 +290,7 @@ const MWCScoreboard = () => {
                 const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
-             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
+             }} style={{ width: "100%", padding: "20px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
@@ -462,9 +461,9 @@ const MWCScoreboard = () => {
         button:active { transform: scale(0.95); transition: 0.1s; }
         .serving-card-active { animation: breathingGlow 3s infinite ease-in-out; }
         @keyframes breathingGlow {
-          0% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
-          50% { border-color: #FFF; box-shadow: 0 0 25px rgba(173, 255, 47, 0.5); }
-          100% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
+          0% { border-color: #FFF; box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+          50% { border-color: #adff2f; box-shadow: 0 0 20px rgba(173, 255, 47, 0.3); }
+          100% { border-color: #FFF; box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
         }
         .set-point-blinker { animation: badgeBlink 1s infinite alternate ease-in-out; }
         @keyframes badgeBlink {
