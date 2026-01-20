@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0.6 (ENHANCED SERVER ICON) ----
+// --- MWC-Open-Beta-completion 6.0.7 (REFINED DOUBLES LAYOUT) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -187,14 +187,14 @@ const MWCScoreboard = () => {
 
   const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
-  const getUmpireSelectStyle = (isDisabled) => ({
-    width: "100%",
+  const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
+    width: isHalfWidth ? "48%" : "100%",
     padding: "14px",
     background: "#111",
     color: isDisabled ? theme.accent : "#FFF",
     border: "1px solid #333",
     borderRadius: "8px",
-    fontSize: isDisabled ? "18px" : "14px",
+    fontSize: isDisabled ? "16px" : "14px",
     fontWeight: isDisabled ? "900" : "normal",
     opacity: 1, 
     WebkitTextFillColor: isDisabled ? theme.accent : "initial" 
@@ -268,12 +268,28 @@ const MWCScoreboard = () => {
                    
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                       {/* Team Selection */}
                        <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
-                       <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress)} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
-                       {match.mType === "Doubles" && <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
+                       
+                       {/* Player Selection - Responsive Row for Doubles */}
+                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                          
+                          {match.mType === "Doubles" && (
+                            <>
+                              <span style={{ color: theme.accent, fontWeight: "900", fontSize: "18px" }}>/</span>
+                              <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                            </>
+                          )}
+                       </div>
                      </div>
                    ) : (
-                     <div style={{ marginTop: "10px" }}><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
+                     <div style={{ marginTop: "10px" }}>
+                       <h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
+                       <p style={{ color: "#AAA", fontSize: "14px", fontWeight: "700" }}>
+                         {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
+                       </p>
+                     </div>
                    )}
                    
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "15px" }}>
