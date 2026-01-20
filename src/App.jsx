@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0.1 (STABLE FIX) ----
+// --- MWC-Open-Beta-completion 6.0.2 (LOCK ON PROGRESS) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -48,7 +48,6 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-// --- ICONS ---
 const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -178,16 +177,16 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    
-    // --- BUG FIX: Check if game is already decided (lead of 2 at 6 or 7) ---
     if (s1 >= 6 && (s1 - s2) >= 2) return false;
     if (s2 >= 6 && (s2 - s1) >= 2) return false;
-
     if (s1 === 5 && s2 === 5) return false; 
     if (teamNum === 1) return s1 >= 5 && (s1 > s2);
     if (teamNum === 2) return s2 >= 5 && (s2 > s1);
     return false;
   };
+
+  // --- LOGIC TO LOCK INPUTS ONCE SCORE > 0 ---
+  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
@@ -224,7 +223,12 @@ const MWCScoreboard = () => {
         {view === "live" && (
            <div className="fade-in">
              {isAdmin && (
-               <select style={{ width: "100%", padding: "12px", background: "#111", color: theme.accent, border: "1px solid #333", borderRadius: "8px", marginBottom: "10px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}>
+               <select 
+                disabled={isMatchInProgress}
+                style={{ width: "100%", padding: "12px", background: "#111", color: isMatchInProgress ? "#444" : theme.accent, border: "1px solid #333", borderRadius: "8px", marginBottom: "10px" }} 
+                value={match.mType} 
+                onChange={(e) => sync({ ...match, mType: e.target.value })}
+               >
                  <option value="Singles">Singles</option><option value="Doubles">Doubles</option>
                </select>
              )}
@@ -252,9 +256,9 @@ const MWCScoreboard = () => {
                    
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                       <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
-                       <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
-                       {match.mType === "Doubles" && <select style={{ width: "100%", padding: "12px", background: "#111", color: "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
+                       <select disabled={isMatchInProgress} style={{ width: "100%", padding: "12px", background: "#111", color: isMatchInProgress ? "#666" : "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                       <select disabled={isMatchInProgress} style={{ width: "100%", padding: "12px", background: "#111", color: isMatchInProgress ? "#666" : "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                       {match.mType === "Doubles" && <select disabled={isMatchInProgress} style={{ width: "100%", padding: "12px", background: "#111", color: isMatchInProgress ? "#666" : "#FFF", border: "1px solid #333", borderRadius: "8px" }} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>}
                      </div>
                    ) : (
                      <div style={{ marginTop: "10px" }}><h2 style={{ fontSize: "32px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2><p style={{ color: "#AAA", fontSize: "14px" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && `& ${match[`p${n}b`]}`}</p></div>
@@ -366,30 +370,11 @@ const MWCScoreboard = () => {
 
         {view === "info" && (
           <div className="fade-in">
-            {/* STABLE SINGLE LINE TABS */}
-            <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
+            <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
               {["rules", "teams", "crew", "sponsors"].map(tab => (
-                <button 
-                   key={tab} 
-                   onClick={() => setInfoTab(tab)} 
-                   style={{ 
-                     flex: "1 0 auto", 
-                     minWidth: "85px",
-                     padding: "14px 10px", 
-                     background: infoTab === tab ? theme.accent : "#111", 
-                     color: infoTab === tab ? "#000" : "#FFF", 
-                     border: "none", 
-                     borderRadius: "10px", 
-                     fontWeight: "900", 
-                     fontSize: "10px", 
-                     textTransform: "uppercase",
-                     transition: "background 0.2s"
-                   }}>
-                   {tab.toUpperCase()}
-                </button>
+                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "14px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
-
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
                 <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
@@ -399,14 +384,12 @@ const MWCScoreboard = () => {
                 </ul>
               </div>
             )}
-
             {infoTab === "teams" && (
               <div className="fade-in">
                 <div style={{ background: theme.card, padding: "18px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center", marginBottom: "15px" }}>
                    <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
-                
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
@@ -417,7 +400,6 @@ const MWCScoreboard = () => {
                 </div>
               </div>
             )}
-
             {infoTab === "crew" && (
               <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "15px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
@@ -427,7 +409,6 @@ const MWCScoreboard = () => {
                 </div>
               </div>
             )}
-
             {infoTab === "sponsors" && (
               <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "15px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
