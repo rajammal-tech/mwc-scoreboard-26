@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 6.0.7 (REFINED DOUBLES LAYOUT) ----
+// --- MWC-Open-Stable-Build 7.1 (ANIMATED SERVICE FOCUS) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -34,12 +34,12 @@ const TEAM_ROSTERS = {
 const SCHEDULE_DATA = {
   "Feb 7th": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
-    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Team Delta" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Delta" },
+    { time: "04:00 PM", type: "Singles", t1: "Team Alpha", t2: "Delta" },
     { time: "05:00 PM", type: "Doubles", t1: "Team Bravo", t2: "Team Charlie" },
   ],
   "Feb 8th": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Delta" },
   ],
 };
 
@@ -56,8 +56,19 @@ const TennisBallIcon = ({ color, size = 22 }) => (
   </svg>
 );
 
-const RacquetIcon = ({ color, size = 32 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 5px rgba(255,255,255,0.3))` }}>
+const RacquetIcon = ({ color, size = 32, isServing = false }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke={color} 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={isServing ? "racquet-breathe" : ""}
+    style={{ filter: isServing ? `drop-shadow(0 0 8px rgba(255,255,255,0.6))` : "none" }}
+  >
     <circle cx="15" cy="9" r="6" />
     <path d="M10.5 13.5L3 21" />
     <path d="M13 7l4 4" />
@@ -212,7 +223,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8<span style={{ fontSize: "8px", verticalAlign: "top" }}>th</span> Edition</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>STABLE BUILD 7.1</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -247,8 +258,22 @@ const MWCScoreboard = () => {
 
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
+               const isServing = match.server === n;
                return (
-                 <div key={n} className={setPoint ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "10px 0", border: match.server === n ? `1px solid #666` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.5s ease" }}>
+                 <div 
+                   key={n} 
+                   className={isServing ? "serving-card-active" : ""} 
+                   style={{ 
+                     backgroundColor: theme.card, 
+                     padding: "20px", 
+                     borderRadius: "15px", 
+                     margin: "10px 0", 
+                     border: isServing ? `3px solid ${theme.accent}` : "1px solid #222", 
+                     textAlign: "center", 
+                     position: "relative", 
+                     transition: "all 0.3s ease" 
+                   }}
+                 >
                    
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "10px", fontWeight: "900", padding: "5px 15px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 15px ${theme.accent}`, border: "2px solid #000" }}>
@@ -262,22 +287,20 @@ const MWCScoreboard = () => {
                            <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
-                        match.server === n && <RacquetIcon color="#FFF" size={32} />
+                        isServing && <RacquetIcon color="#FFF" size={32} isServing={true} />
                       )}
                    </div>
                    
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
-                       {/* Team Selection */}
                        <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
                        
-                       {/* Player Selection - Responsive Row for Doubles */}
                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                           
                           {match.mType === "Doubles" && (
                             <>
-                              <span style={{ color: theme.accent, fontWeight: "900", fontSize: "18px" }}>/</span>
+                              <span style={{ color: theme.accent, fontWeight: "900", fontSize: "18px", margin: "0 5px" }}>/</span>
                               <select disabled={isMatchInProgress} style={getUmpireSelectStyle(isMatchInProgress, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                             </>
                           )}
@@ -475,12 +498,23 @@ const MWCScoreboard = () => {
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
-        .serving-card-active { animation: breathingGlow 3s infinite ease-in-out; }
-        @keyframes breathingGlow {
-          0% { border-color: #FFF; box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
-          50% { border-color: #adff2f; box-shadow: 0 0 20px rgba(173, 255, 47, 0.3); }
-          100% { border-color: #FFF; box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+        
+        /* SYNCED BREATHE ANIMATION */
+        .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
+        .racquet-breathe { animation: breathingRacquet 2s infinite ease-in-out; }
+
+        @keyframes breathingBorder {
+          0% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
+          50% { border-color: #FFF; box-shadow: 0 0 20px rgba(173, 255, 47, 0.5); }
+          100% { border-color: #adff2f; box-shadow: 0 0 5px rgba(173, 255, 47, 0.2); }
         }
+
+        @keyframes breathingRacquet {
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.8; }
+        }
+
         .set-point-blinker { animation: badgeBlink 1s infinite alternate ease-in-out; }
         @keyframes badgeBlink {
           from { opacity: 1; transform: translateX(-50%) scale(1); }
