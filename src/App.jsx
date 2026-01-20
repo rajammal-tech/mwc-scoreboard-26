@@ -6,7 +6,7 @@ import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, ser
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
-  databaseURL: https://mwc-open---8th-edition-default-rtdb.firebaseio.com,
+  databaseURL: "https://mwc-open---8th-edition-default-rtdb.firebaseio.com",
   projectId: "mwc-open---8th-edition",
   storageBucket: "mwc-open---8th-edition.firebasestorage.app",
   messagingSenderId: "1056583710011",
