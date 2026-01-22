@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 1.1 (BRANDING & NAVIGATION ALIGNMENT FIX) ----
+// --- MWC-Open-Stable-Build (BRANDING & ALIGNMENT FIX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -46,7 +46,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const TennisBallIcon = ({ color, size = 24 }) => (
+const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
@@ -499,7 +499,7 @@ const MWCScoreboard = () => {
                 {v === "live" ? (
                   <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> 
                 ) : v === "results" ? (
-                  <span style={{fontSize: "20px"}}>📊</span> 
+                  <span style={{fontSize: "20px"}}>✅</span> 
                 ) : v === "standings" ? (
                   <span style={{fontSize: "20px"}}>🏆</span> 
                 ) : v === "schedule" ? (
