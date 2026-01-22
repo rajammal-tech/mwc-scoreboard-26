@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 8.0 (STABLE WITH 6-6 BUG FIX) ----
+// --- MWC-Open-Stable-Build 8.1 (PLAYER LOCK & VALIDATION) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -163,6 +163,18 @@ const MWCScoreboard = () => {
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
+  // Validation Logic: Check if all necessary players are selected based on match type
+  const arePlayersValid = useMemo(() => {
+    if (!match.t1 || !match.t2) return false;
+    if (match.mType === "Singles") {
+      return match.p1a && match.p2a;
+    } else {
+      return match.p1a && match.p1b && match.p2a && match.p2b;
+    }
+  }, [match]);
+
+  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
+
   const handleScoreUpdate = (teamNum, currentScore) => {
     if (currentScore > 7) return; 
     const nextServer = match.server === 1 ? 2 : 1;
@@ -175,19 +187,14 @@ const MWCScoreboard = () => {
     sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
   };
 
-  // --- BUG FIX: DO NOT FLASH AT 6-6 ---
   const isServingForSet = (teamNum) => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    
-    // Logic updated: Opponent must have less than 6 to trigger badge at set point
     if (teamNum === 1) return (s1 === 6 && s2 < 6) || (s1 === 5 && s1 > s2);
     if (teamNum === 2) return (s2 === 6 && s1 < 6) || (s2 === 5 && s2 > s1);
     return false;
   };
-
-  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
   const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
     width: isHalfWidth ? "48%" : "100%",
@@ -216,7 +223,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8TH EDITION - V8.0</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8TH EDITION - V8.1</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -257,14 +264,9 @@ const MWCScoreboard = () => {
                    key={n} 
                    className={isServing ? "serving-card-active" : ""} 
                    style={{ 
-                     backgroundColor: theme.card, 
-                     padding: "18px", 
-                     borderRadius: "15px", 
-                     margin: "15px 0", 
+                     backgroundColor: theme.card, padding: "18px", borderRadius: "15px", margin: "15px 0", 
                      border: isServing ? `2px solid #EEE` : "1px solid #222", 
-                     textAlign: "center", 
-                     position: "relative", 
-                     transition: "all 0.4s ease" 
+                     textAlign: "center", position: "relative", transition: "all 0.4s ease" 
                    }}
                  >
                    {setPoint && (
@@ -275,8 +277,12 @@ const MWCScoreboard = () => {
 
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
-                           <RacquetIcon color="#FFF" size={14} /> SET SERVER
+                        <button 
+                          disabled={!arePlayersValid} 
+                          onClick={() => sync({ ...match, server: n })} 
+                          style={{ background: "transparent", border: `1px solid ${arePlayersValid ? '#FFF' : '#444'}`, color: arePlayersValid ? '#FFF' : '#444', fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}
+                        >
+                           <RacquetIcon color={arePlayersValid ? "#FFF" : "#444"} size={14} /> {arePlayersValid ? "SET SERVER" : "SELECT PLAYERS FIRST"}
                         </button>
                       ) : (
                         isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />
@@ -286,28 +292,26 @@ const MWCScoreboard = () => {
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px", textAlign: "center" }}>
                        {!isMatchInProgress ? (
-                         <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
-                       ) : (
-                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
-                       )}
-                       
-                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
-                          {!isMatchInProgress ? (
-                            <>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                         <>
+                           <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
-                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
                               )}
-                            </>
-                          ) : (
-                            <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
+                           </div>
+                         </>
+                       ) : (
+                         <>
+                           <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
+                           <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
                               {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
-                            </div>
-                          )}
-                       </div>
+                           </div>
+                         </>
+                       )}
                      </div>
                    ) : (
                      <div style={{ marginTop: "10px" }}>
