@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build (PLAYER LOCK & 6-6 FIX) ----
+// --- MWC-Open-Stable-Build (BRANDING & ALIGNMENT FIX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -25,18 +25,18 @@ const COMMUNITY_TEAM = {
 };
 
 const TEAM_ROSTERS = {
-  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
-  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16", "P17", "P18", "P19", "P20"],
-  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26", "P27", "P28", "P29", "P30"],
-  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36", "P37", "P38", "P39", "P40"],
+  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6"],
+  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16"],
+  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26"],
+  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36"],
 };
 
 const SCHEDULE_DATA = {
-  "Feb 7th": [
+  "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
   ],
-  "Feb 8th": [
+  "Feb 8": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
@@ -77,7 +77,7 @@ const GreenCheck = ({ color }) => (
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
   const [infoTab, setInfoTab] = useState("rules");
-  const [activeDay, setActiveDay] = useState("Feb 7th");
+  const [activeDay, setActiveDay] = useState("Feb 7");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
@@ -163,17 +163,6 @@ const MWCScoreboard = () => {
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
-  const arePlayersValid = useMemo(() => {
-    if (!match.t1 || !match.t2) return false;
-    if (match.mType === "Singles") {
-      return match.p1a && match.p2a;
-    } else {
-      return match.p1a && match.p1b && match.p2a && match.p2b;
-    }
-  }, [match]);
-
-  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
-
   const handleScoreUpdate = (teamNum, currentScore) => {
     if (currentScore > 7) return; 
     const nextServer = match.server === 1 ? 2 : 1;
@@ -190,10 +179,12 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    if (teamNum === 1) return (s1 === 6 && s2 < 6) || (s1 === 5 && s1 > s2);
-    if (teamNum === 2) return (s2 === 6 && s1 < 6) || (s2 === 5 && s2 > s1);
+    if (teamNum === 1) return s1 === 6 || (s1 === 5 && s1 > s2);
+    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2 > s1);
     return false;
   };
+
+  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
   const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
     width: isHalfWidth ? "48%" : "100%",
@@ -276,12 +267,8 @@ const MWCScoreboard = () => {
 
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button 
-                          disabled={!arePlayersValid} 
-                          onClick={() => sync({ ...match, server: n })} 
-                          style={{ background: "transparent", border: `1px solid ${arePlayersValid ? '#FFF' : '#444'}`, color: arePlayersValid ? '#FFF' : '#444', fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}
-                        >
-                           <RacquetIcon color={arePlayersValid ? "#FFF" : "#444"} size={14} /> {arePlayersValid ? "SET SERVER" : "SELECT PLAYERS FIRST"}
+                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
+                           <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
                         isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />
@@ -291,26 +278,27 @@ const MWCScoreboard = () => {
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px", textAlign: "center" }}>
                        {!isMatchInProgress ? (
-                         <>
-                           <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
-                           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                         <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                       ) : (
+                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
+                       )}
+                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
+                          {!isMatchInProgress ? (
+                            <>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
-                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
                               )}
-                           </div>
-                         </>
-                       ) : (
-                         <>
-                           <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
-                           <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
+                            </>
+                          ) : (
+                            <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
                               {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
-                           </div>
-                         </>
-                       )}
+                            </div>
+                          )}
+                       </div>
                      </div>
                    ) : (
                      <div style={{ marginTop: "10px" }}>
@@ -344,7 +332,7 @@ const MWCScoreboard = () => {
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
               <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS (MVP)</button>
+              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button>
             </div>
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -436,9 +424,9 @@ const MWCScoreboard = () => {
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
                 <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
-                  <li>Best of 3 sets to 7 points.</li>
-                  <li>Golden Point at 6-all.</li>
-                  <li>1 Point per match win.</li>
+                  <li>All matches are of 1 full set</li>
+                  <li>7 point Tie-breaker in case of 6-6</li>
+                  <li>2 Matches per player is a must in Round robin play</li>
                 </ul>
               </div>
             )}
@@ -485,13 +473,40 @@ const MWCScoreboard = () => {
 
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
-          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-                {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} /> : 
-                 v === "results" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>✅</span> : 
-                 v === "standings" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>🏆</span> : 
-                 v === "schedule" ? <span style={{fontSize: "20px", marginBottom: "5px"}}>📅</span> : 
-                 <span style={{fontSize: "20px", marginBottom: "5px"}}>📋</span>}
+          <button 
+            key={v} 
+            onClick={() => setView(v)} 
+            style={{ 
+              flex: 1, 
+              background: "none", 
+              border: "none", 
+              color: view === v ? theme.accent : "#555", 
+              fontSize: "10px", 
+              fontWeight: "900",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <div style={{ 
+              height: "30px", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              marginBottom: "5px" 
+            }}>
+                {v === "live" ? (
+                  <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> 
+                ) : v === "results" ? (
+                  <span style={{fontSize: "20px"}}>✅</span> 
+                ) : v === "standings" ? (
+                  <span style={{fontSize: "20px"}}>🏆</span> 
+                ) : v === "schedule" ? (
+                  <span style={{fontSize: "20px"}}>📅</span> 
+                ) : (
+                  <span style={{fontSize: "20px"}}>📋</span>
+                )}
             </div>
             {v.toUpperCase()}
           </button>
