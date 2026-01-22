@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 9.0 (BRANDING & LOGIC RESTORED) ----
+// --- MWC-Open-Stable-Build 9.0 (STABLE) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -34,10 +34,10 @@ const TEAM_ROSTERS = {
 const SCHEDULE_DATA = {
   "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Delta Force" },
   ],
   "Feb 8": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Delta Force" },
   ],
 };
 
@@ -241,10 +241,12 @@ const MWCScoreboard = () => {
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
            <div className="fade-in">
-             {/* Match Type Label for Public & Umpire */}
-             <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
-                {(match.mType || "Singles")} MATCH
-             </div>
+             {/* Match Type Label: Hidden for Umpire, Visible for Public */}
+             {!isAdmin && (
+               <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
+                  {(match.mType || "Singles")} MATCH
+               </div>
+             )}
 
              {isAdmin && (
                <select 
@@ -303,7 +305,7 @@ const MWCScoreboard = () => {
                        {!isMatchInProgress ? (
                          <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
                        ) : (
-                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`]}</div>
+                         <div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`] || "---"}</div>
                        )}
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
