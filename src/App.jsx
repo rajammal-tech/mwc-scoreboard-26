@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build (BRANDING & ALIGNMENT FIX) ----
+// --- MWC-Open-Stable-Build 1.2 (VALIDATION & ICON UPDATED) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -46,7 +46,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const TennisBallIcon = ({ color, size = 22 }) => (
+const TennisBallIcon = ({ color, size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
@@ -99,6 +99,12 @@ const MWCScoreboard = () => {
       else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
     }
   };
+
+  const arePlayersSelected = useMemo(() => {
+    const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b);
+    const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b);
+    return p1Valid && p2Valid;
+  }, [match]);
 
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
@@ -267,8 +273,20 @@ const MWCScoreboard = () => {
 
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
-                           <RacquetIcon color="#FFF" size={14} /> SET SERVER
+                        <button 
+                          disabled={!arePlayersSelected}
+                          onClick={() => sync({ ...match, server: n })} 
+                          style={{ 
+                            background: "transparent", 
+                            border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, 
+                            color: arePlayersSelected ? "#FFF" : "#444", 
+                            fontSize: "8px", padding: "4px 8px", borderRadius: "4px", 
+                            display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold",
+                            opacity: arePlayersSelected ? 1 : 0.5 
+                          }}
+                        >
+                           <RacquetIcon color={arePlayersSelected ? "#FFF" : "#444"} size={14} /> 
+                           {arePlayersSelected ? "SET SERVER" : "SELECT PLAYERS"}
                         </button>
                       ) : (
                         isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />
@@ -285,11 +303,11 @@ const MWCScoreboard = () => {
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
                             <>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
-                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
                               )}
                             </>
@@ -499,7 +517,7 @@ const MWCScoreboard = () => {
                 {v === "live" ? (
                   <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> 
                 ) : v === "results" ? (
-                  <span style={{fontSize: "20px"}}>✅</span> 
+                  <span style={{fontSize: "20px"}}>📊</span> 
                 ) : v === "standings" ? (
                   <span style={{fontSize: "20px"}}>🏆</span> 
                 ) : v === "schedule" ? (
