@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 1.2 (VALIDATION & ICON UPDATED) ----
+// --- MWC-Open-Stable-Build 9.0 (BRANDING & LOGIC RESTORED) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -241,6 +241,11 @@ const MWCScoreboard = () => {
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
            <div className="fade-in">
+             {/* Match Type Label for Public & Umpire */}
+             <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
+                {(match.mType || "Singles")} MATCH
+             </div>
+
              {isAdmin && (
                <select 
                 disabled={isMatchInProgress}
