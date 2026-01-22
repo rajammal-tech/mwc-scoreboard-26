@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 9.1 (STABLE) ----
+// --- MWC-Open-Beta-completion 1.1 (CLEANED) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -28,16 +28,16 @@ const TEAM_ROSTERS = {
   "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6"],
   "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16"],
   "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26"],
-  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36"],
+  "Team Delta": ["Rajesh", "P32", "P34", "P35", "P36"],
 };
 
 const SCHEDULE_DATA = {
   "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Delta Force" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
   ],
   "Feb 8": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Delta Force" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
 
@@ -46,7 +46,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const TennisBallIcon = ({ color, size = 24 }) => (
+const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
@@ -86,7 +86,6 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
-
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
@@ -99,12 +98,6 @@ const MWCScoreboard = () => {
       else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
     }
   };
-
-  const arePlayersSelected = useMemo(() => {
-    const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b);
-    const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b);
-    return p1Valid && p2Valid;
-  }, [match]);
 
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
@@ -170,7 +163,7 @@ const MWCScoreboard = () => {
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
-    if (currentScore > 7) return; 
+    if (currentScore > 7) return;
     const nextServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
   };
@@ -228,7 +221,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      [cite_start]{/* ROLLING BANNER: Displayed only for Public View [cite: 53] */}
+      {/* ROLLING BANNER - PUBLIC VIEW ONLY */}
       {!isAdmin && (
         <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
           <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
@@ -243,14 +236,14 @@ const MWCScoreboard = () => {
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
-           <div className="fade-in">
-             [cite_start]{/* Match Type Label: Visible only for Public View [cite: 55] */}
+          <div className="fade-in">
+             {/* Match Type Badge - Only for public */}
              {!isAdmin && (
                <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
                   {(match.mType || "Singles")} MATCH
                </div>
              )}
-
+             
              {isAdmin && (
                <select 
                 disabled={isMatchInProgress}
@@ -283,20 +276,8 @@ const MWCScoreboard = () => {
 
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button 
-                          disabled={!arePlayersSelected}
-                          onClick={() => sync({ ...match, server: n })} 
-                          style={{ 
-                            background: "transparent", 
-                            border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, 
-                            color: arePlayersSelected ? "#FFF" : "#444", 
-                            fontSize: "8px", padding: "4px 8px", borderRadius: "4px", 
-                            display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold",
-                            opacity: arePlayersSelected ? 1 : 0.5 
-                          }}
-                        >
-                           <RacquetIcon color={arePlayersSelected ? "#FFF" : "#444"} size={14} /> 
-                           {arePlayersSelected ? "SET SERVER" : "SELECT PLAYERS"}
+                        <button onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid #FFF`, color: "#FFF", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "bold" }}>
+                           <RacquetIcon color="#FFF" size={14} /> SET SERVER
                         </button>
                       ) : (
                         isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />
@@ -313,11 +294,11 @@ const MWCScoreboard = () => {
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
                             <>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Player 1</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
-                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
+                                  <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Player 2</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
                               )}
                             </>
@@ -353,7 +334,7 @@ const MWCScoreboard = () => {
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: pLine, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
              }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
-           </div>
+          </div>
         )}
 
         {view === "standings" && (
@@ -431,9 +412,7 @@ const MWCScoreboard = () => {
                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: "800", fontSize: "15px" }}>
-                        {m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}
-                      </div>
+                      <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}</div>
                       <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div>
                    </div>
                  </div>
@@ -501,40 +480,13 @@ const MWCScoreboard = () => {
 
       <nav style={{ position: "fixed", bottom: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
-          <button 
-            key={v} 
-            onClick={() => setView(v)} 
-            style={{ 
-              flex: 1, 
-              background: "none", 
-              border: "none", 
-              color: view === v ? theme.accent : "#555", 
-              fontSize: "10px", 
-              fontWeight: "900",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            <div style={{ 
-              height: "30px", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center",
-              marginBottom: "5px" 
-            }}>
-                {v === "live" ? (
-                  <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> 
-                ) : v === "results" ? (
-                  <span style={{fontSize: "20px"}}>📊</span> 
-                ) : v === "standings" ? (
-                  <span style={{fontSize: "20px"}}>🏆</span> 
-                ) : v === "schedule" ? (
-                  <span style={{fontSize: "20px"}}>📅</span> 
-                ) : (
-                  <span style={{fontSize: "20px"}}>📋</span>
-                )}
+          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "5px" }}>
+                {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} /> : 
+                 v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
+                 v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
+                 v === "schedule" ? <span style={{fontSize: "20px"}}>📅</span> : 
+                 <span style={{fontSize: "20px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
           </button>
