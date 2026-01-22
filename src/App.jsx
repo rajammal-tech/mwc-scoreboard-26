@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 7.4 (BRANDING & LOGIC RESTORED) ----
+// --- MWC-Open-Stable-Build 8.0 (STABLE WITH 6-6 BUG FIX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -32,11 +32,11 @@ const TEAM_ROSTERS = {
 };
 
 const SCHEDULE_DATA = {
-  "Feb 7": [
+  "Feb 7th": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
   ],
-  "Feb 8": [
+  "Feb 8th": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
@@ -56,14 +56,7 @@ const TennisBallIcon = ({ color, size = 22 }) => (
 
 const RacquetIcon = ({ color, size = 32, isServing = false }) => (
   <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke={color} 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
+    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
     className={isServing ? "racquet-breathe" : ""}
     style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}
   >
@@ -84,7 +77,7 @@ const GreenCheck = ({ color }) => (
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
   const [infoTab, setInfoTab] = useState("rules");
-  const [activeDay, setActiveDay] = useState("Feb 7");
+  const [activeDay, setActiveDay] = useState("Feb 7th");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
@@ -182,13 +175,15 @@ const MWCScoreboard = () => {
     sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
   };
 
+  // --- BUG FIX: DO NOT FLASH AT 6-6 ---
   const isServingForSet = (teamNum) => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    // Target is 7 points.
-    if (teamNum === 1) return s1 === 6 || (s1 === 5 && s1 > s2);
-    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2 > s1);
+    
+    // Logic updated: Opponent must have less than 6 to trigger badge at set point
+    if (teamNum === 1) return (s1 === 6 && s2 < 6) || (s1 === 5 && s1 > s2);
+    if (teamNum === 2) return (s2 === 6 && s1 < 6) || (s2 === 5 && s2 > s1);
     return false;
   };
 
@@ -221,7 +216,7 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8th Edition</div>
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8TH EDITION - V8.0</div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -272,7 +267,6 @@ const MWCScoreboard = () => {
                      transition: "all 0.4s ease" 
                    }}
                  >
-                   
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 12px ${theme.accent}`, border: "2px solid #000" }}>
                        SERVING FOR THE SET
@@ -347,7 +341,7 @@ const MWCScoreboard = () => {
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
               <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button>
+              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS (MVP)</button>
             </div>
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -508,22 +502,18 @@ const MWCScoreboard = () => {
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
-        
         .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
         .racquet-breathe { animation: breathingRacquet 2s infinite ease-in-out; }
-
         @keyframes breathingBorder {
           0% { border-color: #333; box-shadow: 0 0 4px rgba(255, 255, 255, 0.05); }
           50% { border-color: #EEE; box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); }
           100% { border-color: #333; box-shadow: 0 0 4px rgba(255, 255, 255, 0.05); }
         }
-
         @keyframes breathingRacquet {
           0% { transform: scale(1); opacity: 0.8; }
           50% { transform: scale(1.1); opacity: 1; }
           100% { transform: scale(1); opacity: 0.8; }
         }
-
         .set-point-blinker { animation: badgeBlink 0.8s infinite alternate ease-in-out; }
         @keyframes badgeBlink {
           from { opacity: 1; transform: translateX(-50%) scale(1); }
