@@ -86,14 +86,13 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
   
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
   const handleLogin = () => {
-    if (isAdmin) { setIsAdmin(false); if(infoTab === "banner") setInfoTab("rules"); } 
+    if (isAdmin) { setIsAdmin(false); } 
     else {
       const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
@@ -125,7 +124,6 @@ const MWCScoreboard = () => {
 
   useEffect(() => {
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
-    onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val()));
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
         const raw = snap.val();
@@ -170,7 +168,6 @@ const MWCScoreboard = () => {
   }, [history]);
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
-  const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
   
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
@@ -214,7 +211,7 @@ const MWCScoreboard = () => {
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
-         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
+         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
@@ -233,18 +230,20 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER */}
-      <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
-        <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
-          <span style={{ fontSize: "11px", fontWeight: "700", color: theme.accent, letterSpacing: "0.5px" }}>
-            {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
-          </span>
+      [cite_start]{/* ROLLING BANNER [cite: 1] */}
+      <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
+        <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
+          {[...SPONSORS, ...SPONSORS].map((s, i) => (
+            <span key={i} style={{ margin: "0 30px", fontSize: "10px", fontWeight: "800" }}>
+              <span style={{ color: theme.accent, marginRight: "5px" }}>{s.label}:</span>{s.name}
+            </span>
+          ))}
         </div>
       </div>
 
-      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px", flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
-           <div className="fade-in" style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: isAdmin ? "flex-start" : "center" }}>
+           <div className="fade-in">
              {!isAdmin && (
                <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
                   {(match.mType || "Singles")} MATCH
@@ -267,7 +266,7 @@ const MWCScoreboard = () => {
                const isServing = match.server === n;
                return (
                  <div key={n} className={isServing ? "serving-card-active" : ""} 
-                   style={{ backgroundColor: theme.card, padding: "18px", borderRadius: "15px", margin: "10px 0", border: isServing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.4s ease" }}>
+                   style={{ backgroundColor: theme.card, padding: "18px", borderRadius: "15px", margin: "15px 0", border: isServing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.4s ease" }}>
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 12px ${theme.accent}`, border: "2px solid #000" }}>SERVING FOR THE SET</div>
                    )}
@@ -318,18 +317,10 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
-              {["rules", "teams", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
+              {["rules", "teams", "crew", "sponsors"].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "14px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px", textTransform: "uppercase" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
-
-            {infoTab === "banner" && isAdmin && (
-               <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
-                 <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER (CASE SENSITIVE)</label>
-                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} placeholder="Enter scrolling announcement here..." style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", fontFamily: "inherit", outline: "none" }} />
-               </div>
-            )}
-
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
                  <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
