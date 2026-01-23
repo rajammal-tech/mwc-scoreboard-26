@@ -93,10 +93,8 @@ const MWCScoreboard = () => {
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
   const handleLogin = () => {
-    if (isAdmin) { 
-        setIsAdmin(false); 
-        if(infoTab === "banner") setInfoTab("rules");
-    } else {
+    if (isAdmin) { setIsAdmin(false); if(infoTab === "banner") setInfoTab("rules"); } 
+    else {
       const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
       else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
@@ -216,7 +214,7 @@ const MWCScoreboard = () => {
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
-         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
+         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
       
       <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
@@ -235,7 +233,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER - CASE SENSITIVE & SMALLER FONT */}
+      {/* ROLLING BANNER */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
           <span style={{ fontSize: "11px", fontWeight: "700", color: theme.accent, letterSpacing: "0.5px" }}>
@@ -244,9 +242,9 @@ const MWCScoreboard = () => {
         </div>
       </div>
 
-      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
+      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px", flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
         {view === "live" && (
-           <div className="fade-in">
+           <div className="fade-in" style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: isAdmin ? "flex-start" : "center" }}>
              {!isAdmin && (
                <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
                   {(match.mType || "Singles")} MATCH
@@ -269,7 +267,7 @@ const MWCScoreboard = () => {
                const isServing = match.server === n;
                return (
                  <div key={n} className={isServing ? "serving-card-active" : ""} 
-                   style={{ backgroundColor: theme.card, padding: "18px", borderRadius: "15px", margin: "15px 0", border: isServing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.4s ease" }}>
+                   style={{ backgroundColor: theme.card, padding: "18px", borderRadius: "15px", margin: "10px 0", border: isServing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", transition: "all 0.4s ease" }}>
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 12px ${theme.accent}`, border: "2px solid #000" }}>SERVING FOR THE SET</div>
                    )}
@@ -329,7 +327,6 @@ const MWCScoreboard = () => {
                <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
                  <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER (CASE SENSITIVE)</label>
                  <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} placeholder="Enter scrolling announcement here..." style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", fontFamily: "inherit", outline: "none" }} />
-                 <p style={{ color: "#666", fontSize: "10px", marginTop: "10px" }}>Text will scroll exactly as entered above.</p>
                </div>
             )}
 
