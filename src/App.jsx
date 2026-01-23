@@ -13,10 +13,10 @@ const firebaseConfig = {
   appId: "1:1056583710011:web:998e4f73a657ef69d3b31e",
 };
 
-const SPONSORS = [
-  { label: "TENNIS BALLS", name: "???" },
-  { label: "REFRESHMENTS", name: "???" },
-  { label: "VOLUNTARY CONTRIBUTION", name: "???" },
+// Placeholder for banner content [cite: 4, 5]
+const BANNER_PLACEHOLDER = [
+  { label: "ANNOUNCEMENT", text: "Welcome to MWC Open'26 - 8th Edition" },
+  { label: "NOTICE", text: "Match schedules are subject to change based on weather." }
 ];
 
 const COMMUNITY_TEAM = { 
@@ -237,7 +237,18 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* MAIN CONTAINER CENTERED VERTICALLY */}
+      {/* ROLLING BANNER  */}
+      <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
+        <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
+          {[...BANNER_PLACEHOLDER, ...BANNER_PLACEHOLDER].map((s, i) => (
+            <span key={i} style={{ margin: "0 30px", fontSize: "10px", fontWeight: "800" }}>
+              <span style={{ color: theme.accent, marginRight: "5px" }}>{s.label}:</span>{s.text}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* MAIN CONTAINER CENTERED VERTICALLY  */}
       <main style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", overflowY: "auto", padding: "10px" }}>
         <div style={{ maxWidth: "500px", width: "100%", margin: "0 auto" }}>
           {view === "live" && (
@@ -495,7 +506,7 @@ const MWCScoreboard = () => {
         </div>
       </main>
 
-      {/* NAVIGATION STICKY TO BOTTOM */}
+      {/* NAVIGATION STICKY TO BOTTOM [cite: 127] */}
       <nav style={{ width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "30px", paddingTop: "15px", zIndex: 100 }}>
         {VIEWS.map(v => (
           <button 
@@ -527,6 +538,7 @@ const MWCScoreboard = () => {
       <style>{`
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
