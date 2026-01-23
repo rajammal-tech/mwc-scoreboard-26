@@ -86,7 +86,6 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
-
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
@@ -118,7 +117,8 @@ const MWCScoreboard = () => {
       if (dist > 0 && idx < VIEWS.length - 1) setView(VIEWS[idx + 1]);
       if (dist < 0 && idx > 0) setView(VIEWS[idx - 1]);
     }
-    touchStart.current = null; touchEnd.current = null;
+    touchStart.current = null;
+    touchEnd.current = null;
   };
 
   useEffect(() => {
@@ -170,7 +170,7 @@ const MWCScoreboard = () => {
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
-    if (currentScore > 7) return; 
+    if (currentScore > 7) return;
     const nextServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
   };
@@ -228,20 +228,11 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      <div style={{ background: "rgba(20,20,20,0.8)", borderBottom: "1px solid #222", overflow: "hidden", whiteSpace: "nowrap", padding: "8px 0" }}>
-        <div style={{ display: "inline-block", animation: "ticker 30s linear infinite" }}>
-          {[...SPONSORS, ...SPONSORS].map((s, i) => (
-            <span key={i} style={{ margin: "0 30px", fontSize: "10px", fontWeight: "800" }}>
-              <span style={{ color: theme.accent, marginRight: "5px" }}>{s.label}:</span>{s.name}
-            </span>
-          ))}
-        </div>
-      </div>
+      {/* ROLLING BANNER SECTION REMOVED */}
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
            <div className="fade-in">
-             {/* Match Type Label: Hidden for Umpire, Visible for Public */}
              {!isAdmin && (
                <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
                   {(match.mType || "Singles")} MATCH
@@ -310,7 +301,7 @@ const MWCScoreboard = () => {
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
                             <>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || [])).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
@@ -428,9 +419,7 @@ const MWCScoreboard = () => {
                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: "800", fontSize: "15px" }}>
-                        {m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}
-                      </div>
+                      <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}</div>
                       <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div>
                    </div>
                  </div>
@@ -502,25 +491,11 @@ const MWCScoreboard = () => {
             key={v} 
             onClick={() => setView(v)} 
             style={{ 
-              flex: 1, 
-              background: "none", 
-              border: "none", 
-              color: view === v ? theme.accent : "#555", 
-              fontSize: "10px", 
-              fontWeight: "900",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center"
+              flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
             }}
           >
-            <div style={{ 
-              height: "30px", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center",
-              marginBottom: "5px" 
-            }}>
+            <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
                 {v === "live" ? (
                   <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> 
                 ) : v === "results" ? (
@@ -541,7 +516,6 @@ const MWCScoreboard = () => {
       <style>{`
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
