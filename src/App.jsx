@@ -46,11 +46,22 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
+// --- SVG COMPONENTS FOR CONSISTENCY ACROSS iOS/WEB ---
+
 const TennisBallIcon = ({ color, size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
     <path d="M18.5 5.5C16.5 8 15.5 11.5 15.5 15s1 7 3 9.5" transform="rotate(30 12 12)" />
+  </svg>
+);
+
+const CalendarIcon = ({ color, size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 
@@ -501,7 +512,8 @@ const MWCScoreboard = () => {
                 ) : v === "standings" ? (
                   <span style={{fontSize: "20px"}}>🏆</span> 
                 ) : v === "schedule" ? (
-                  <span style={{fontSize: "20px"}}>📅</span> 
+                  /* REPLACED EMOJI WITH SVG FOR iOS CONSISTENCY */
+                  <CalendarIcon color={view === v ? theme.accent : "#555"} size={22} />
                 ) : (
                   <span style={{fontSize: "20px"}}>📋</span>
                 )}
