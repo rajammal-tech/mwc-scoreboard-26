@@ -86,6 +86,9 @@ const MWCScoreboard = () => {
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
+  // Banner state
+  const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
+  
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
@@ -123,6 +126,9 @@ const MWCScoreboard = () => {
 
   useEffect(() => {
     onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
+    // Sync Banner Text
+    onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val()));
+    
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
         const raw = snap.val();
@@ -167,6 +173,8 @@ const MWCScoreboard = () => {
   }, [history]);
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
+  const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
+  
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
@@ -228,9 +236,32 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
+      {/* ROLLING BANNER COMPONENT */}
+      <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+        <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
+          <span style={{ fontSize: "12px", fontWeight: "800", color: theme.accent, textTransform: "uppercase", letterSpacing: "1px" }}>
+            {bannerText} — {bannerText} — {bannerText}
+          </span>
+        </div>
+      </div>
+
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
            <div className="fade-in">
+             {/* EDITABLE BANNER FIELD FOR UMPIRE */}
+             {isAdmin && (
+               <div style={{ marginBottom: "20px", padding: "10px", border: "1px dashed #444", borderRadius: "8px" }}>
+                 <label style={{ fontSize: "9px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "5px" }}>EDIT LIVE BANNER CONTENT</label>
+                 <input 
+                    type="text" 
+                    value={bannerText} 
+                    onChange={(e) => updateBanner(e.target.value)}
+                    placeholder="Enter announcement..."
+                    style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "10px", borderRadius: "5px", fontSize: "12px" }}
+                 />
+               </div>
+             )}
+
              {!isAdmin && (
                <div style={{ textAlign: "center", marginBottom: "10px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>
                   {(match.mType || "Singles")} MATCH
@@ -260,10 +291,10 @@ const MWCScoreboard = () => {
                      border: isServing ? `2px solid #EEE` : "1px solid #222", 
                      textAlign: "center", position: "relative", transition: "all 0.4s ease" 
                    }}
-                 >
+                >
                    {setPoint && (
                      <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px", zIndex: 100, boxShadow: `0 0 12px ${theme.accent}`, border: "2px solid #000" }}>
-                       SERVING FOR THE SET
+                        SERVING FOR THE SET
                      </div>
                    )}
 
@@ -305,7 +336,7 @@ const MWCScoreboard = () => {
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
                                   <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
-                              )}
+                             )}
                             </>
                           ) : (
                             <div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>
@@ -320,7 +351,7 @@ const MWCScoreboard = () => {
                        <p style={{ color: "#AAA", fontSize: "12px", fontWeight: "700" }}>
                          {match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}
                        </p>
-                     </div>
+                      </div>
                    )}
                    
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
@@ -354,7 +385,7 @@ const MWCScoreboard = () => {
                   <>
                     <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>PLAYER</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th></tr></thead>
                     <tbody>{playerStats.sorted.map((p, i) => (
-                      <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
+                       <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
                         <td style={{ padding: "15px" }}><span style={{ marginRight: "8px" }}>{p.mw === playerStats.maxWins && p.mw > 0 ? "👑" : <span style={{color: "#444", fontWeight: "900", fontSize: "10px"}}>#{i + 1}</span>}</span><span style={{ fontWeight: "700", fontSize: "14px", color: p.mw === playerStats.maxWins && p.mw > 0 ? theme.accent : "#FFF" }}>{p.name}</span></td>
                         <td style={{ textAlign: "center", color: "#888" }}>{p.mp}</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{p.mw}</td>
                       </tr>
@@ -420,7 +451,7 @@ const MWCScoreboard = () => {
                       <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}</div>
                       <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div>
                    </div>
-                 </div>
+                </div>
                ))}
              </div>
            </div>
@@ -435,17 +466,17 @@ const MWCScoreboard = () => {
             </div>
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-                <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
+                 <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
                   <li>All matches are of 1 full set</li>
                   <li>7 point Tie-breaker in case of 6-6</li>
                   <li>2 Matches per player is a must in Round robin play</li>
-                </ul>
+                 </ul>
               </div>
             )}
             {infoTab === "teams" && (
               <div className="fade-in">
                 <div style={{ background: theme.card, padding: "18px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center", marginBottom: "15px" }}>
-                   <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
+                  <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -514,6 +545,13 @@ const MWCScoreboard = () => {
       <style>{`
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Banner Animation */
+        @keyframes ticker {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         button:active { transform: scale(0.95); transition: 0.1s; }
