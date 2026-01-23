@@ -238,7 +238,7 @@ const MWCScoreboard = () => {
       {/* ROLLING BANNER - CASE SENSITIVE & SMALLER FONT */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
-          <span style={{ fontSize: "11px", fontWeight: "700", color: theme.accent, letterSpacing: "0.5px" }}>
+          <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
             {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
           </span>
         </div>
