@@ -487,7 +487,7 @@ const MWCScoreboard = () => {
         {VIEWS.map(v => (
           <button 
             key={v} 
-            onClick={() => setView(v)} 
+            onClick={() => { setView(v); if (v === "info") setInfoTab("rules"); }} 
             style={{ 
               flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center"
