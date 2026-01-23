@@ -157,7 +157,7 @@ const MWCScoreboard = () => {
       const t2p = sides[1].split("/").map(p => p.trim());
       const all = [...t1p, ...t2p];
       all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0 }; });
-      all.forEach(p => stats[p].mp += 1);
+      all.forEach(p => { stats[p].mp += 1; });
       if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1);
       else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1);
     });
@@ -227,8 +227,6 @@ const MWCScoreboard = () => {
           </div>
         </div>
       </header>
-
-      {/* ROLLING BANNER SECTION REMOVED */}
 
       <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
         {view === "live" && (
@@ -301,7 +299,7 @@ const MWCScoreboard = () => {
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
                           {!isMatchInProgress ? (
                             <>
-                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || [])).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && (
                                 <>
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
@@ -398,7 +396,7 @@ const MWCScoreboard = () => {
                  </div>
                  {isAdmin && editingId !== h.id && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-                     <button onClick={() => {setEditingId(h.id); setEditScores({s1:h.s1, s2:h.s2})}} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
+                     <button onClick={() => {setEditingId(h.id); setEditScores({s1:h.s1, s2:h.s2}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
                    </div>
                  )}
