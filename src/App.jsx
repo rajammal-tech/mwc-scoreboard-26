@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "TENNIS BALLS", name: "Smrithi" }, // Updated as requested 
+  { label: "TENNIS BALLS", name: "Smrithi" },
   { label: "REFRESHMENTS", name: "???" },
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
@@ -54,7 +54,6 @@ const TennisBallIcon = ({ color, size = 24 }) => (
   </svg>
 );
 
-// Uniform Schedule Icon [cite: 264]
 const CalendarIcon = ({ color, size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -244,7 +243,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER - Mild white font [cite: 195] */}
+      {/* ROLLING BANNER - Mild white font */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
           <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -311,7 +310,6 @@ const MWCScoreboard = () => {
                    ) : (
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
-                       {/* Font size increased for player names  */}
                        <p style={{ color: "#AAA", fontSize: "14px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
                       </div>
                    )}
@@ -335,7 +333,6 @@ const MWCScoreboard = () => {
               ))}
             </div>
 
-            {/* Editable Banner Window Overflow Fix  */}
             {infoTab === "banner" && isAdmin && (
                <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}`, boxSizing: "border-box" }}>
                  <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER (CASE SENSITIVE)</label>
@@ -383,8 +380,8 @@ const MWCScoreboard = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {SPONSORS.map((s, i) => (
                     <div key={i} style={{ background: "#050505", padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
-                      <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "2px" }}>{s.label}</div>
-                      <div style={{ fontSize: "16px", fontWeight: "800" }}>{s.name}</div>
+                      <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>{s.label}</div>
+                      <div style={{ fontSize: "14px", fontWeight: "400", color: "#FFF" }}>{s.name}</div>
                     </div>
                   ))}
                 </div>
@@ -485,7 +482,7 @@ const MWCScoreboard = () => {
                 {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : 
                  v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
                  v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
-                 v === "schedule" ? <CalendarIcon color={view === v ? theme.accent : "#555"} size={20} /> : // Uniform Calendar Icon [cite: 264]
+                 v === "schedule" ? <CalendarIcon color={view === v ? theme.accent : "#555"} size={20} /> : 
                  <span style={{fontSize: "20px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
