@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "TENNIS BALLS", name: "???" },
+  { label: "TENNIS BALLS", name: "Smrithi" }, // Updated as requested 
   { label: "REFRESHMENTS", name: "???" },
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
@@ -54,6 +54,16 @@ const TennisBallIcon = ({ color, size = 24 }) => (
   </svg>
 );
 
+// Uniform Schedule Icon [cite: 264]
+const CalendarIcon = ({ color, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
 const RacquetIcon = ({ color, size = 32, isServing = false }) => (
   <svg 
     width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
@@ -87,14 +97,13 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
-  
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
   const handleLogin = () => {
     if (isAdmin) { 
-        setIsAdmin(false); 
+        setIsAdmin(false);
         if(infoTab === "banner") setInfoTab("rules");
     } else {
       const p = window.prompt("Umpire PIN:");
@@ -235,7 +244,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER - CASE SENSITIVE & SMALLER FONT */}
+      {/* ROLLING BANNER - Mild white font [cite: 195] */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
           <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -302,7 +311,8 @@ const MWCScoreboard = () => {
                    ) : (
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
-                       <p style={{ color: "#AAA", fontSize: "12px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
+                       {/* Font size increased for player names  */}
+                       <p style={{ color: "#AAA", fontSize: "14px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
                       </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
@@ -325,10 +335,11 @@ const MWCScoreboard = () => {
               ))}
             </div>
 
+            {/* Editable Banner Window Overflow Fix  */}
             {infoTab === "banner" && isAdmin && (
-               <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
+               <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}`, boxSizing: "border-box" }}>
                  <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER (CASE SENSITIVE)</label>
-                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} placeholder="Enter scrolling announcement here..." style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", fontFamily: "inherit", outline: "none" }} />
+                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} placeholder="Enter scrolling announcement here..." style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }} />
                  <p style={{ color: "#666", fontSize: "10px", marginTop: "10px" }}>Text will scroll exactly as entered above.</p>
                </div>
             )}
@@ -471,7 +482,11 @@ const MWCScoreboard = () => {
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
-                {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : v === "schedule" ? <span style={{fontSize: "20px"}}>📅</span> : <span style={{fontSize: "20px"}}>📋</span>}
+                {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : 
+                 v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
+                 v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
+                 v === "schedule" ? <CalendarIcon color={view === v ? theme.accent : "#555"} size={20} /> : // Uniform Calendar Icon [cite: 264]
+                 <span style={{fontSize: "20px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
           </button>
