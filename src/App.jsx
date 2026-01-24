@@ -370,7 +370,7 @@ const MWCScoreboard = () => {
                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div style={{ padding: "10px", textAlign: "center" }}>
                   <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div>
-                  <div style={{ fontSize: "13px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                  <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
@@ -425,12 +425,12 @@ const MWCScoreboard = () => {
                   {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
                     <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
                       <td style={{ padding: "15px" }}>
-                        <span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+                        <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
                         <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
                       </td>
                       {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
-                      <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{item.mp || item.played}</td>
-                      {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{item.games}</td>}
+                      <td style={{ textAlign: "center", color: "#888", fontSize: infoTab === "player_std" ? "13px" : "13px" }}>{item.mp || item.played}</td>
+                      {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
                       <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td>
                     </tr>
                   ))}
