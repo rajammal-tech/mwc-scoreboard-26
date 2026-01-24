@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.3 (Original View Restored) ----
+// --- MWC-Open-Beta-completion 1.4 (Tab Resets Added) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -90,6 +90,13 @@ const MWCScoreboard = () => {
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
 
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
+
+  // RESET LOGIC: Ensure default tabs when navigating to a view
+  useEffect(() => {
+    if (view === "info") setInfoTab("rules");
+    if (view === "standings") setInfoTab("team_std");
+    if (view === "schedule") setActiveDay("Feb 7");
+  }, [view]);
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
 
@@ -350,23 +357,23 @@ const MWCScoreboard = () => {
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
                  <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
-                  <li>All matches are of 1 full set</li>
-                  <li>7 point Tie-breaker in case of 6-6</li>
-                  <li>2 Matches per player is a must in Round robin play</li>
+                  <li>All matches are of 1 full set [cite: 86]</li>
+                  <li>7 point Tie-breaker in case of 6-6 [cite: 86]</li>
+                  <li>2 Matches per player is a must in Round robin play [cite: 86, 87]</li>
                  </ul>
               </div>
             )}
             {infoTab === "teams" && (
               <div className="fade-in">
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
-                  <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   <div style={{ fontSize: "12px", fontWeight: "400", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                  <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE [cite: 88]</div>
+                   <div style={{ fontSize: "12px", fontWeight: "400", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire} [cite: 88]</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px", letterSpacing: "0.5px" }}>{t.toUpperCase()}</h4>
-                      {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px", letterSpacing: "0.5px" }}>{t.toUpperCase()} [cite: 90]</h4>
+                      {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p} [cite: 90]</div>)}
                     </div>
                   ))}
                 </div>
@@ -376,7 +383,7 @@ const MWCScoreboard = () => {
               <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "15px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   {COMMUNITY_TEAM.crew.map((name, i) => (
-                    <div key={i} style={{ background: "#050505", padding: "12px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name}</div>
+                    <div key={i} style={{ background: "#050505", padding: "12px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name} [cite: 92]</div>
                   ))}
                 </div>
               </div>
@@ -386,8 +393,8 @@ const MWCScoreboard = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {SPONSORS.map((s, i) => (
                     <div key={i} style={{ background: "#050505", padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
-                      <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>{s.label}</div>
-                      <div style={{ fontSize: "14px", fontWeight: "400", color: "#FFF" }}>{s.name}</div>
+                      <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>{s.label} [cite: 94]</div>
+                      <div style={{ fontSize: "14px", fontWeight: "400", color: "#FFF" }}>{s.name} [cite: 95]</div>
                     </div>
                   ))}
                 </div>
@@ -399,8 +406,8 @@ const MWCScoreboard = () => {
         {view === "standings" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-              <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
-              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button>
+              <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS [cite: 96, 97]</button>
+              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS [cite: 98]</button>
             </div>
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -410,7 +417,7 @@ const MWCScoreboard = () => {
                     <tbody>{playerStats.sorted.map((p, i) => (
                         <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
                         <td style={{ padding: "15px" }}><span style={{ marginRight: "8px" }}>{p.mw === playerStats.maxWins && p.mw > 0 ? "👑" : <span style={{color: "#444", fontWeight: "900", fontSize: "10px"}}>#{i + 1}</span>}</span><span style={{ fontWeight: "700", fontSize: "14px", color: p.mw === playerStats.maxWins && p.mw > 0 ? theme.accent : "#FFF" }}>{p.name}</span></td>
-                        <td style={{ textAlign: "center", color: "#888" }}>{p.mp}</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{p.mw}</td>
+                        <td style={{ textAlign: "center", color: "#888" }}>{p.mp} [cite: 101]</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{p.mw} [cite: 101]</td>
                       </tr>
                     ))}</tbody>
                   </>
@@ -419,8 +426,8 @@ const MWCScoreboard = () => {
                     <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>TEAM</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th></tr></thead>
                     <tbody>{standings.map((team, i) => (
                       <tr key={team.name} style={{ borderBottom: "1px solid #222" }}>
-                        <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "700", fontSize: "14px" }}>{team.name}</span></td>
-                        <td style={{ textAlign: "center" }}>{team.played}</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{team.won}</td>
+                        <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1} [cite: 104]</span><span style={{ fontWeight: "700", fontSize: "14px" }}>{team.name} [cite: 104]</span></td>
+                        <td style={{ textAlign: "center" }}>{team.played} [cite: 104]</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{team.won} [cite: 104]</td>
                       </tr>
                     ))}</tbody>
                   </>
@@ -436,8 +443,8 @@ const MWCScoreboard = () => {
                <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
                  <div style={{ display: "flex", alignItems: "center" }}>
                    <div style={{ flex: 1 }}>
-                     <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</div>
-                     <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                     <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>} [cite: 107]</div>
+                     <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players} [cite: 107]</div>
                      <div style={{ fontSize: "10px", color: theme.accent, marginTop: "4px", fontWeight: "700" }}>{h.time || "N/A"}</div>
                    </div>
                    {editingId === h.id ? (
@@ -461,13 +468,13 @@ const MWCScoreboard = () => {
                         </div>
                      </div>
                    ) : (
-                     <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
+                     <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2} [cite: 108]</span></div>
                    )}
                  </div>
                  {isAdmin && editingId !== h.id && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
                      <button onClick={() => { setEditingId(h.id); setEditScores({s1: Number(h.s1), s2: Number(h.s2)}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px", fontWeight: "bold" }}>EDIT</button>
-                     <button onClick={() => window.confirm("Delete Match?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px", fontWeight: "bold" }}>DELETE</button>
+                     <button onClick={() => window.confirm("Delete Match?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px", fontWeight: "bold" }}>DELETE [cite: 109]</button>
                    </div>
                  )}
                </div>
@@ -479,16 +486,16 @@ const MWCScoreboard = () => {
            <div className="fade-in">
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
-                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
+                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()} [cite: 111, 112]</button>
                ))}
              </div>
              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
-                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time} [cite: 113]</div>
                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2}</div>
-                      <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()}</div>
+                      <div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555", fontWeight: "400", margin: "0 4px" }}>vs</span> {m.t2} [cite: 114]</div>
+                      <div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold", marginTop: "4px" }}>{m.type.toUpperCase()} [cite: 114]</div>
                    </div>
                  </div>
                ))}
@@ -506,12 +513,12 @@ const MWCScoreboard = () => {
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
                 {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : 
-                 v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
-                 v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
-                 v === "schedule" ? <span style={{fontSize: "20px"}}>⏩</span> : 
+                 v === "results" ? <span style={{fontSize: "20px"}}>📊 [cite: 118]</span> : 
+                 v === "standings" ? <span style={{fontSize: "20px"}}>🏆 [cite: 119]</span> : 
+                 v === "schedule" ? <span style={{fontSize: "20px"}}>⏩ [cite: 120]</span> : 
                  <span style={{fontSize: "20px"}}>📋</span>}
             </div>
-            {v.toUpperCase()}
+            {v.toUpperCase()} [cite: 116]
           </button>
         ))}
       </nav>
