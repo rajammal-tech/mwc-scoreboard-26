@@ -199,8 +199,9 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    if (teamNum === 1) return s1 === 6 || (s1 === 5 && s1 > s2);
-    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2 > s1);
+    // Modified logic: Only show if serving team has 5+ points AND is at least 1 point ahead AND it's not a deuce-like 5-5/6-6 situation.
+    if (teamNum === 1) return s1 >= 5 && s1 > s2;
+    if (teamNum === 2) return s2 >= 5 && s2 > s1;
     return false;
   };
 
