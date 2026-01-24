@@ -222,7 +222,6 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            {/* Targeted Font Size Increase for "8" */}
             <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>
               <span style={{ fontSize: "12px" }}>8</span>th Edition
             </div>
@@ -295,7 +294,7 @@ const MWCScoreboard = () => {
                                 </>
                              )}
                             </>
-                          ) : (<div style={{ fontSize: "13px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
+                          ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
                        </div>
                      </div>
                    ) : (
@@ -344,8 +343,8 @@ const MWCScoreboard = () => {
               <div className="fade-in">
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
                   <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   {/* Reduced Name by one more size to 13px */}
-                   <div style={{ fontSize: "13px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                   {/* Reduced Name to 12px and removed bold */}
+                   <div style={{ fontSize: "12px", fontWeight: "400", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
@@ -438,7 +437,6 @@ const MWCScoreboard = () => {
 
         {view === "schedule" && (
            <div className="fade-in">
-             {/* Increased Date Button Font Sizes */}
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
                  <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
