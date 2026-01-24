@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.1 (TIMESTAMP & EDIT FIX) ----
+// --- MWC-Open-Beta-completion 1.1 (STEPPER EDIT) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -440,19 +440,35 @@ const MWCScoreboard = () => {
                      <div style={{ fontSize: "10px", color: theme.accent, marginTop: "4px", fontWeight: "700" }}>{h.time || "N/A"}</div>
                    </div>
                    {editingId === h.id ? (
-                     <div style={{ display: "flex", gap: "5px" }}>
-                        <input type="number" style={{ width: "40px", padding: "5px", background: "#000", color: "#FFF", border: "1px solid #444", borderRadius: "4px" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
-                        <input type="number" style={{ width: "40px", padding: "5px", background: "#000", color: "#FFF", border: "1px solid #444", borderRadius: "4px" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
-                        <button onClick={()=> { update(ref(db, `history/${h.id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); }} style={{ background: theme.accent, padding: "5px 10px", borderRadius: "4px", fontWeight: "bold", color: "#000", border: "none" }}>SAVE</button>
+                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-end" }}>
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                          {/* Stepper Team 1 */}
+                          <div style={{ display: "flex", background: "#000", border: "1px solid #333", borderRadius: "8px" }}>
+                             <button onClick={() => setEditScores({...editScores, s1: Math.max(0, editScores.s1 - 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: "#ff4444", fontWeight: "900" }}>-</button>
+                             <div style={{ padding: "8px 0", width: "25px", textAlign: "center", fontWeight: "900", fontSize: "14px" }}>{editScores.s1}</div>
+                             <button onClick={() => setEditScores({...editScores, s1: Math.min(7, editScores.s1 + 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: theme.accent, fontWeight: "900" }}>+</button>
+                          </div>
+                          <span style={{ color: "#444", fontSize: "12px" }}>-</span>
+                          {/* Stepper Team 2 */}
+                          <div style={{ display: "flex", background: "#000", border: "1px solid #333", borderRadius: "8px" }}>
+                             <button onClick={() => setEditScores({...editScores, s2: Math.max(0, editScores.s2 - 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: "#ff4444", fontWeight: "900" }}>-</button>
+                             <div style={{ padding: "8px 0", width: "25px", textAlign: "center", fontWeight: "900", fontSize: "14px" }}>{editScores.s2}</div>
+                             <button onClick={() => setEditScores({...editScores, s2: Math.min(7, editScores.s2 + 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: theme.accent, fontWeight: "900" }}>+</button>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button onClick={() => setEditingId(null)} style={{ background: "#222", padding: "6px 12px", borderRadius: "4px", fontSize: "10px", fontWeight: "bold", color: "#FFF", border: "1px solid #444" }}>CANCEL</button>
+                          <button onClick={()=> { update(ref(db, `history/${h.id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); }} style={{ background: theme.accent, padding: "6px 12px", borderRadius: "4px", fontSize: "10px", fontWeight: "bold", color: "#000", border: "none" }}>SAVE</button>
+                        </div>
                      </div>
                    ) : (
                      <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
                    )}
                  </div>
-                 {isAdmin && (
+                 {isAdmin && editingId !== h.id && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-                     <button onClick={() => { setEditingId(h.id); setEditScores({s1: h.s1, s2: h.s2}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
-                     <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
+                     <button onClick={() => { setEditingId(h.id); setEditScores({s1: Number(h.s1), s2: Number(h.s2)}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px", fontWeight: "bold" }}>EDIT</button>
+                     <button onClick={() => window.confirm("Delete Match?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px", fontWeight: "bold" }}>DELETE</button>
                    </div>
                  )}
                </div>
