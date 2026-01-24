@@ -151,32 +151,43 @@ const MWCScoreboard = () => {
   }, []);
 
   const standings = useMemo(() => {
-    const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0 }; return acc; }, {});
+    const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0, games: 0 }; return acc; }, {});
     history.forEach((m) => {
-      if (stats[m.t1]) stats[m.t1].played += 1;
-      if (stats[m.t2]) stats[m.t2].played += 1;
+      if (stats[m.t1]) {
+        stats[m.t1].played += 1;
+        stats[m.t1].games += Number(m.s1 || 0);
+      }
+      if (stats[m.t2]) {
+        stats[m.t2].played += 1;
+        stats[m.t2].games += Number(m.s2 || 0);
+      }
       if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; }
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
-    return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won || b.played - a.played);
+    return Object.entries(stats)
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => b.won - a.won);
   }, [history]);
 
   const playerStats = useMemo(() => {
     const stats = {};
+    const playerToTeam = {};
+    Object.entries(TEAM_ROSTERS).forEach(([team, players]) => {
+      players.forEach(p => playerToTeam[p] = team);
+    });
+
     history.forEach((m) => {
       const sides = m.players.split(" vs ");
       if (sides.length !== 2) return;
       const t1p = sides[0].split("/").map(p => p.trim());
       const t2p = sides[1].split("/").map(p => p.trim());
       const all = [...t1p, ...t2p];
-      all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0 }; });
+      all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0, team: playerToTeam[p] || "---" }; });
       all.forEach(p => { stats[p].mp += 1; });
       if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1);
       else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1);
     });
-    const sorted = Object.values(stats).sort((a, b) => b.mw - a.mw);
-    const maxWins = sorted.length > 0 ? sorted[0].mw : 0;
-    return { sorted, maxWins };
+    return Object.values(stats).sort((a, b) => b.mw - a.mw);
   }, [history]);
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
@@ -401,13 +412,26 @@ const MWCScoreboard = () => {
             </div>
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th></tr></thead>
+                <thead style={{ background: "#050505" }}>
+                  <tr style={{ textAlign: "left" }}>
+                    <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th>
+                    {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
+                    <th style={{ textAlign: "center", fontSize: "10px" }}>MP</th>
+                    {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
+                    <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {(infoTab === "player_std" ? playerStats.sorted : standings).map((item, i) => (
+                  {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
                     <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
-                      <td style={{ padding: "15px" }}><span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span><span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span></td>
-                      <td style={{ textAlign: "center", color: "#888" }}>{item.mp || item.played}</td>
-                      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw || item.won}</td>
+                      <td style={{ padding: "15px" }}>
+                        <span style={{ color: i===0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+                        <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
+                      </td>
+                      {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
+                      <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{item.mp || item.played}</td>
+                      {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{item.games}</td>}
+                      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td>
                     </tr>
                   ))}
                 </tbody>
