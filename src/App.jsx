@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.1 (Timestamp & Build Fixed) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -86,7 +85,6 @@ const MWCScoreboard = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
   
-  // States for Editing Results
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
 
@@ -202,7 +200,7 @@ const MWCScoreboard = () => {
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
     if (teamNum === 1) return s1 === 6 || (s1 === 5 && s1 > s2);
-    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2 > s1);
+    if (teamNum === 2) return s2 === 6 || (s2 === 5 && s2, s1);
     return false;
   };
 
@@ -225,36 +223,58 @@ const MWCScoreboard = () => {
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
-         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel }}>
+         style={{ 
+           backgroundColor: theme.bg, 
+           color: theme.text, 
+           height: "100vh", // Fixed height for full screen
+           display: "flex", 
+           flexDirection: "column", // Stack elements vertically
+           fontFamily: "-apple-system, sans-serif", 
+           zoom: zoomLevel,
+           overflow: "hidden" // Prevent overall body scrolling
+         }}>
       
-      <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
-          <div style={{ minWidth: "95px", display: "flex", flexDirection: "column", gap: "5px" }}>
-            <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
-            <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
-          </div>
-          <div style={{ textAlign: "center", flex: 1 }}>
-            <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>
-              <span style={{ fontSize: "12px" }}>8</span>th Edition
+      {/* LOCKED TOP SECTION */}
+      <div style={{ flexShrink: 0, zIndex: 1000, background: "#000" }}>
+        <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
+            <div style={{ minWidth: "95px", display: "flex", flexDirection: "column", gap: "5px" }}>
+              <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
+              <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
+              <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>
+                <span style={{ fontSize: "12px" }}>8</span>th Edition
+              </div>
+            </div>
+            <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
+              {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
+              <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button>
             </div>
           </div>
-          <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
-            {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
-            <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
-        <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
-          <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
-            {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
-          </span>
+        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
+              {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: "500px", margin: "0 auto", padding: "10px" }}>
+      {/* SCROLLABLE MAIN CONTENT AREA */}
+      <div style={{ 
+        flexGrow: 1, 
+        overflowY: "auto", // Only this part scrolls
+        WebkitOverflowScrolling: "touch",
+        padding: "10px",
+        maxWidth: "500px",
+        width: "100%",
+        margin: "0 auto",
+        paddingBottom: "110px" // Space for bottom nav
+      }}>
         {view === "live" && (
            <div className="fade-in">
              {!isAdmin && (
@@ -485,7 +505,17 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, left:0, right: 0, display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100 }}>
+      {/* FIXED BOTTOM NAV */}
+      <nav style={{ 
+        flexShrink: 0, 
+        display: "flex", 
+        background: "rgba(10,10,10,0.95)", 
+        backdropFilter: "blur(15px)", 
+        borderTop: "1px solid #222", 
+        paddingBottom: "35px", 
+        paddingTop: "15px", 
+        zIndex: 1000 
+      }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
@@ -501,6 +531,7 @@ const MWCScoreboard = () => {
       </nav>
 
       <style>{`
+        body { overflow: hidden; margin: 0; position: fixed; width: 100%; height: 100%; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
