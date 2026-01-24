@@ -1,601 +1,499 @@
-import React, { useState, useEffect, useRef, useMemo } from "react"; [cite: 1]
-import { initializeApp, getApps } from "firebase/app"; [cite: 1]
-import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database"; [cite: 2]
-// Added Recharts imports for Analytics tab
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { initializeApp, getApps } from "firebase/app";
+import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
+// Added Recharts for Analytics
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const firebaseConfig = { [cite: 3]
-  apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0", [cite: 3]
-  authDomain: "mwc-open---8th-edition.firebaseapp.com", [cite: 3]
-  databaseURL: "https://mwc-open---8th-edition-default-rtdb.firebaseio.com", [cite: 3]
-  projectId: "mwc-open---8th-edition", [cite: 3]
-  storageBucket: "mwc-open---8th-edition.firebasestorage.app", [cite: 3]
-  messagingSenderId: "1056583710011", [cite: 3]
-  appId: "1:1056583710011:web:998e4f73a657ef69d3b31e", [cite: 3]
-}; [cite: 3]
+const firebaseConfig = {
+  apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
+  authDomain: "mwc-open---8th-edition.firebaseapp.com",
+  databaseURL: "https://mwc-open---8th-edition-default-rtdb.firebaseio.com",
+  projectId: "mwc-open---8th-edition",
+  storageBucket: "mwc-open---8th-edition.firebasestorage.app",
+  messagingSenderId: "1056583710011",
+  appId: "1:1056583710011:web:998e4f73a657ef69d3b31e",
+};
 
-const SPONSORS = [ [cite: 4]
-  { label: "TENNIS BALLS", name: "Smrithi" }, [cite: 4]
-  { label: "REFRESHMENTS", name: "???" }, [cite: 4, 5]
-  { label: "VOLUNTARY CONTRIBUTION", name: "???" }, [cite: 5]
-]; [cite: 5]
+const SPONSORS = [
+  { label: "TENNIS BALLS", name: "Smrithi" },
+  { label: "REFRESHMENTS", name: "???" }, 
+  { label: "VOLUNTARY CONTRIBUTION", name: "???" },
+];
 
-const COMMUNITY_TEAM = { [cite: 6]
-  chairUmpire: "Raphael Rodgers", [cite: 6]
-  crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"] [cite: 6]
-}; [cite: 6]
+const COMMUNITY_TEAM = { 
+  chairUmpire: "Raphael Rodgers",
+  crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
+};
 
-const TEAM_ROSTERS = { [cite: 7]
-  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6"], [cite: 7]
-  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16"], [cite: 7]
-  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26"], [cite: 7]
-  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36"], [cite: 7]
-}; [cite: 7]
+const TEAM_ROSTERS = {
+  "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6"],
+  "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16"],
+  "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26"],
+  "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36"],
+};
 
-const SCHEDULE_DATA = { [cite: 8]
-  "Feb 7": [ [cite: 8]
-    { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" }, [cite: 8]
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" }, [cite: 8]
-  ], [cite: 8]
-  "Feb 8": [ [cite: 8]
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" }, [cite: 8]
-  ], [cite: 8]
-}; [cite: 8]
+const SCHEDULE_DATA = {
+  "Feb 7": [
+    { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
+  ],
+  "Feb 8": [
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
+  ],
+};
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]; [cite: 9]
-const db = getDatabase(app); [cite: 9]
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getDatabase(app);
+const VIEWS = ["live", "results", "standings", "schedule", "info"];
+const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const VIEWS = ["live", "results", "standings", "schedule", "info"]; [cite: 10]
-const TEAMS = Object.keys(TEAM_ROSTERS); [cite: 10]
+const TennisBallIcon = ({ color, size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
+    <path d="M18.5 5.5C16.5 8 15.5 11.5 15.5 15s1 7 3 9.5" transform="rotate(30 12 12)" />
+  </svg>
+);
 
-const TennisBallIcon = ({ color, size = 22 }) => ( [cite: 11]
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> [cite: 11]
-    <circle cx="12" cy="12" r="10" /> [cite: 11]
-    <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" /> [cite: 11]
-    <path d="M18.5 5.5C16.5 8 15.5 11.5 15.5 15s1 7 3 9.5" transform="rotate(30 12 12)" /> [cite: 11]
-  </svg> [cite: 11]
-); [cite: 11]
+const RacquetIcon = ({ color, size = 32, isServing = false }) => (
+  <svg 
+    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+    className={isServing ? "racquet-breathe" : ""}
+    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}
+  >
+    <circle cx="15" cy="9" r="6" />
+    <path d="M10.5 13.5L3 21" />
+    <path d="M13 7l4 4" />
+    <path d="M11 9l4 4" />
+    <circle cx="20" cy="20" r="2.5" fill={color} stroke="none" />
+  </svg>
+);
 
-const RacquetIcon = ({ color, size = 32, isServing = false }) => ( [cite: 12]
-  <svg [cite: 12]
-    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" [cite: 12]
-    className={isServing ? "racquet-breathe" : ""} [cite: 12]
-    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }} [cite: 12]
-  > [cite: 12]
-    <circle cx="15" cy="9" r="6" /> [cite: 12]
-    <path d="M10.5 13.5L3 21" /> [cite: 12]
-    <path d="M13 7l4 4" /> [cite: 12]
-    <path d="M11 9l4 4" /> [cite: 12]
-    <circle cx="20" cy="20" r="2.5" fill={color} stroke="none" /> [cite: 12]
-  </svg> [cite: 12]
-); [cite: 12]
+const GreenCheck = ({ color }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
 
-const GreenCheck = ({ color }) => ( [cite: 13]
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}> [cite: 13]
-    <polyline points="20 6 9 17 4 12"></polyline> [cite: 13]
-  </svg> [cite: 13]
-); [cite: 13]
+const MWCScoreboard = () => {
+  const [view, setView] = useState("live");
+  const [infoTab, setInfoTab] = useState("rules");
+  const [activeDay, setActiveDay] = useState("Feb 7");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loginError, setLoginError] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
+  const [viewers, setViewers] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
+  const [editingId, setEditingId] = useState(null);
+  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
-const MWCScoreboard = () => { [cite: 14]
-  const [view, setView] = useState("live"); [cite: 14]
-  const [infoTab, setInfoTab] = useState("rules"); [cite: 14]
-  const [activeDay, setActiveDay] = useState("Feb 7"); [cite: 15]
-  const [isAdmin, setIsAdmin] = useState(false); [cite: 15]
-  const [loginError, setLoginError] = useState(false); [cite: 15]
-  const [history, setHistory] = useState([]); [cite: 16]
-  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); [cite: 16]
-  const [viewers, setViewers] = useState(1); [cite: 17]
-  const [zoomLevel, setZoomLevel] = useState(1); [cite: 17]
-  const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition"); [cite: 18]
-  
-  const [editingId, setEditingId] = useState(null); [cite: 18]
-  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 }); [cite: 19]
-  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" }; [cite: 20]
+  useEffect(() => {
+    if (view === "info") setInfoTab("rules");
+    // Default to team standings when opening the view
+    if (view === "standings") setInfoTab("team_std");
+    if (view === "schedule") setActiveDay("Feb 7");
+    if (view !== "results") setEditingId(null);
+  }, [view]);
 
-  useEffect(() => { [cite: 21]
-    if (view === "info") setInfoTab("rules"); [cite: 21]
-    if (view === "standings") setInfoTab("team_std"); [cite: 21]
-    if (view === "schedule") setActiveDay("Feb 7"); [cite: 21]
-    if (view !== "results") setEditingId(null); [cite: 21]
-  }, [view]); [cite: 21]
+  const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
+  const handleLogin = () => {
+    if (isAdmin) { 
+        setIsAdmin(false);
+        if(infoTab === "banner") setInfoTab("rules");
+    } else {
+      const p = window.prompt("Umpire PIN:");
+      if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
+      else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
+    }
+  };
 
-  const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1)); [cite: 22]
+  const arePlayersSelected = useMemo(() => {
+    const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b);
+    const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b);
+    return p1Valid && p2Valid;
+  }, [match]);
 
-  const handleLogin = () => { [cite: 23]
-    if (isAdmin) { [cite: 23]
-        setIsAdmin(false); [cite: 23]
-        if(infoTab === "banner") setInfoTab("rules"); [cite: 24]
-    } else { [cite: 24]
-      const p = window.prompt("Umpire PIN:"); [cite: 24]
-      if (p === "121212") { setIsAdmin(true); setLoginError(false); } [cite: 25]
-      else if (p !== null) { setLoginError(true); [cite: 25]
-      setTimeout(() => setLoginError(false), 3000); } [cite: 26]
-    } [cite: 26]
-  }; [cite: 26]
+  const touchStart = useRef(null);
+  const touchEnd = useRef(null);
+  const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
+  const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX);
+  const onTouchEnd = () => {
+    if (!touchStart.current || !touchEnd.current) return;
+    const dist = touchStart.current - touchEnd.current;
+    if (Math.abs(dist) > 70) {
+      const idx = VIEWS.indexOf(view);
+      if (dist > 0 && idx < VIEWS.length - 1) setView(VIEWS[idx + 1]);
+      if (dist < 0 && idx > 0) setView(VIEWS[idx - 1]);
+    }
+    touchStart.current = null;
+    touchEnd.current = null;
+  };
 
-  const arePlayersSelected = useMemo(() => { [cite: 27]
-    if (!match) return false;
-    const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b); [cite: 27]
-    const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b); [cite: 27]
-    return p1Valid && p2Valid; [cite: 27]
-  }, [match]); [cite: 27]
-
-  const touchStart = useRef(null); [cite: 28]
-  const touchEnd = useRef(null); [cite: 28]
-  const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX); [cite: 28]
-  const onTouchMove = (e) => (touchEnd.current = e.targetTouches[0].clientX); [cite: 29]
-  const onTouchEnd = () => { [cite: 29]
-    if (!touchStart.current || !touchEnd.current) return; [cite: 29]
-    const dist = touchStart.current - touchEnd.current; [cite: 30]
-    if (Math.abs(dist) > 70) { [cite: 30]
-      const idx = VIEWS.indexOf(view); [cite: 30]
-      if (dist > 0 && idx < VIEWS.length - 1) setView(VIEWS[idx + 1]); [cite: 31]
-      if (dist < 0 && idx > 0) setView(VIEWS[idx - 1]); [cite: 32]
-    } [cite: 32]
-    touchStart.current = null; [cite: 32]
-    touchEnd.current = null; [cite: 33]
-  }; [cite: 33]
-
-  useEffect(() => { [cite: 34]
-    // Integrated safety: Ensure fallback if snap.val() is null
-    onValue(ref(db, "live/"), (snap) => {
-      const val = snap.val();
-      if (val) setMatch(val); [cite: 34]
-      else setMatch({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
+  useEffect(() => {
+    onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
+    onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val()));
+    onValue(ref(db, "history/"), (snap) => {
+      if (snap.val()) {
+        const raw = snap.val();
+        setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo));
+      } else setHistory([]);
     });
-    onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val())); [cite: 34]
-    onValue(ref(db, "history/"), (snap) => { [cite: 34]
-      if (snap.val()) { [cite: 34]
-        const raw = snap.val(); [cite: 34]
-        setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo)); [cite: 34]
-      } else setHistory([]); [cite: 34]
-    }); [cite: 34]
-    const myPresenceRef = push(ref(db, "presence/")); [cite: 34]
-    onValue(ref(db, ".info/connected"), (snap) => [cite: 34]
-    { [cite: 34]
-      if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); } [cite: 34]
-    }); [cite: 34]
-    onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1)); [cite: 34]
-    return () => remove(myPresenceRef); [cite: 34]
-  }, []); [cite: 34]
+    const myPresenceRef = push(ref(db, "presence/"));
+    onValue(ref(db, ".info/connected"), (snap) => {
+      if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
+    });
+    onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
+    return () => remove(myPresenceRef);
+  }, []);
 
-  const standings = useMemo(() => { [cite: 35]
-    const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0, games: 0 }; return acc; }, {}); [cite: 35]
-    history.forEach((m) => { [cite: 35]
-      if (stats[m.t1]) { [cite: 35]
-        stats[m.t1].played += 1; [cite: 35]
-        stats[m.t1].games += Number(m.s1 || 0); [cite: 35]
-      } [cite: 35]
-      if (stats[m.t2]) { [cite: 35]
-        stats[m.t2].played += 1; [cite: 35]
-        stats[m.t2].games += Number(m.s2 || 0); [cite: 35, 36]
-      } [cite: 36]
-      if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; } [cite: 36]
-      else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; } [cite: 36]
-    }); [cite: 36]
-    return Object.entries(stats) [cite: 36]
-      .map(([name, d]) => ({ name, ...d })) [cite: 36]
-      .sort((a, b) => b.won - a.won); [cite: 36]
-  }, [history]); [cite: 36]
+  const standings = useMemo(() => {
+    const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0, games: 0 }; return acc; }, {});
+    history.forEach((m) => {
+      if (stats[m.t1]) { stats[m.t1].played += 1; stats[m.t1].games += Number(m.s1 || 0); }
+      if (stats[m.t2]) { stats[m.t2].played += 1; stats[m.t2].games += Number(m.s2 || 0); }
+      if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; }
+      else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
+    });
+    return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won);
+  }, [history]);
 
-  const playerStats = useMemo(() => { [cite: 37]
-    const stats = {}; [cite: 37]
-    const playerToTeam = {}; [cite: 37]
-    Object.entries(TEAM_ROSTERS).forEach(([team, players]) => { [cite: 37]
-      players.forEach(p => playerToTeam[p] = team); [cite: 37]
-    }); [cite: 37]
+  const playerStats = useMemo(() => {
+    const stats = {};
+    const playerToTeam = {};
+    Object.entries(TEAM_ROSTERS).forEach(([team, players]) => { players.forEach(p => playerToTeam[p] = team); });
+    history.forEach((m) => {
+      const sides = m.players.split(" vs ");
+      if (sides.length !== 2) return;
+      const t1p = sides[0].split("/").map(p => p.trim());
+      const t2p = sides[1].split("/").map(p => p.trim());
+      const all = [...t1p, ...t2p];
+      all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0, team: playerToTeam[p] || "---" }; });
+      all.forEach(p => { stats[p].mp += 1; });
+      if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1);
+      else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1);
+    });
+    return Object.values(stats).sort((a, b) => b.mw - a.mw);
+  }, [history]);
 
-    history.forEach((m) => { [cite: 37]
-      if (!m.players) return;
-      const sides = m.players.split(" vs "); [cite: 37]
-      if (sides.length !== 2) return; [cite: 37]
-      const t1p = sides[0].split("/").map(p => p.trim()); [cite: 37]
-      const t2p = sides[1].split("/").map(p => p.trim()); [cite: 37]
-      const all = [...t1p, ...t2p]; [cite: 37]
- 
-      all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0, team: playerToTeam[p] || "---" }; }); [cite: 38]
-      all.forEach(p => { stats[p].mp += 1; }); [cite: 38]
-      if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1); [cite: 38]
-      else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1); [cite: 38]
-    }); [cite: 38]
-    return Object.values(stats).sort((a, b) => b.mw - a.mw); [cite: 38]
-  }, [history]); [cite: 38]
+  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
+  const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
+  const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
-  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); }; [cite: 39]
-  const updateBanner = (text) => { setBannerText(text); [cite: 39]
-  if (isAdmin) set(ref(db, "banner/"), text); }; [cite: 40]
-  const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p); [cite: 40]
+  const handleScoreUpdate = (teamNum, currentScore) => {
+    if (currentScore > 7) return;
+    const nextServer = match.server === 1 ? 2 : 1;
+    sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
+  };
 
-  const handleScoreUpdate = (teamNum, currentScore) => { [cite: 41]
-    if (currentScore > 7) return; [cite: 41]
-    const nextServer = match.server === 1 ? 2 : 1; [cite: 42]
-    sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer }); [cite: 42]
-  }; [cite: 42]
+  const handleScoreReduce = (teamNum) => {
+    const newScore = Math.max(0, (match[`s${teamNum}`] || 0) - 1);
+    const prevServer = match.server === 1 ? 2 : 1;
+    sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
+  };
 
-  const handleScoreReduce = (teamNum) => { [cite: 43]
-    const newScore = Math.max(0, (match[`s${teamNum}`] || 0) - 1); [cite: 43]
-    const prevServer = match.server === 1 ? 2 : 1; [cite: 44]
-    sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer }); [cite: 44]
-  }; [cite: 44]
+  const isServingForSet = (teamNum) => {
+    if (!match.server || match.server !== teamNum) return false;
+    const s1 = Number(match.s1 || 0);
+    const s2 = Number(match.s2 || 0);
+    if (teamNum === 1) return s1 >= 5 && s1 > s2;
+    if (teamNum === 2) return s2 >= 5 && s2 > s1;
+    return false;
+  };
 
-  const isServingForSet = (teamNum) => { [cite: 45]
-    if (!match || !match.server || match.server !== teamNum) return false; [cite: 45]
-    const s1 = Number(match.s1 || 0); [cite: 46]
-    const s2 = Number(match.s2 || 0); [cite: 46]
-    if (teamNum === 1) return s1 >= 5 && s1 > s2; [cite: 47]
-    if (teamNum === 2) return s2 >= 5 && s2 > s1; [cite: 48]
-    return false; [cite: 48]
-  }; [cite: 48]
-
-  const isMatchInProgress = match ? (Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0) : false; [cite: 49]
-
-  const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({ [cite: 50]
-    width: isHalfWidth ? "48%" : "100%", [cite: 50]
-    padding: "14px", [cite: 50]
-    background: "#111", [cite: 50]
-    color: isDisabled ? theme.accent : "#FFF", [cite: 50]
-    border: "1px solid #333", [cite: 50]
-    borderRadius: "8px", [cite: 50]
-    fontSize: "14px", [cite: 50]
-    fontWeight: isDisabled ? "900" : "normal", [cite: 50]
-    textAlign: isDisabled ? "center" : "left", [cite: 50]
-    opacity: 1, [cite: 50]
-    WebkitTextFillColor: isDisabled ? theme.accent : "initial", [cite: 50]
-    appearance: isDisabled ? "none" : "auto", [cite: 50]
-    boxSizing: "border-box" [cite: 50, 51]
-  }); [cite: 51]
+  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
+  const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
+    width: isHalfWidth ? "48%" : "100%", padding: "14px", background: "#111", color: isDisabled ? theme.accent : "#FFF",
+    border: "1px solid #333", borderRadius: "8px", fontSize: "14px", fontWeight: isDisabled ? "900" : "normal",
+    textAlign: isDisabled ? "center" : "left", opacity: 1, WebkitTextFillColor: isDisabled ? theme.accent : "initial",
+    appearance: isDisabled ? "none" : "auto", boxSizing: "border-box"
+  });
 
   return (
-    <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} [cite: 51]
-         style={{ [cite: 51]
-           backgroundColor: theme.bg, [cite: 51]
-           color: theme.text, [cite: 51]
-           height: "100dvh", [cite: 51]
-           width: "100vw", [cite: 51]
-           display: "flex", [cite: 51]
-           flexDirection: "column", [cite: 51]
-           fontFamily: "-apple-system, sans-serif", [cite: 52]
-           zoom: zoomLevel, [cite: 52]
-           overflow: "hidden", [cite: 52]
-           boxSizing: "border-box" [cite: 52]
-         }}>
+    <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
+         style={{ backgroundColor: theme.bg, color: theme.text, height: "100dvh", width: "100vw", display: "flex", flexDirection: "column", fontFamily: "-apple-system, sans-serif", zoom: zoomLevel, overflow: "hidden", boxSizing: "border-box" }}>
       
-      {/* HEADER & BANNER */}
-      <div style={{ flexShrink: 0, zIndex: 1000, background: "#000", width: "100%" }}> [cite: 52]
-        <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}> [cite: 53]
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}> [cite: 53]
-            <div style={{ minWidth: "90px", display: "flex", flexDirection: "column", gap: "5px" }}> [cite: 53]
-              <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div> [cite: 53]
-              <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button> [cite: 54]
-            </div> [cite: 54]
-            <div style={{ textAlign: "center", flex: 1 }}> [cite: 54]
-              <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1> [cite: 54]
-              <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8th Edition</div> [cite: 54, 55]
-            </div> [cite: 55]
-            <div style={{ minWidth: "90px", textAlign: "right", position: "relative" }}> [cite: 55]
-              {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>} [cite: 55]
-              <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button> [cite: 55, 56, 57]
-            </div> [cite: 57]
-          </div> [cite: 57]
-        </header> [cite: 57]
+      <div style={{ flexShrink: 0, zIndex: 1000, background: "#000", width: "100%" }}>
+        <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ minWidth: "90px", display: "flex", flexDirection: "column", gap: "5px" }}>
+              <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
+              <button onClick={handleZoom} style={{ background: "#222", color: "#FFF", border: "1px solid #444", borderRadius: "8px", fontSize: "10px", padding: "4px", fontWeight: "bold" }}>A± {Math.round(zoomLevel * 100)}%</button>
+            </div>
+            <div style={{ textAlign: "center", flex: 1 }}>
+              <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
+              <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8th Edition</div>
+            </div>
+            <div style={{ minWidth: "90px", textAlign: "right", position: "relative" }}>
+              {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
+              <button onClick={handleLogin} style={{ padding: "6px 12px", borderRadius: "20px", border: `1px solid ${isAdmin ? theme.accent : "#FFF"}`, backgroundColor: isAdmin ? theme.accent : "transparent", color: isAdmin ? "#000" : "#FFF", fontSize: "10px", fontWeight: "900" }}>{isAdmin ? "LOGOUT" : "UMPIRE"}</button>
+            </div>
+          </div>
+        </header>
 
-        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}> [cite: 57]
-          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}> [cite: 57]
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}> [cite: 58]
-              {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} [cite: 58, 59]
-            </span> [cite: 59]
-          </div> [cite: 59]
-        </div> [cite: 59]
-      </div> [cite: 59]
+        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
+              {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
+            </span>
+          </div>
+        </div>
+      </div>
 
-      {/* CONTENT AREA */}
-      <div className="scroll-container" style={{ [cite: 59]
-        flexGrow: 1, [cite: 59]
-        overflowY: "auto", [cite: 59]
-        WebkitOverflowScrolling: "touch", [cite: 59]
-        width: "100%", [cite: 59]
-        maxWidth: "500px", [cite: 60]
-        margin: "0 auto", [cite: 60]
-        padding: "15px", [cite: 60]
-        paddingBottom: "120px", [cite: 60]
-        boxSizing: "border-box", [cite: 60]
-        touchAction: "pan-y" [cite: 60]
-      }}> [cite: 60]
-        {view === "live" && ( [cite: 60]
-           <div className="fade-in"> [cite: 60]
-             {!isAdmin && <div style={{ textAlign: "center", marginBottom: "15px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>{(match?.mType || "Singles")} MATCH</div>} [cite: 60, 61]
-             {isAdmin && <select disabled={isMatchInProgress} style={{ ...getUmpireSelectStyle(isMatchInProgress), marginBottom: "15px" }} value={match?.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}><option value="Singles">Singles</option><option value="Doubles">Doubles</option></select>} [cite: 61]
+      <div className="scroll-container" style={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "500px", margin: "0 auto", padding: "15px", paddingBottom: "120px", boxSizing: "border-box", touchAction: "pan-y" }}>
+        {view === "live" && (
+           <div className="fade-in">
+             {!isAdmin && <div style={{ textAlign: "center", marginBottom: "15px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>{(match.mType || "Singles")} MATCH</div>}
+             {isAdmin && <select disabled={isMatchInProgress} style={{ ...getUmpireSelectStyle(isMatchInProgress), marginBottom: "15px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}><option value="Singles">Singles</option><option value="Doubles">Doubles</option></select>}
              
-             {[1, 2].map(n => { [cite: 61]
-               const setPoint = isServingForSet(n); [cite: 61]
-               const isTieBreak = match ? (Number(match.s1) === 6 && Number(match.s2) === 6) : false; [cite: 62]
-               const isServing = match?.server === n; [cite: 62]
-               const showBreathing = isTieBreak || isServing; [cite: 63]
-               const showRacquet = isServing && !isTieBreak; [cite: 63]
-               return ( [cite: 64]
-                 <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}> [cite: 64]
-                   {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>} [cite: 64, 65]
-                   <div style={{ position: "absolute", bottom: "12px", left: "12px" }}> [cite: 65]
-                      {isAdmin && match && !match.server && match.t1 && match.t2 ? ( [cite: 65]
-                        <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button> [cite: 66, 67, 68]
-                      ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)} [cite: 68]
-                   </div> [cite: 68]
-                   {isAdmin ? [cite: 68]
-                   ( [cite: 69]
-                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}> [cite: 69]
-                       {!isMatchInProgress ? ( [cite: 69]
-                         <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select> [cite: 69, 70]
-                       ) : (<div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`] || "---"}</div>)} [cite: 70]
-                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}> [cite: 70]
-                  
-                         {!isMatchInProgress ? ( [cite: 71]
-                            <> [cite: 71]
-                              <select style={getUmpireSelectStyle(false, match?.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select> [cite: 71, 72]
-                              {match?.mType === "Doubles" && <><span style={{ color: theme.muted }}>/</span><select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select></>} [cite: 72]
-                            </> [cite: 72]
-          
-                         ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match?.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)} [cite: 73]
-                       </div> [cite: 73]
-                     </div> [cite: 73]
-                   ) : [cite: 73]
-                   ( [cite: 74]
-                     <div style={{ marginTop: "10px" }}> [cite: 74]
-                       <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2> [cite: 74]
-                       <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match?.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p> [cite: 74]
-  
-                    </div> [cite: 75]
-                   )} [cite: 75]
-                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}> [cite: 75]
-                     {isAdmin && match && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>} [cite: 75, 76]
-                     <span style={{ fontSize: "55px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span> [cite: 76, 77]
-                     {isAdmin && match && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>} [cite: 77, 78]
-                   </div> [cite: 78]
-                 </div> [cite: 78]
-               ); [cite: 78]
-             })} [cite: 79]
-             {isAdmin && match?.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>} [cite: 79, 80, 81, 82]
-           </div> [cite: 82]
+             {[1, 2].map(n => {
+               const setPoint = isServingForSet(n);
+               const isTieBreak = Number(match.s1) === 6 && Number(match.s2) === 6;
+               const isServing = match.server === n;
+               const showBreathing = isTieBreak || isServing;
+               const showRacquet = isServing && !isTieBreak;
+               return (
+                 <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
+                   {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
+                   <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
+                      {isAdmin && !match.server && match.t1 && match.t2 ? (
+                        <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
+                      ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
+                   </div>
+                   {isAdmin ? (
+                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}>
+                       {!isMatchInProgress ? (
+                         <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
+                       ) : (<div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`] || "---"}</div>)}
+                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
+                          {!isMatchInProgress ? (
+                            <>
+                              <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
+                              {match.mType === "Doubles" && <><span style={{ color: theme.muted }}>/</span><select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select></>}
+                            </>
+                           ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
+                       </div>
+                     </div>
+                   ) : (
+                     <div style={{ marginTop: "10px" }}>
+                       <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2>
+                       <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
+                    </div>
+                   )}
+                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
+                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
+                     <span style={{ fontSize: "55px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span>
+                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>}
+                   </div>
+                 </div>
+               );
+             })}
+             {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
+           </div>
         )}
 
-        {view === "info" && ( [cite: 82]
-          <div className="fade-in"> [cite: 82]
-            <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}> [cite: 82]
-              
-              {["rules", "teams", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => ( [cite: 83]
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button> [cite: 83]
-              ))} [cite: 83]
-            </div> [cite: 83]
-         
-    
-            {infoTab === "banner" && isAdmin && ( [cite: 84]
-               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}> [cite: 84]
-                 <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px" }}>EDIT LIVE ROLLING BANNER</label> [cite: 84]
-                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} /> [cite: 84, 85]
-               </div> [cite: 85]
-            )} [cite: 85]
+        {view === "info" && (
+          <div className="fade-in">
+            <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
+              {["rules", "teams", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
+                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
+              ))}
+            </div>
+            {infoTab === "banner" && isAdmin && (
+               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
+                 <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px" }}>EDIT LIVE ROLLING BANNER</label>
+                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} />
+               </div>
+            )}
+            {infoTab === "rules" && (
+              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
+                  <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
+                  <li>All matches are of 1 full set</li>
+                  <li>7 point Tie-breaker in case of 6-6</li>
+                  <li>2 Matches per player is a must in Round robin play</li>
+                 </ul>
+              </div>
+            )}
+            {infoTab === "teams" && (
+               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                <div style={{ padding: "10px", textAlign: "center" }}>
+                  <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div>
+                  <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                    <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
+                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {infoTab === "crew" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {COMMUNITY_TEAM.crew.map((name, i) => (
+                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name}</div>
+                ))}
+              </div>
+            )}
+            {infoTab === "sponsors" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {SPONSORS.map((s, i) => (
+                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
+                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>{s.label}</div>
+                    <div style={{ fontSize: "14px", color: "#FFF" }}>{s.name}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-            {infoTab === "rules" && ( [cite: 85]
-              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}> [cite: 85]
-      
-                <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}> [cite: 86]
-                  <li>All matches are of 1 full set</li> [cite: 86]
-                  <li>7 point Tie-breaker in case of 6-6</li> [cite: 86]
-                  <li>2 Matches per player is a must in Round robin play</li> [cite: 86]
- 
-                 </ul> [cite: 87]
-              </div> [cite: 87]
-            )} [cite: 87]
-
-            {infoTab === "teams" && ( [cite: 87]
-               <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}> [cite: 87]
-                <div style={{ padding: "10px", textAlign: "center" }}> [cite: 87, 88]
-                  <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div> [cite: 88]
-                  <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div> [cite: 88]
-                </div> [cite: 88]
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}> [cite: 88]
-     
-              {Object.entries(TEAM_ROSTERS).map(([t, ps]) => ( [cite: 89]
-                    <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}> [cite: 89]
-                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4> [cite: 89]
-                 
-                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)} [cite: 90]
-                    </div> [cite: 90]
-                  ))} [cite: 90]
-                </div> [cite: 90]
-              </div> [cite: 90]
-            )} [cite: 90]
-
-  
-           {infoTab === "crew" && ( [cite: 91]
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}> [cite: 91]
-                {COMMUNITY_TEAM.crew.map((name, i) => ( [cite: 91]
-                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", fontSize: "13px", color: "#EEE", textAlign: "center", border: "1px solid #222" }}>{name}</div> [cite: 91]
-       
-                ))} [cite: 92]
-              </div> [cite: 92]
-            )} [cite: 92]
-
-            {infoTab === "sponsors" && ( [cite: 92]
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}> [cite: 92]
-                {SPONSORS.map((s, i) => ( [cite: 92]
-        
-                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}> [cite: 93]
-                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>{s.label}</div> [cite: 93]
-                    <div style={{ fontSize: "14px", color: "#FFF" }}>{s.name}</div> [cite: 93]
-                  </div> [cite: 93]
- 
-                ))} [cite: 94]
-              </div> [cite: 94]
-            )} [cite: 94]
-          </div> [cite: 94]
-        )} [cite: 94]
-
-        {view === "standings" && ( [cite: 94]
-          <div className="fade-in"> [cite: 94]
-            <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}> [cite: 94, 95]
-              <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button> [cite: 95, 96]
-              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button> [cite: 96, 97]
-              <button onClick={() => setInfoTab("analytics")} style={{ flex: 1, padding: "14px", background: infoTab === "analytics" ? theme.accent : "#111", color: infoTab === "analytics" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>ANALYTICS</button>
+        {view === "standings" && (
+          <div className="fade-in">
+            {/* Added Analytics tab button */}
+            <div style={{ display: "flex", gap: "5px", marginBottom: "15px", overflowX: "auto" }}>
+              <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "12px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>TEAMS</button>
+              <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "12px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>PLAYERS</button>
+              <button onClick={() => setInfoTab("analytics")} style={{ flex: 1, padding: "12px", background: infoTab === "analytics" ? theme.accent : "#111", color: infoTab === "analytics" ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>ANALYTICS</button>
             </div>
 
             {infoTab === "analytics" ? (
-              <div className="fade-in" style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #222", height: "350px", boxSizing: "border-box" }}>
-                 <h3 style={{ color: theme.accent, fontSize: "12px", marginBottom: "20px", textAlign: "center", fontWeight: "900" }}>WINS BY TEAM</h3>
-                 <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={standings} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                     <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                     <XAxis dataKey="name" stroke="#666" fontSize={10} tickLine={false} axisLine={false} />
-                     <YAxis stroke="#666" fontSize={10} tickLine={false} axisLine={false} />
-                     <Tooltip contentStyle={{ backgroundColor: "#111", border: "1px solid #333", borderRadius: "8px" }} itemStyle={{ color: theme.accent, fontSize: "12px" }} />
-                     <Bar dataKey="won" fill={theme.accent} radius={[4, 4, 0, 0]} barSize={30} />
-                   </BarChart>
-                 </ResponsiveContainer>
-              </div>
+               <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", padding: "20px", height: "350px", width: "100%", boxSizing: "border-box" }}>
+                  <h4 style={{ color: theme.accent, fontSize: "12px", marginBottom: "20px", textAlign: "center" }}>WINS PER TEAM</h4>
+                  <ResponsiveContainer width="100%" height="90%">
+                    <BarChart data={standings}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                      <XAxis dataKey="name" stroke="#666" fontSize={10} tickLine={false} />
+                      <YAxis stroke="#666" fontSize={10} tickLine={false} />
+                      <Tooltip contentStyle={{ backgroundColor: "#111", border: "1px solid #333", borderRadius: "8px", fontSize: "12px" }} />
+                      <Bar dataKey="won" fill={theme.accent} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+               </div>
             ) : (
-              <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}> [cite: 97]
-                <table style={{ width: "100%", borderCollapse: "collapse" }}> [cite: 97]
-                  <thead style={{ background: "#050505" }}> [cite: 97]
-       
-                    <tr style={{ textAlign: "left" }}> [cite: 98]
-                      <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th> [cite: 98, 99]
-                      {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>} [cite: 99]
-                      <th style={{ textAlign: "center", fontSize: "10px" }}>PLAYED</th> [cite: 99]
-                      {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>} [cite: 99]
-              
-                      <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th> [cite: 100]
-                    </tr> [cite: 100]
-                  </thead> [cite: 100]
-                  <tbody> [cite: 100]
-                    {(infoTab === "player_std" ? playerStats : standings).map((item, i) => ( [cite: 100]
-       
-                      <tr key={item.name} style={{ borderBottom: "1px solid #222" }}> [cite: 101]
-                        <td style={{ padding: "15px" }}> [cite: 101]
-                          <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span> [cite: 101]
-                
-                          <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span> [cite: 102]
-                        </td> [cite: 102]
-                        {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>} [cite: 102]
-                        <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td> [cite: 102, 103]
-                        {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>} [cite: 103]
-                        <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td> [cite: 103, 104]
-                      </tr> [cite: 104]
-                    ))} [cite: 104]
-                  </tbody> [cite: 104]
-                </table> [cite: 104]
-              </div> [cite: 104]
+              <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead style={{ background: "#050505" }}>
+                    <tr style={{ textAlign: "left" }}>
+                      <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th>
+                      {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
+                      <th style={{ textAlign: "center", fontSize: "10px" }}>PLAYED</th>
+                      {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
+                      <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
+                      <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
+                        <td style={{ padding: "15px" }}>
+                          <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+                          <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
+                        </td>
+                        {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
+                        <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
+                        {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
+                        <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </div> [cite: 104]
-        )} [cite: 104]
+          </div>
+        )}
 
-  
-        {view === "results" && ( [cite: 105]
-           <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222" }}> [cite: 105]
-             {history.length === 0 ? <p style={{textAlign:"center", padding: "40px", color: "#555"}}>No results yet.</p> : history.map((h) => ( [cite: 105]
-               <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}> [cite: 105]
-                
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> [cite: 106]
-                   <div style={{ flex: 1, paddingRight: "10px" }}> [cite: 106]
-                     <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</div> [cite: 106]
-                     <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div> [cite: 106, 107]
-                     <div style={{ fontSize: "10px", color: theme.accent, marginTop: "6px", fontWeight: "bold" }}> [cite: 107]
-                        {h.time ? new Date(h.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }).replace(',', '').toUpperCase() : "---"} [cite: 107, 108]
-                     </div> [cite: 108]
-                   </div> [cite: 108]
-                   {editingId === h.id ? [cite: 108]
-                   ( [cite: 109]
-                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}> [cite: 109]
-                         <button onClick={() => setEditScores(p => ({ ...p, s1: Math.max(0, p.s1 - 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>-</button> [cite: 109]
-                     
-                         <span style={{ color: theme.accent, fontWeight: "900" }}>{editScores.s1}</span> [cite: 110]
-                         <button onClick={() => setEditScores(p => ({ ...p, s1: Math.min(7, p.s1 + 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>+</button> [cite: 110]
-                         <span style={{ color: "#444" }}>:</span> [cite: 110]
-            
-                         <button onClick={() => setEditScores(p => ({ ...p, s2: Math.max(0, p.s2 - 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>-</button> [cite: 111]
-                         <span style={{ color: theme.accent, fontWeight: "900" }}>{editScores.s2}</span> [cite: 111]
-                         <button onClick={() => setEditScores(p => ({ ...p, s2: Math.min(7, p.s2 + 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>+</button> [cite: 111, 112]
-                      </div> [cite: 112]
-                   ) : ( [cite: 112]
-                     <div style={{ textAlign: "right", minWidth: "60px" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1}-{h.s2}</span></div> [cite: 112]
-     
-                   )} [cite: 113]
-                 </div> [cite: 113]
-                 {isAdmin && ( [cite: 113]
-                   <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}> [cite: 113]
-                      {editingId === h.id ? ( [cite: 113, 114]
-                        <><button onClick={() => { update(ref(db, `history/${h.id}`), { s1: editScores.s1, s2: editScores.s2 }); setEditingId(null); }} style={{ color: theme.accent, background: "none", border: `1px solid ${theme.accent}`, padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>SAVE</button><button onClick={() => setEditingId(null)} style={{ color: "#FFF", background: "none", border: "1px solid #444", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>CANCEL</button></> [cite: 114]
-                      ) [cite: 114]
-                      : ( [cite: 115]
-                        <button onClick={() => { setEditingId(h.id); setEditScores({ s1: Number(h.s1), s2: Number(h.s2) }); }} style={{ color: "#FFF", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button> [cite: 115]
-                      )} [cite: 115]
-                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button> [cite: 115, 116]
-                   </div> [cite: 116]
-                 )} [cite: 116]
-               </div> [cite: 116]
-             ))} [cite: 116]
-           </div> [cite: 116]
-     
-        )} [cite: 117]
+        {view === "results" && (
+           <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
+             {history.length === 0 ? <p style={{textAlign:"center", padding: "40px", color: "#555"}}>No results yet.</p> : history.map((h) => (
+               <div key={h.id} style={{ padding: "18px", borderBottom: "1px solid #222" }}>
+                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                   <div style={{ flex: 1, paddingRight: "10px" }}>
+                     <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</div>
+                     <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                     <div style={{ fontSize: "10px", color: theme.accent, marginTop: "6px", fontWeight: "bold" }}>
+                        {h.time ? new Date(h.time).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }).replace(',', '').toUpperCase() : "---"}
+                     </div>
+                   </div>
+                   {editingId === h.id ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                         <button onClick={() => setEditScores(p => ({ ...p, s1: Math.max(0, p.s1 - 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>-</button>
+                         <span style={{ color: theme.accent, fontWeight: "900" }}>{editScores.s1}</span>
+                         <button onClick={() => setEditScores(p => ({ ...p, s1: Math.min(7, p.s1 + 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>+</button>
+                         <span style={{ color: "#444" }}>:</span>
+                         <button onClick={() => setEditScores(p => ({ ...p, s2: Math.max(0, p.s2 - 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>-</button>
+                         <span style={{ color: theme.accent, fontWeight: "900" }}>{editScores.s2}</span>
+                         <button onClick={() => setEditScores(p => ({ ...p, s2: Math.min(7, p.s2 + 1) }))} style={{ width: "25px", background: "#222", color: "#FFF", border: "1px solid #444" }}>+</button>
+                      </div>
+                   ) : (
+                     <div style={{ textAlign: "right", minWidth: "60px" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1}-{h.s2}</span></div>
+                   )}
+                 </div>
+                 {isAdmin && (
+                   <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+                      {editingId === h.id ? (
+                        <><button onClick={() => { update(ref(db, `history/${h.id}`), { s1: editScores.s1, s2: editScores.s2 }); setEditingId(null); }} style={{ color: theme.accent, background: "none", border: `1px solid ${theme.accent}`, padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>SAVE</button><button onClick={() => setEditingId(null)} style={{ color: "#FFF", background: "none", border: "1px solid #444", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>CANCEL</button></>
+                      ) : (
+                        <button onClick={() => { setEditingId(h.id); setEditScores({ s1: Number(h.s1), s2: Number(h.s2) }); }} style={{ color: "#FFF", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
+                      )}
+                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
+                   </div>
+                 )}
+               </div>
+             ))}
+           </div>
+        )}
 
-        {view === "schedule" && ( [cite: 117]
-           <div className="fade-in"> [cite: 117]
-             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}> [cite: 117]
-               {Object.keys(SCHEDULE_DATA).map(d => ( [cite: 117]
-                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button> [cite: 117, 118]
-               ))} [cite: 118]
-             </div> [cite: 118]
-             <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}> [cite: 118]
-               {SCHEDULE_DATA[activeDay].map((m, i) => ( [cite: 118]
-            
-                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}> [cite: 119]
-                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div> [cite: 119]
-                   <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold" }}>{m.type.toUpperCase()}</div></div> [cite: 119]
-           
-                   </div> [cite: 120]
-               ))} [cite: 120]
-             </div> [cite: 120]
-           </div> [cite: 120]
-        )} [cite: 120]
-      </div> [cite: 120]
+        {view === "schedule" && (
+           <div className="fade-in">
+             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+               {Object.keys(SCHEDULE_DATA).map(d => (
+                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
+               ))}
+             </div>
+             <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}>
+               {SCHEDULE_DATA[activeDay].map((m, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
+                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                   <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold" }}>{m.type.toUpperCase()}</div></div>
+                  </div>
+               ))}
+             </div>
+           </div>
+        )}
+      </div>
 
-      {/* NAVIGATION */}
-      <nav style={{ [cite: 120]
-        flexShrink: 0, [cite: 121]
-        display: "flex", [cite: 121]
-        background: "rgba(10,10,10,0.95)", [cite: 121]
-        backdropFilter: "blur(15px)", [cite: 121]
-        borderTop: "1px solid #222", [cite: 121]
-        paddingBottom: "calc(25px + env(safe-area-inset-bottom))", [cite: 121]
-        paddingTop: "15px", [cite: 121]
-        zIndex: 1000, [cite: 121]
-        width: "100%", [cite: 121]
-        boxSizing: "border-box" [cite: 121]
-      }}> [cite: 121]
-        {VIEWS.map(v => ( [cite: 121]
-           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center" }}> [cite: 122, 123]
-            <div style={{ height: "25px", marginBottom: "5px", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}> [cite: 123]
-              {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"} [cite: 124, 125, 126]
-            </div> [cite: 126]
-            {v.toUpperCase()} [cite: 126]
-          </button> [cite: 126]
-        ))} [cite: 126]
-      </nav> [cite: 126]
+      <nav style={{ flexShrink: 0, display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "calc(25px + env(safe-area-inset-bottom))", paddingTop: "15px", zIndex: 1000, width: "100%", boxSizing: "border-box" }}>
+        {VIEWS.map(v => (
+          <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ height: "25px", marginBottom: "5px", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : 
+               v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"}
+            </div>
+            {v.toUpperCase()}
+          </button>
+        ))}
+      </nav>
 
       <style>{`
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; } [cite: 126, 127]
-        body { margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; background: #000; } [cite: 127, 128]
-        .fade-in { animation: fadeIn 0.3s ease-out; } [cite: 128, 129]
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } } [cite: 129, 130]
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } [cite: 130, 131]
-        .pulse { animation: softPulse 2s infinite; } [cite: 131, 132]
-        @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } } [cite: 132, 133]
-        .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; } [cite: 133, 134]
-        @keyframes breathingBorder { 0%, 100% { border-color: #333; } 50% { border-color: #EEE; } } [cite: 134, 135]
-        .set-point-blinker { animation: blink 0.8s infinite alternate; } [cite: 135, 136]
-        @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } } [cite: 136, 137]
-        .scroll-container::-webkit-scrollbar { display: none; } [cite: 137, 138]
-      `}</style> [cite: 138]
-    </div> [cite: 138]
-  ); [cite: 138]
-}; [cite: 138]
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; background: #000; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .pulse { animation: softPulse 2s infinite; }
+        @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
+        @keyframes breathingBorder { 0%, 100% { border-color: #333; } 50% { border-color: #EEE; } }
+        .set-point-blinker { animation: blink 0.8s infinite alternate; }
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
+        .scroll-container::-webkit-scrollbar { display: none; }
+      `}</style>
+    </div>
+  );
+};
 
-export default MWCScoreboard; [cite: 138]
+export default MWCScoreboard;
