@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.1 ----
+// --- MWC-Open-Beta-completion 1.1 (Updated) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -85,6 +85,11 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
+  
+  // States for Result Editing
+  const [editingId, setEditingId] = useState(null);
+  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
+
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
@@ -96,7 +101,8 @@ const MWCScoreboard = () => {
     } else {
       const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
-      else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
+      else if (p !== null) { setLoginError(true);
+      setTimeout(() => setLoginError(false), 3000); }
     }
   };
 
@@ -292,7 +298,7 @@ const MWCScoreboard = () => {
                                   <span style={{ color: theme.muted, fontWeight: "900", fontSize: "12px" }}>/</span>
                                   <select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select>
                                 </>
-                             )}
+                              )}
                             </>
                           ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
                        </div>
@@ -311,7 +317,13 @@ const MWCScoreboard = () => {
                  </div>
                );
              })}
-             {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toLocaleString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
+             {isAdmin && match.t1 && <button onClick={() => { 
+                if(!window.confirm("Finalize Match?")) return;
+                const now = new Date();
+                const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: ts });
+                sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
+             }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
@@ -343,13 +355,12 @@ const MWCScoreboard = () => {
               <div className="fade-in">
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
                   <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   {/* Reduced Name to 12px and removed bold */}
                    <div style={{ fontSize: "12px", fontWeight: "400", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                      <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px", letterSpacing: "0.5px" }}>{t.toUpperCase()}</h4>
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px", letterSpacing: "0.5px" }}>{t.toUpperCase()}</h4>
                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
                     </div>
                   ))}
@@ -392,7 +403,7 @@ const MWCScoreboard = () => {
                   <>
                     <thead style={{ background: "#050505" }}><tr style={{ textAlign: "left" }}><th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>PLAYER</th><th style={{ textAlign: "center", fontSize: "10px" }}>MP</th><th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th></tr></thead>
                     <tbody>{playerStats.sorted.map((p, i) => (
-                       <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
+                        <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
                         <td style={{ padding: "15px" }}><span style={{ marginRight: "8px" }}>{p.mw === playerStats.maxWins && p.mw > 0 ? "👑" : <span style={{color: "#444", fontWeight: "900", fontSize: "10px"}}>#{i + 1}</span>}</span><span style={{ fontWeight: "700", fontSize: "14px", color: p.mw === playerStats.maxWins && p.mw > 0 ? theme.accent : "#FFF" }}>{p.name}</span></td>
                         <td style={{ textAlign: "center", color: "#888" }}>{p.mp}</td><td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{p.mw}</td>
                       </tr>
@@ -422,11 +433,21 @@ const MWCScoreboard = () => {
                    <div style={{ flex: 1 }}>
                      <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</div>
                      <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
+                     <div style={{ fontSize: "10px", color: theme.accent, marginTop: "4px", fontWeight: "700" }}>{h.time || "N/A"}</div>
                    </div>
-                   <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
+                   {editingId === h.id ? (
+                     <div style={{ display: "flex", gap: "5px" }}>
+                        <input type="number" style={{ width: "40px", padding: "5px", background: "#000", color: "#FFF", border: "1px solid #444", borderRadius: "4px" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
+                        <input type="number" style={{ width: "40px", padding: "5px", background: "#000", color: "#FFF", border: "1px solid #444", borderRadius: "4px" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
+                        <button onClick={()=> { update(ref(db, `history/${h.id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); }} style={{ background: theme.accent, padding: "5px 10px", borderRadius: "4px", fontWeight: "bold", color: "#000", border: "none" }}>SAVE</button>
+                     </div>
+                   ) : (
+                     <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
+                   )}
                  </div>
                  {isAdmin && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+                     <button onClick={() => { setEditingId(h.id); setEditScores({s1: h.s1, s2: h.s2}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
                    </div>
                  )}
