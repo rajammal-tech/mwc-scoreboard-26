@@ -416,7 +416,7 @@ const MWCScoreboard = () => {
                   <tr style={{ textAlign: "left" }}>
                     <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th>
                     {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
-                    <th style={{ textAlign: "center", fontSize: "10px" }}>MP</th>
+                    <th style={{ textAlign: "center", fontSize: "10px" }}>PLAYED</th>
                     {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
                     <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th>
                   </tr>
@@ -429,7 +429,7 @@ const MWCScoreboard = () => {
                         <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
                       </td>
                       {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
-                      <td style={{ textAlign: "center", color: "#888", fontSize: infoTab === "player_std" ? "13px" : "13px" }}>{item.mp || item.played}</td>
+                      <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
                       {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
                       <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td>
                     </tr>
