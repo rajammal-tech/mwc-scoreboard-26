@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.1 (STEPPER EDIT) ----
+// --- MWC-Open-Stable-Build 10.0 (STABLE) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -34,10 +34,10 @@ const TEAM_ROSTERS = {
 const SCHEDULE_DATA = {
   "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Delta Force" },
+    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
   ],
   "Feb 8": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Delta Force" },
+    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
 
@@ -86,7 +86,6 @@ const MWCScoreboard = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
   
-  // States for Result Editing
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
 
@@ -239,7 +238,6 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
           <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -442,14 +440,12 @@ const MWCScoreboard = () => {
                    {editingId === h.id ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-end" }}>
                         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                          {/* Stepper Team 1 */}
                           <div style={{ display: "flex", background: "#000", border: "1px solid #333", borderRadius: "8px" }}>
                              <button onClick={() => setEditScores({...editScores, s1: Math.max(0, editScores.s1 - 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: "#ff4444", fontWeight: "900" }}>-</button>
                              <div style={{ padding: "8px 0", width: "25px", textAlign: "center", fontWeight: "900", fontSize: "14px" }}>{editScores.s1}</div>
                              <button onClick={() => setEditScores({...editScores, s1: Math.min(7, editScores.s1 + 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: theme.accent, fontWeight: "900" }}>+</button>
                           </div>
                           <span style={{ color: "#444", fontSize: "12px" }}>-</span>
-                          {/* Stepper Team 2 */}
                           <div style={{ display: "flex", background: "#000", border: "1px solid #333", borderRadius: "8px" }}>
                              <button onClick={() => setEditScores({...editScores, s2: Math.max(0, editScores.s2 - 1)})} style={{ padding: "8px 12px", background: "none", border: "none", color: "#ff4444", fontWeight: "900" }}>-</button>
                              <div style={{ padding: "8px 0", width: "25px", textAlign: "center", fontWeight: "900", fontSize: "14px" }}>{editScores.s2}</div>
