@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-[cite_start]// Firebase Configuration [cite: 3]
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -15,21 +14,21 @@ const firebaseConfig = {
 
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
-  { label: "REFRESHMENTS", name: "???" },
+  { label: "REFRESHMENTS", name: "???" }, 
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
-[cite_start]]; [cite: 4, 5]
+];
 
 const COMMUNITY_TEAM = { 
   chairUmpire: "Raphael Rodgers",
   crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
-[cite_start]}; [cite: 6]
+};
 
 const TEAM_ROSTERS = {
   "Team Alpha": ["Ram", "P2", "P3", "P4", "P5", "P6"],
   "Team Bravo": ["Kiran", "P12", "P13", "P14", "P15", "P16"],
   "Team Charlie": ["Chetan", "P22", "P23", "P24", "P25", "P26"],
   "Team Delta": ["Rajesh", "P32", "P33", "P34", "P35", "P36"],
-[cite_start]}; [cite: 7]
+};
 
 const SCHEDULE_DATA = {
   "Feb 7": [
@@ -39,15 +38,14 @@ const SCHEDULE_DATA = {
   "Feb 8": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
-[cite_start]}; [cite: 8]
+};
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-[cite_start]const db = getDatabase(app); [cite: 9]
+const db = getDatabase(app);
 
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
-[cite_start]const TEAMS = Object.keys(TEAM_ROSTERS); [cite: 10]
+const TEAMS = Object.keys(TEAM_ROSTERS);
 
-[cite_start]// UI Icons [cite: 11, 12, 13]
 const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -57,9 +55,11 @@ const TennisBallIcon = ({ color, size = 22 }) => (
 );
 
 const RacquetIcon = ({ color, size = 32, isServing = false }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+  <svg 
+    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
     className={isServing ? "racquet-breathe" : ""}
-    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}>
+    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}
+  >
     <circle cx="15" cy="9" r="6" />
     <path d="M10.5 13.5L3 21" />
     <path d="M13 7l4 4" />
@@ -81,24 +81,24 @@ const MWCScoreboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
-  [cite_start]const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); [cite: 14, 15, 16]
+  const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
-  const [editingId, setEditingId] = useState(null);
-  [cite_start]const [editScores, setEditScores] = useState({ s1: 0, s2: 0 }); [cite: 17, 18, 19]
   
-  [cite_start]const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" }; [cite: 20]
+  const [editingId, setEditingId] = useState(null);
+  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
+  const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   useEffect(() => {
     if (view === "info") setInfoTab("rules");
     if (view === "standings") setInfoTab("team_std");
     if (view === "schedule") setActiveDay("Feb 7");
     if (view !== "results") setEditingId(null);
-  [cite_start]}, [view]); [cite: 21]
+  }, [view]);
 
-  [cite_start]const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1)); [cite: 22]
-  
+  const handleZoom = () => setZoomLevel(prev => (prev >= 1.2 ? 1 : prev + 0.1));
+
   const handleLogin = () => {
     if (isAdmin) { 
         setIsAdmin(false);
@@ -108,16 +108,15 @@ const MWCScoreboard = () => {
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
       else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
     }
-  [cite_start]}; [cite: 23, 24, 25, 26]
+  };
 
   const arePlayersSelected = useMemo(() => {
     if (!match) return false;
     const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b);
     const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b);
     return p1Valid && p2Valid;
-  [cite_start]}, [match]); [cite: 27]
+  }, [match]);
 
-  [cite_start]// Swiping Logic [cite: 28, 29, 30, 31, 32, 33]
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
   const onTouchStart = (e) => (touchStart.current = e.targetTouches[0].clientX);
@@ -135,27 +134,27 @@ const MWCScoreboard = () => {
   };
 
   useEffect(() => {
-    [cite_start]// Safety check for live match data [cite: 33]
+    // Safety check: Fallback to initial state if data is missing 
     onValue(ref(db, "live/"), (snap) => {
         const val = snap.val();
         if (val) setMatch(val);
+        else setMatch({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
     });
-    
-    [cite_start]onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val())); [cite: 33]
+
+    onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val()));
     
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
         const raw = snap.val();
         setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => (b.mNo || 0) - (a.mNo || 0)));
       } else setHistory([]);
-    [cite_start]}); [cite: 33]
+    });
 
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
-    [cite_start]}); [cite: 33, 34]
-    
-    [cite_start]onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1)); [cite: 34]
+    });
+    onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
     return () => remove(myPresenceRef);
   }, []);
 
@@ -168,7 +167,7 @@ const MWCScoreboard = () => {
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
     return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won);
-  [cite_start]}, [history]); [cite: 35, 36]
+  }, [history]);
 
   const playerStats = useMemo(() => {
     const stats = {};
@@ -189,25 +188,25 @@ const MWCScoreboard = () => {
       else if (Number(m.s2) > Number(m.s1)) t2p.forEach(p => stats[p].mw += 1);
     });
     return Object.values(stats).sort((a, b) => b.mw - a.mw);
-  [cite_start]}, [history]); [cite: 37, 38]
+  }, [history]);
 
-  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); [cite_start]}; [cite: 39]
-  const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); [cite_start]}; [cite: 39, 40]
-  
-  [cite_start]const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p); [cite: 40]
+  const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
+  const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
+  const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
     if (currentScore > 7) return;
     const nextServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: currentScore, server: nextServer });
-  [cite_start]}; [cite: 41, 42]
+  };
 
   const handleScoreReduce = (teamNum) => {
     const newScore = Math.max(0, (match[`s${teamNum}`] || 0) - 1);
     const prevServer = match.server === 1 ? 2 : 1;
     sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
-  [cite_start]}; [cite: 43, 44]
+  };
 
+  // Improved safety checks for match calculations 
   const isServingForSet = (teamNum) => {
     if (!match || !match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
@@ -215,9 +214,10 @@ const MWCScoreboard = () => {
     if (teamNum === 1) return s1 >= 5 && s1 > s2;
     if (teamNum === 2) return s2 >= 5 && s2 > s1;
     return false;
-  [cite_start]}; [cite: 45, 46, 47, 48]
+  };
 
-  const isMatchInProgress = match ? (Number(match.s1 || 0) [cite_start]> 0 || Number(match.s2 || 0) > 0) : false; [cite: 49]
+  // Ensure match object exists before calculating progress 
+  const isMatchInProgress = match ? (Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0) : false;
 
   const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
     width: isHalfWidth ? "48%" : "100%",
@@ -233,13 +233,13 @@ const MWCScoreboard = () => {
     WebkitTextFillColor: isDisabled ? theme.accent : "initial",
     appearance: isDisabled ? "none" : "auto",
     boxSizing: "border-box"
-  [cite_start]}); [cite: 50, 51]
+  });
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
          style={{ backgroundColor: theme.bg, color: theme.text, height: "100dvh", width: "100vw", display: "flex", flexDirection: "column", fontFamily: "-apple-system, sans-serif", zoom: zoomLevel, overflow: "hidden", boxSizing: "border-box" }}>
       
-      [cite_start]{/* HEADER & BANNER [cite: 52-59] */}
+      {/* HEADER & BANNER [cite: 52-59] */}
       <div style={{ flexShrink: 0, zIndex: 1000, background: "#000", width: "100%" }}>
         <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
@@ -266,7 +266,7 @@ const MWCScoreboard = () => {
         </div>
       </div>
 
-      [cite_start]{/* CONTENT AREA [cite: 60-120] */}
+      {/* CONTENT AREA [cite: 60-120] */}
       <div className="scroll-container" style={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "500px", margin: "0 auto", padding: "15px", paddingBottom: "120px", boxSizing: "border-box", touchAction: "pan-y" }}>
         {view === "live" && (
            <div className="fade-in">
@@ -275,7 +275,7 @@ const MWCScoreboard = () => {
              
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
-               const isTieBreak = Number(match?.s1) === 6 && Number(match?.s2) === 6;
+               const isTieBreak = match ? (Number(match.s1) === 6 && Number(match.s2) === 6) : false;
                const isServing = match?.server === n;
                const showBreathing = isTieBreak || isServing;
                const showRacquet = isServing && !isTieBreak;
@@ -283,7 +283,7 @@ const MWCScoreboard = () => {
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
                    {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
-                      {isAdmin && !match?.server && match?.t1 && match?.t2 ? (
+                      {isAdmin && match && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
                       ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
                    </div>
@@ -308,9 +308,9 @@ const MWCScoreboard = () => {
                     </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
-                     {isAdmin && <button disabled={!match?.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
+                     {isAdmin && match && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
                      <span style={{ fontSize: "55px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span>
-                     {isAdmin && <button disabled={!match?.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>}
+                     {isAdmin && match && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>}
                    </div>
                  </div>
                );
@@ -473,7 +473,7 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      [cite_start]{/* NAVIGATION [cite: 121-126] */}
+      {/* NAVIGATION [cite: 121-126] */}
       <nav style={{ flexShrink: 0, display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "calc(25px + env(safe-area-inset-bottom))", paddingTop: "15px", zIndex: 1000, width: "100%", boxSizing: "border-box" }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -498,7 +498,7 @@ const MWCScoreboard = () => {
         .set-point-blinker { animation: blink 0.8s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
         .scroll-container::-webkit-scrollbar { display: none; }
-      [cite_start]`}</style> [cite: 126-138]
+      `}</style> [cite: 126-138]
     </div>
   );
 };
