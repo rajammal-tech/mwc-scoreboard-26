@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "TENNIS BALLS", name: "Smrithi" },
+  { label: "TENNIS BALLS", name: "???" },
   { label: "REFRESHMENTS", name: "???" },
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
@@ -352,9 +352,10 @@ const MWCScoreboard = () => {
             )}
             {infoTab === "teams" && (
               <div className="fade-in">
-                <div style={{ background: theme.card, padding: "18px", borderRadius: "12px", border: `1px solid ${theme.accent}`, textAlign: "center", marginBottom: "15px" }}>
-                  <div style={{ color: theme.accent, fontSize: "9px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   <div style={{ fontSize: "18px", fontWeight: "900" }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                {/* Updated Chair Umpire section: No border and adjusted font sizes */}
+                <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
+                  <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
+                   <div style={{ fontSize: "16px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
@@ -482,7 +483,8 @@ const MWCScoreboard = () => {
                 {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : 
                  v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
                  v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
-                 v === "schedule" ? <CalendarIcon color={view === v ? theme.accent : "#555"} size={20} /> : 
+                 /* Updated Schedule icon to colorful version */
+                 v === "schedule" ? <span style={{fontSize: "20px"}}>📅</span> : 
                  <span style={{fontSize: "20px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
