@@ -199,7 +199,6 @@ const MWCScoreboard = () => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
-    // Modified logic: Only show if serving team has 5+ points AND is at least 1 point ahead AND it's not a deuce-like 5-5/6-6 situation.
     if (teamNum === 1) return s1 >= 5 && s1 > s2;
     if (teamNum === 2) return s2 >= 5 && s2 > s1;
     return false;
@@ -286,14 +285,18 @@ const MWCScoreboard = () => {
              
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
+               const isTieBreak = Number(match.s1) === 6 && Number(match.s2) === 6;
                const isServing = match.server === n;
+               const showBreathing = isTieBreak || isServing;
+               const showRacquet = isServing && !isTieBreak;
+
                return (
-                 <div key={n} className={isServing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: isServing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
-                   {setPoint && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
+                 <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
+                   {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
-                      ) : (isServing && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
+                      ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
                    </div>
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}>
