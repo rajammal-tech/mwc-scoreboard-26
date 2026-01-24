@@ -45,7 +45,7 @@ const db = getDatabase(app);
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
-const TennisBallIcon = ({ color, size = 24 }) => (
+const TennisBallIcon = ({ color, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
@@ -237,7 +237,7 @@ const MWCScoreboard = () => {
            boxSizing: "border-box"
          }}>
       
-      {/* LOCKED TOP: HEADER & BANNER */}
+      {/* HEADER & BANNER */}
       <div style={{ flexShrink: 0, zIndex: 1000, background: "#000", width: "100%" }}>
         <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
@@ -265,7 +265,7 @@ const MWCScoreboard = () => {
         </div>
       </div>
 
-      {/* SCROLLABLE MIDDLE: CONTENT */}
+      {/* CONTENT AREA */}
       <div className="scroll-container" style={{ 
         flexGrow: 1, 
         overflowY: "auto", 
@@ -312,7 +312,7 @@ const MWCScoreboard = () => {
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2>
                        <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
-                      </div>
+                     </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
                      {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
@@ -361,7 +361,7 @@ const MWCScoreboard = () => {
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
                        <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
-                      {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
+                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
                     </div>
                   ))}
                 </div>
@@ -462,17 +462,17 @@ const MWCScoreboard = () => {
              </div>
              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}>
                {SCHEDULE_DATA[activeDay].map((m, i) => (
-                 <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                    <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold" }}>{m.type.toUpperCase()}</div></div>
-                 </div>
+                  </div>
                ))}
              </div>
            </div>
         )}
       </div>
 
-      {/* FIXED BOTTOM NAV */}
+      {/* NAVIGATION */}
       <nav style={{ 
         flexShrink: 0, 
         display: "flex", 
@@ -487,7 +487,7 @@ const MWCScoreboard = () => {
       }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <div style={{ height: "25px", marginBottom: "5px" }}>
+            <div style={{ height: "25px", marginBottom: "5px", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : 
                v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"}
             </div>
