@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 10.1 (STABLE + UI FIX) ----
+// --- MWC-Open-Stable-Build 10.2 (FULL FRAME BORDER) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -217,9 +217,13 @@ const MWCScoreboard = () => {
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
-         style={{ backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", paddingBottom: "110px", zoom: zoomLevel, position: "relative", border: "1px solid #111" }}>
+         style={{ 
+           backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", 
+           paddingBottom: "110px", zoom: zoomLevel, position: "relative", 
+           border: "1px solid #FFF", boxSizing: "border-box" 
+         }}>
       
-      <header style={{ padding: "15px 10px", borderBottom: "1px solid #222", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
+      <header style={{ padding: "15px 10px", borderBottom: "1px solid #FFF", backgroundColor: "#000", position: "sticky", top: 0, zIndex: 1000 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto" }}>
           <div style={{ minWidth: "95px", display: "flex", flexDirection: "column", gap: "5px" }}>
             <div className="pulse" style={{ color: theme.accent, fontSize: "9px", fontWeight: "bold", border: `1px solid ${theme.accent}`, padding: "3px 7px", borderRadius: "12px", textAlign: "center" }}>● {viewers} VIEWERS</div>
@@ -494,7 +498,13 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, width: "100%", display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "35px", paddingTop: "15px", zIndex: 100, borderLeft: "1px solid #111", borderRight: "1px solid #111" }}>
+      <nav style={{ 
+        position: "fixed", bottom: 0, left: 0, right: 0, width: "100%", display: "flex", 
+        background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #FFF", 
+        paddingBottom: "35px", paddingTop: "15px", zIndex: 100, 
+        borderLeft: "1px solid #FFF", borderRight: "1px solid #FFF", borderBottom: "1px solid #FFF",
+        boxSizing: "border-box" 
+      }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ height: "30px", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "5px" }}>
