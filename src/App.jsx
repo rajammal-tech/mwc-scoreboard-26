@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 10.2 (FULL FRAME BORDER) ----
+// --- MWC-Open-Beta-completion 1.2 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -219,7 +219,7 @@ const MWCScoreboard = () => {
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
          style={{ 
            backgroundColor: theme.bg, color: theme.text, minHeight: "100vh", fontFamily: "-apple-system, sans-serif", 
-           paddingBottom: "110px", zoom: zoomLevel, position: "relative", 
+           paddingBottom: "110px", zoom: zoomLevel, position: "relative",
            border: "1px solid #FFF", boxSizing: "border-box" 
          }}>
       
