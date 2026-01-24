@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Beta-completion 1.1 (Updated) ----
+// --- MWC-Open-Beta-completion 1.1 (TIMESTAMP & EDIT FIX) ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -320,7 +320,11 @@ const MWCScoreboard = () => {
              {isAdmin && match.t1 && <button onClick={() => { 
                 if(!window.confirm("Finalize Match?")) return;
                 const now = new Date();
-                const ts = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const timeStr = now.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                const ts = `${day}/${month} ${timeStr}`;
+                
                 push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: ts });
                 sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
              }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "10px" }}>CLOSE THE MATCH</button>}
