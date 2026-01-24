@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -42,7 +43,6 @@ const SCHEDULE_DATA = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
-
 const VIEWS = ["live", "results", "standings", "schedule", "info"];
 const TEAMS = Object.keys(TEAM_ROSTERS);
 
@@ -88,6 +88,7 @@ const MWCScoreboard = () => {
   
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
+
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   useEffect(() => {
@@ -106,12 +107,12 @@ const MWCScoreboard = () => {
     } else {
       const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
-      else if (p !== null) { setLoginError(true); setTimeout(() => setLoginError(false), 3000); }
+      else if (p !== null) { setLoginError(true);
+      setTimeout(() => setLoginError(false), 3000); }
     }
   };
 
   const arePlayersSelected = useMemo(() => {
-    if (!match) return false;
     const p1Valid = match.mType === "Singles" ? !!match.p1a : (!!match.p1a && !!match.p1b);
     const p2Valid = match.mType === "Singles" ? !!match.p2a : (!!match.p2a && !!match.p2b);
     return p1Valid && p2Valid;
@@ -134,22 +135,14 @@ const MWCScoreboard = () => {
   };
 
   useEffect(() => {
-    // Safety check: Fallback to initial state if data is missing 
-    onValue(ref(db, "live/"), (snap) => {
-        const val = snap.val();
-        if (val) setMatch(val);
-        else setMatch({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
-    });
-
+    onValue(ref(db, "live/"), (snap) => snap.val() && setMatch(snap.val()));
     onValue(ref(db, "banner/"), (snap) => snap.exists() && setBannerText(snap.val()));
-    
     onValue(ref(db, "history/"), (snap) => {
       if (snap.val()) {
         const raw = snap.val();
-        setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => (b.mNo || 0) - (a.mNo || 0)));
+        setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo));
       } else setHistory([]);
     });
-
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
@@ -161,27 +154,35 @@ const MWCScoreboard = () => {
   const standings = useMemo(() => {
     const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0, games: 0 }; return acc; }, {});
     history.forEach((m) => {
-      if (stats[m.t1]) { stats[m.t1].played += 1; stats[m.t1].games += Number(m.s1 || 0); }
-      if (stats[m.t2]) { stats[m.t2].played += 1; stats[m.t2].games += Number(m.s2 || 0); }
+      if (stats[m.t1]) {
+        stats[m.t1].played += 1;
+        stats[m.t1].games += Number(m.s1 || 0);
+      }
+      if (stats[m.t2]) {
+        stats[m.t2].played += 1;
+        stats[m.t2].games += Number(m.s2 || 0);
+      }
       if (Number(m.s1) > Number(m.s2)) { if (stats[m.t1]) stats[m.t1].won += 1; }
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
-    return Object.entries(stats).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.won - a.won);
+    return Object.entries(stats)
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => b.won - a.won);
   }, [history]);
 
   const playerStats = useMemo(() => {
     const stats = {};
     const playerToTeam = {};
-    Object.entries(TEAM_ROSTERS).forEach(([team, players]) => { players.forEach(p => playerToTeam[p] = team); });
+    Object.entries(TEAM_ROSTERS).forEach(([team, players]) => {
+      players.forEach(p => playerToTeam[p] = team);
+    });
 
     history.forEach((m) => {
-      if (!m.players) return;
       const sides = m.players.split(" vs ");
       if (sides.length !== 2) return;
       const t1p = sides[0].split("/").map(p => p.trim());
       const t2p = sides[1].split("/").map(p => p.trim());
       const all = [...t1p, ...t2p];
- 
       all.forEach(p => { if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0, team: playerToTeam[p] || "---" }; });
       all.forEach(p => { stats[p].mp += 1; });
       if (Number(m.s1) > Number(m.s2)) t1p.forEach(p => stats[p].mw += 1);
@@ -206,9 +207,8 @@ const MWCScoreboard = () => {
     sync({ ...match, [`s${teamNum}`]: newScore, server: prevServer });
   };
 
-  // Improved safety checks for match calculations 
   const isServingForSet = (teamNum) => {
-    if (!match || !match.server || match.server !== teamNum) return false;
+    if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
     if (teamNum === 1) return s1 >= 5 && s1 > s2;
@@ -216,8 +216,7 @@ const MWCScoreboard = () => {
     return false;
   };
 
-  // Ensure match object exists before calculating progress 
-  const isMatchInProgress = match ? (Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0) : false;
+  const isMatchInProgress = Number(match.s1 || 0) > 0 || Number(match.s2 || 0) > 0;
 
   const getUmpireSelectStyle = (isDisabled, isHalfWidth = false) => ({
     width: isHalfWidth ? "48%" : "100%",
@@ -237,9 +236,20 @@ const MWCScoreboard = () => {
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
-         style={{ backgroundColor: theme.bg, color: theme.text, height: "100dvh", width: "100vw", display: "flex", flexDirection: "column", fontFamily: "-apple-system, sans-serif", zoom: zoomLevel, overflow: "hidden", boxSizing: "border-box" }}>
+         style={{ 
+           backgroundColor: theme.bg, 
+           color: theme.text, 
+           height: "100dvh", 
+           width: "100vw",
+           display: "flex", 
+           flexDirection: "column", 
+           fontFamily: "-apple-system, sans-serif", 
+           zoom: zoomLevel,
+           overflow: "hidden",
+           boxSizing: "border-box"
+         }}>
       
-      {/* HEADER & BANNER [cite: 52-59] */}
+      {/* HEADER & BANNER */}
       <div style={{ flexShrink: 0, zIndex: 1000, background: "#000", width: "100%" }}>
         <header style={{ padding: "15px 10px", borderBottom: "1px solid #222" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "500px", margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
@@ -257,6 +267,7 @@ const MWCScoreboard = () => {
             </div>
           </div>
         </header>
+
         <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
           <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -266,24 +277,36 @@ const MWCScoreboard = () => {
         </div>
       </div>
 
-      {/* CONTENT AREA [cite: 60-120] */}
-      <div className="scroll-container" style={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", width: "100%", maxWidth: "500px", margin: "0 auto", padding: "15px", paddingBottom: "120px", boxSizing: "border-box", touchAction: "pan-y" }}>
+      {/* CONTENT AREA */}
+      <div className="scroll-container" style={{ 
+        flexGrow: 1, 
+        overflowY: "auto", 
+        WebkitOverflowScrolling: "touch",
+        width: "100%",
+        maxWidth: "500px",
+        margin: "0 auto",
+        padding: "15px",
+        paddingBottom: "120px",
+        boxSizing: "border-box",
+        touchAction: "pan-y"
+      }}>
         {view === "live" && (
            <div className="fade-in">
-             {!isAdmin && <div style={{ textAlign: "center", marginBottom: "15px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>{(match?.mType || "Singles")} MATCH</div>}
-             {isAdmin && <select disabled={isMatchInProgress} style={{ ...getUmpireSelectStyle(isMatchInProgress), marginBottom: "15px" }} value={match?.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}><option value="Singles">Singles</option><option value="Doubles">Doubles</option></select>}
+             {!isAdmin && <div style={{ textAlign: "center", marginBottom: "15px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>{(match.mType || "Singles")} MATCH</div>}
+             {isAdmin && <select disabled={isMatchInProgress} style={{ ...getUmpireSelectStyle(isMatchInProgress), marginBottom: "15px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}><option value="Singles">Singles</option><option value="Doubles">Doubles</option></select>}
              
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
-               const isTieBreak = match ? (Number(match.s1) === 6 && Number(match.s2) === 6) : false;
-               const isServing = match?.server === n;
+               const isTieBreak = Number(match.s1) === 6 && Number(match.s2) === 6;
+               const isServing = match.server === n;
                const showBreathing = isTieBreak || isServing;
                const showRacquet = isServing && !isTieBreak;
+
                return (
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
                    {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
-                      {isAdmin && match && !match.server && match.t1 && match.t2 ? (
+                      {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
                       ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
                    </div>
@@ -304,18 +327,18 @@ const MWCScoreboard = () => {
                    ) : (
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2>
-                       <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match?.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
-                    </div>
+                       <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
+                     </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
-                     {isAdmin && match && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
+                     {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
                      <span style={{ fontSize: "55px", fontWeight: "900", margin: "0 20px" }}>{match[`s${n}`] || 0}</span>
-                     {isAdmin && match && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>}
+                     {isAdmin && <button disabled={!match.server || (match[`s${n}`] >= 7)} onClick={() => handleScoreUpdate(n, (match[`s${n}`] || 0) + 1)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: theme.accent, fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>+</button>}
                    </div>
                  </div>
                );
              })}
-             {isAdmin && match?.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
+             {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
@@ -326,21 +349,24 @@ const MWCScoreboard = () => {
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
+            
             {infoTab === "banner" && isAdmin && (
                <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
                  <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px" }}>EDIT LIVE ROLLING BANNER</label>
                  <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} />
                </div>
             )}
+
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-                <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
+                 <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
                   <li>All matches are of 1 full set</li>
                   <li>7 point Tie-breaker in case of 6-6</li>
                   <li>2 Matches per player is a must in Round robin play</li>
-                </ul>
+                 </ul>
               </div>
             )}
+
             {infoTab === "teams" && (
                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div style={{ padding: "10px", textAlign: "center" }}>
@@ -357,6 +383,7 @@ const MWCScoreboard = () => {
                 </div>
               </div>
             )}
+
             {infoTab === "crew" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 {COMMUNITY_TEAM.crew.map((name, i) => (
@@ -364,10 +391,11 @@ const MWCScoreboard = () => {
                 ))}
               </div>
             )}
+
             {infoTab === "sponsors" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {SPONSORS.map((s, i) => (
-                   <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
+                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
                     <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>{s.label}</div>
                     <div style={{ fontSize: "14px", color: "#FFF" }}>{s.name}</div>
                   </div>
@@ -473,12 +501,24 @@ const MWCScoreboard = () => {
         )}
       </div>
 
-      {/* NAVIGATION [cite: 121-126] */}
-      <nav style={{ flexShrink: 0, display: "flex", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(15px)", borderTop: "1px solid #222", paddingBottom: "calc(25px + env(safe-area-inset-bottom))", paddingTop: "15px", zIndex: 1000, width: "100%", boxSizing: "border-box" }}>
+      {/* NAVIGATION */}
+      <nav style={{ 
+        flexShrink: 0, 
+        display: "flex", 
+        background: "rgba(10,10,10,0.95)", 
+        backdropFilter: "blur(15px)", 
+        borderTop: "1px solid #222", 
+        paddingBottom: "calc(25px + env(safe-area-inset-bottom))", 
+        paddingTop: "15px", 
+        zIndex: 1000,
+        width: "100%",
+        boxSizing: "border-box"
+      }}>
         {VIEWS.map(v => (
           <button key={v} onClick={() => setView(v)} style={{ flex: 1, background: "none", border: "none", color: view === v ? theme.accent : "#555", fontSize: "10px", fontWeight: "900", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ height: "25px", marginBottom: "5px", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"}
+              {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : 
+               v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"}
             </div>
             {v.toUpperCase()}
           </button>
@@ -498,7 +538,7 @@ const MWCScoreboard = () => {
         .set-point-blinker { animation: blink 0.8s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
         .scroll-container::-webkit-scrollbar { display: none; }
-      `}</style> [cite: 126-138]
+      `}</style>
     </div>
   );
 };
