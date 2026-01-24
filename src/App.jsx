@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
 
-// --- MWC-Open-Stable-Build 9.0 (STABLE) ----
+// --- MWC-Open-Beta-completion 1.1 ----
 const firebaseConfig = {
   apiKey: "AIzaSyCwoLIBAh4NMlvp-r8avXucscjVA10ydw0",
   authDomain: "mwc-open---8th-edition.firebaseapp.com",
@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const SPONSORS = [
-  { label: "TENNIS BALLS", name: "???" },
+  { label: "TENNIS BALLS", name: "Smrithi" },
   { label: "REFRESHMENTS", name: "???" },
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
@@ -51,15 +51,6 @@ const TennisBallIcon = ({ color, size = 24 }) => (
     <circle cx="12" cy="12" r="10" />
     <path d="M5.5 18.5C7.5 16 8.5 12.5 8.5 9s-1-7-3-9.5" transform="rotate(30 12 12)" />
     <path d="M18.5 5.5C16.5 8 15.5 11.5 15.5 15s1 7 3 9.5" transform="rotate(30 12 12)" />
-  </svg>
-);
-
-const CalendarIcon = ({ color, size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 
@@ -181,7 +172,6 @@ const MWCScoreboard = () => {
 
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
-  
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
 
   const handleScoreUpdate = (teamNum, currentScore) => {
@@ -243,7 +233,7 @@ const MWCScoreboard = () => {
         </div>
       </header>
 
-      {/* ROLLING BANNER - Mild white font */}
+      {/* ROLLING BANNER */}
       <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
         <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
           <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -310,7 +300,7 @@ const MWCScoreboard = () => {
                    ) : (
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>{match[`t${n}`] || "---"}</h2>
-                       <p style={{ color: "#AAA", fontSize: "14px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
+                       <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
                       </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
@@ -335,9 +325,8 @@ const MWCScoreboard = () => {
 
             {infoTab === "banner" && isAdmin && (
                <div className="fade-in" style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}`, boxSizing: "border-box" }}>
-                 <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER (CASE SENSITIVE)</label>
+                 <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px", letterSpacing: "1px" }}>EDIT LIVE ROLLING BANNER</label>
                  <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} placeholder="Enter scrolling announcement here..." style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }} />
-                 <p style={{ color: "#666", fontSize: "10px", marginTop: "10px" }}>Text will scroll exactly as entered above.</p>
                </div>
             )}
 
@@ -352,10 +341,9 @@ const MWCScoreboard = () => {
             )}
             {infoTab === "teams" && (
               <div className="fade-in">
-                {/* Updated Chair Umpire section: No border and adjusted font sizes */}
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
-                  <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   <div style={{ fontSize: "16px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                  <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
+                   <div style={{ fontSize: "14px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
@@ -433,17 +421,10 @@ const MWCScoreboard = () => {
                    <div style={{ flex: 1 }}>
                      <div style={{ fontWeight: "800", fontSize: "14px" }}>{h.t1} {Number(h.s1) > Number(h.s2) && <GreenCheck color={theme.accent}/>} <span style={{color: "#444"}}>vs</span> {h.t2} {Number(h.s2) > Number(h.s1) && <GreenCheck color={theme.accent}/>}</div>
                      <div style={{ fontSize: "11px", color: "#BBB", marginTop: "4px" }}>{h.players}</div>
-                     <div style={{ fontSize: "9px", color: theme.accent, marginTop: "8px", fontWeight: "bold" }}>{h.time}</div>
                    </div>
-                   {editingId === h.id ? (
-                     <div style={{ display: "flex", gap: "5px" }}>
-                        <input type="number" style={{ width: "40px", padding: "5px", background: "#222", color: "#FFF", border: "1px solid #444" }} value={editScores.s1} onChange={e=>setEditScores({...editScores, s1: e.target.value})} />
-                        <input type="number" style={{ width: "40px", padding: "5px", background: "#222", color: "#FFF", border: "1px solid #444" }} value={editScores.s2} onChange={e=>setEditScores({...editScores, s2: e.target.value})} />
-                        <button onClick={()=> { update(ref(db, `history/${h.id}`), { s1: Number(editScores.s1), s2: Number(editScores.s2) }); setEditingId(null); }} style={{ background: theme.accent, padding: "5px 10px", borderRadius: "4px", fontWeight: "bold" }}>SAVE</button>
-                     </div>
-                   ) : (<div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>)}
+                   <div style={{ textAlign: "right" }}><span style={{ color: theme.accent, fontWeight: "900", fontSize: "22px" }}>{h.s1} - {h.s2}</span></div>
                  </div>
-                 {isAdmin && editingId !== h.id && (
+                 {isAdmin && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
                      <button onClick={() => {setEditingId(h.id); setEditScores({s1:h.s1, s2:h.s2}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
@@ -483,8 +464,7 @@ const MWCScoreboard = () => {
                 {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={24} /> : 
                  v === "results" ? <span style={{fontSize: "20px"}}>📊</span> : 
                  v === "standings" ? <span style={{fontSize: "20px"}}>🏆</span> : 
-                 /* Updated Schedule icon to colorful version */
-                 v === "schedule" ? <span style={{fontSize: "20px"}}>📅</span> : 
+                 v === "schedule" ? <span style={{fontSize: "20px"}}>⏩</span> : 
                  <span style={{fontSize: "20px"}}>📋</span>}
             </div>
             {v.toUpperCase()}
