@@ -343,7 +343,6 @@ const MWCScoreboard = () => {
               <div className="fade-in">
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
                   <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   {/* Reduced Name to 12px and removed bold */}
                    <div style={{ fontSize: "12px", fontWeight: "400", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -427,7 +426,9 @@ const MWCScoreboard = () => {
                  </div>
                  {isAdmin && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-                     <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
+                     {/* ADDED EDIT BUTTON */}
+                     <button onClick={() => { if(window.confirm("Move this match to LIVE scoreboard to edit?")) { const [p1, p2] = h.players.split(" vs "); const [p1a, p1b] = p1.split("/"); const [p2a, p2b] = p2.split("/"); sync({ t1: h.t1, t2: h.t2, p1a: p1a?.trim() || "", p1b: p1b?.trim() || "", p2a: p2a?.trim() || "", p2b: p2b?.trim() || "", s1: h.s1, s2: h.s2, mType: h.players.includes("/") ? "Doubles" : "Singles", server: null }); setView("live"); } }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 15px", fontSize: "10px", borderRadius: "5px", fontWeight: "900" }}>EDIT</button>
+                     <button onClick={() => window.confirm("Delete permanently?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
                    </div>
                  )}
                </div>
