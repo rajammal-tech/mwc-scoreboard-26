@@ -81,8 +81,6 @@ const MWCScoreboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [history, setHistory] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
   const [match, setMatch] = useState({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -224,7 +222,10 @@ const MWCScoreboard = () => {
           </div>
           <div style={{ textAlign: "center", flex: 1 }}>
             <h1 style={{ color: theme.accent, margin: 0, fontSize: "18px", fontStyle: "italic", fontWeight: "900" }}>MWC OPEN'26</h1>
-            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>8th Edition</div>
+            {/* Targeted Font Size Increase for "8" */}
+            <div style={{ fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px" }}>
+              <span style={{ fontSize: "12px" }}>8</span>th Edition
+            </div>
           </div>
           <div style={{ minWidth: "95px", textAlign: "right", position: "relative" }}>
             {loginError && <div style={{ position: "absolute", top: "-18px", right: 0, color: "#ff4444", fontSize: "9px", fontWeight: "900" }}>INCORRECT PIN</div>}
@@ -343,7 +344,8 @@ const MWCScoreboard = () => {
               <div className="fade-in">
                 <div style={{ padding: "18px", textAlign: "center", marginBottom: "15px" }}>
                   <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "4px", letterSpacing: "1px" }}>CHAIR UMPIRE</div>
-                   <div style={{ fontSize: "14px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
+                   {/* Reduced Name by one more size to 13px */}
+                   <div style={{ fontSize: "13px", fontWeight: "900", color: theme.text }}>{COMMUNITY_TEAM.chairUmpire}</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
@@ -426,7 +428,6 @@ const MWCScoreboard = () => {
                  </div>
                  {isAdmin && (
                    <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-                     <button onClick={() => {setEditingId(h.id); setEditScores({s1:h.s1, s2:h.s2}); }} style={{ color: theme.accent, background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>EDIT</button>
                      <button onClick={() => window.confirm("Delete?") && remove(ref(db, `history/${h.id}`))} style={{ color: "#ff4444", background: "none", border: "1px solid #333", padding: "5px 10px", fontSize: "10px", borderRadius: "5px" }}>DELETE</button>
                    </div>
                  )}
@@ -437,9 +438,10 @@ const MWCScoreboard = () => {
 
         {view === "schedule" && (
            <div className="fade-in">
+             {/* Increased Date Button Font Sizes */}
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
-                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>{d.toUpperCase()}</button>
+                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
                ))}
              </div>
              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
