@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
-  { label: "REFRESHMENTS", name: "???" }, 
+  { label: "EVENING SNACKS - Day-1", name: "Prashul" }, 
   { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
 
