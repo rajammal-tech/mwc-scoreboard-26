@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -202,7 +201,7 @@ const MWCScoreboard = () => {
   const sync = (d) => { setMatch(d); if (isAdmin) set(ref(db, "live/"), d); };
   const updateBanner = (text) => { setBannerText(text); if (isAdmin) set(ref(db, "banner/"), text); };
   const isPlayerUsed = (p, currentSlot) => ["p1a", "p1b", "p2a", "p2b"].some(s => s !== currentSlot && match[s] === p);
-  
+
   const handleScoreUpdate = (teamNum, currentScore) => {
     if (currentScore > 7) return;
     const nextServer = match.server === 1 ? 2 : 1;
@@ -241,6 +240,18 @@ const MWCScoreboard = () => {
     appearance: isDisabled ? "none" : "auto",
     boxSizing: "border-box"
   });
+
+  const formatResultTime = (isoStr) => {
+    if (!isoStr) return "";
+    const d = new Date(isoStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    let hours = d.getHours();
+    const mins = String(d.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    return `${day}/${month} ${String(hours).padStart(2, "0")}:${mins} ${ampm}`;
+  };
 
   return (
     <div onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} 
@@ -317,25 +328,27 @@ const MWCScoreboard = () => {
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
                       ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
                    </div>
-                   {isAdmin ? (
+                   {isAdmin ?
+                   (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}>
                        {!isMatchInProgress ? (
                          <select style={getUmpireSelectStyle(false)} value={match[`t${n}`]} onChange={(e) => sync({ ...match, [`t${n}`]: e.target.value, [`p${n}a`]: "", [`p${n}b`]: "", server: null })}><option value="">Select Team</option>{TEAMS.map(t => <option key={t} disabled={n === 1 ? match.t2 === t : match.t1 === t}>{t}</option>)}</select>
                        ) : (<div style={{ fontSize: "16px", fontWeight: "900", color: theme.accent, textTransform: "uppercase" }}>{match[`t${n}`] || "---"}</div>)}
                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "5px" }}>
-                          {!isMatchInProgress ? (
+                        {!isMatchInProgress ? (
                             <>
                               <select style={getUmpireSelectStyle(false, match.mType === "Doubles")} value={match[`p${n}a`]} onChange={(e) => sync({ ...match, [`p${n}a`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}a`)}>{p}</option>)}</select>
                               {match.mType === "Doubles" && <><span style={{ color: theme.muted }}>/</span><select style={getUmpireSelectStyle(false, true)} value={match[`p${n}b`]} onChange={(e) => sync({ ...match, [`p${n}b`]: e.target.value })}><option value="">Select Player</option>{(TEAM_ROSTERS[match[`t${n}`]] || []).map(p => <option key={p} disabled={isPlayerUsed(p, `p${n}b`)}>{p}</option>)}</select></>}
                             </>
-                          ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
+                        ) : (<div style={{ fontSize: "16px", fontWeight: "600", color: "#FFF" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</div>)}
                        </div>
                      </div>
-                   ) : (
+                   ) : 
+                   (
                      <div style={{ marginTop: "10px" }}>
                        <h2 style={{ fontSize: "24px", margin: 0, fontWeight: "900" }}>{match[`t${n}`] || "---"}</h2>
                        <p style={{ color: "#AAA", fontSize: "16px", fontWeight: "700" }}>{match[`p${n}a`]} {match.mType === "Doubles" && match[`p${n}b`] && ` / ${match[`p${n}b`]}`}</p>
-                     </div>
+                    </div>
                    )}
                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "10px" }}>
                      {isAdmin && <button disabled={!match.server} onClick={() => handleScoreReduce(n)} style={{ width: "55px", height: "55px", borderRadius: "50%", background: "#222", color: "#ff4444", fontSize: "24px", fontWeight: "900", border: "1px solid #333" }}>-</button>}
@@ -346,9 +359,46 @@ const MWCScoreboard = () => {
                );
              })}
              {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return;
-               push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() });
-               sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
+             push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a}/${match.p1b} vs ${match.p2a}/${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() });
+             sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null });
              }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
+           </div>
+        )}
+
+        {view === "results" && (
+           <div className="fade-in">
+             {history.length === 0 ? (
+               <div style={{ textAlign: "center", padding: "40px 20px", color: theme.muted }}>No matches recorded yet.</div>
+             ) : (
+               history.map((m) => (
+                 <div key={m.id} style={{ background: theme.card, padding: "20px", borderRadius: "15px", marginBottom: "15px", border: "1px solid #222" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", paddingBottom: "8px", borderBottom: "1px solid #222" }}>
+                     <span style={{ color: theme.accent, fontSize: "14px", fontWeight: "900" }}>{formatResultTime(m.time)}</span>
+                     <div style={{ display: "flex", gap: "8px" }}>
+                       {isAdmin && (
+                         <button onClick={() => { if(window.confirm("Delete record?")) remove(ref(db, `history/${m.id}`)); }} style={{ background: "none", border: "none", color: "#ff4444", fontSize: "12px", fontWeight: "900", padding: "0 5px" }}>DELETE</button>
+                       )}
+                       <span style={{ color: theme.muted, fontSize: "12px", fontWeight: "700" }}>FINAL</span>
+                     </div>
+                   </div>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                     <div style={{ flex: 1 }}>
+                       <div style={{ color: theme.text, fontSize: "16px", fontWeight: "900", marginBottom: "4px" }}>{m.t1}</div>
+                       <div style={{ color: "#AAA", fontSize: "14px", fontWeight: "600" }}>{m.players.split(" vs ")[0]}</div>
+                     </div>
+                     <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 20px" }}>
+                       <span style={{ fontSize: "22px", fontWeight: "900", color: Number(m.s1) > Number(m.s2) ? theme.accent : "#FFF" }}>{m.s1}</span>
+                       <span style={{ color: "#444" }}>—</span>
+                       <span style={{ fontSize: "22px", fontWeight: "900", color: Number(m.s2) > Number(m.s1) ? theme.accent : "#FFF" }}>{m.s2}</span>
+                     </div>
+                     <div style={{ flex: 1, textAlign: "right" }}>
+                       <div style={{ color: theme.text, fontSize: "16px", fontWeight: "900", marginBottom: "4px" }}>{m.t2}</div>
+                       <div style={{ color: "#AAA", fontSize: "14px", fontWeight: "600" }}>{m.players.split(" vs ")[1]}</div>
+                     </div>
+                   </div>
+                 </div>
+               ))
+             )}
            </div>
         )}
 
@@ -379,18 +429,18 @@ const MWCScoreboard = () => {
 
             {infoTab === "teams" && (
                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div style={{ padding: "10px", textAlign: "center" }}>
+                 <div style={{ padding: "10px", textAlign: "center" }}>
                    <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div>
                    <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-                    <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                      <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
-                      {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
-                    </div>
-                  ))}
-                </div>
+                 </div>
+                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
+                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
+                     </div>
+                   ))}
+                 </div>
                </div>
             )}
 
@@ -423,188 +473,92 @@ const MWCScoreboard = () => {
               <button onClick={() => setInfoTab("analytics")} style={{ flex: 1, padding: "14px 5px", background: infoTab === "analytics" ? theme.accent : "#111", color: infoTab === "analytics" ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "10px" }}>ANALYTICS</button>
             </div>
             
-            {infoTab === "analytics" ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                {/* Win-Rate Distribution Chart */}
-                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #222" }}>
-                  <h3 style={{ fontSize: "11px", color: theme.accent, marginBottom: "20px", fontWeight: "900", letterSpacing: "1px" }}>WIN-RATE DISTRIBUTION (%)</h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                    {standings.map(t => (
-                      <div key={t.name}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", marginBottom: "5px", fontWeight: "700" }}>
-                          <span>{t.name.toUpperCase()}</span>
-                          <span>{t.winRate}%</span>
-                        </div>
-                        <div style={{ height: "12px", background: "#222", borderRadius: "6px", overflow: "hidden" }}>
-                          <div style={{ height: "100%", width: `${t.winRate}%`, background: theme.accent, transition: "width 0.5s ease" }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {infoTab === "team_std" && (
+               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                 {standings.map((t, i) => (
+                   <div key={t.name} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: i === 0 ? theme.accent : "#222", color: i === 0 ? "#000" : "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "900" }}>{i + 1}</div>
+                        <span style={{ fontWeight: "900" }}>{t.name}</span>
+                     </div>
+                     <div style={{ display: "flex", gap: "15px", textAlign: "center" }}>
+                        <div><div style={{ fontSize: "8px", color: theme.muted }}>P</div><div style={{ fontWeight: "900" }}>{t.played}</div></div>
+                        <div><div style={{ fontSize: "8px", color: theme.accent }}>W</div><div style={{ fontWeight: "900", color: theme.accent }}>{t.won}</div></div>
+                        <div><div style={{ fontSize: "8px", color: theme.muted }}>%</div><div style={{ fontWeight: "900" }}>{t.winRate}</div></div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+            )}
 
-                {/* Points Dominance Index */}
-                <div style={{ background: theme.card, padding: "20px", borderRadius: "15px", border: "1px solid #222" }}>
-                  <h3 style={{ fontSize: "11px", color: theme.accent, marginBottom: "20px", fontWeight: "900", letterSpacing: "1px" }}>POINTS DOMINANCE (WON VS LOST)</h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                    {standings.map(t => {
-                      const total = t.games + t.gamesLost;
-                      const wonPct = total > 0 ? (t.games / total) * 100 : 50;
-                      return (
-                        <div key={t.name}>
-                          <div style={{ fontSize: "10px", marginBottom: "8px", fontWeight: "700", textAlign: "center" }}>{t.name.toUpperCase()}</div>
-                          <div style={{ height: "24px", background: "#222", borderRadius: "4px", overflow: "hidden", display: "flex", position: "relative" }}>
-                             <div style={{ height: "100%", width: `${wonPct}%`, background: theme.accent, display: "flex", alignItems: "center", paddingLeft: "8px", fontSize: "9px", color: "#000", fontWeight: "900" }}>
-                               {t.games}W
-                             </div>
-                             <div style={{ height: "100%", flex: 1, background: "#333", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: "8px", fontSize: "9px", color: "#999", fontWeight: "900" }}>
-                               {t.gamesLost}L
-                             </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead style={{ background: "#050505" }}>
-                    <tr style={{ textAlign: "left" }}>
-                      <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th>
-                      {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
-                      <th style={{ textAlign: "center", fontSize: "10px" }}>PLAYED</th>
-                      {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
-                      <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>WINS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
-                      <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
-                        <td style={{ padding: "15px" }}>
-                          <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
-                          <span style={{ fontWeight: "700", fontSize: "13px" }}>{item.name}</span>
-                        </td>
-                        {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "10px", color: "#888" }}>{item.team.replace("Team ", "")}</td>}
-                        <td style={{ textAlign: "center", fontWeight: "700" }}>{infoTab === "player_std" ? item.mp : item.played}</td>
-                        {infoTab !== "player_std" && <td style={{ textAlign: "center", fontSize: "12px", color: "#888" }}>{item.games}</td>}
-                        <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: i === 0 ? theme.accent : "#FFF" }}>{infoTab === "player_std" ? item.mw : item.won}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {infoTab === "player_std" && (
+               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                 {playerStats.map((p, i) => (
+                   <div key={p.name} style={{ background: theme.card, padding: "12px 15px", borderRadius: "12px", border: "1px solid #222", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                     <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ fontWeight: "900", fontSize: "14px" }}>{p.name}</span>
+                        <span style={{ fontSize: "10px", color: theme.muted }}>{p.team}</span>
+                     </div>
+                     <div style={{ display: "flex", gap: "15px", textAlign: "center" }}>
+                        <div><div style={{ fontSize: "8px", color: theme.muted }}>MP</div><div style={{ fontWeight: "900" }}>{p.mp}</div></div>
+                        <div><div style={{ fontSize: "8px", color: theme.accent }}>MW</div><div style={{ fontWeight: "900", color: theme.accent }}>{p.mw}</div></div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
             )}
           </div>
         )}
 
-        {view === "results" && (
-           <div className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-             {history.length === 0 ? (
-               <div style={{ textAlign: "center", padding: "40px", color: "#444", fontWeight: "bold" }}>NO MATCHES COMPLETED YET</div>
-             ) : (
-               history.map((m) => {
-                 const isEditing = editingId === m.id;
-                 return (
-                   <div key={m.id} style={{ background: theme.card, borderRadius: "12px", padding: "15px", border: "1px solid #222" }}>
-                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                       <span style={{ fontSize: "9px", color: theme.muted, fontWeight: "900" }}>{new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                       {isAdmin && (
-                         <div style={{ display: "flex", gap: "10px" }}>
-                           {isEditing ? (
-                             <>
-                               <button onClick={() => {
-                                 update(ref(db, `history/${m.id}`), { s1: editScores.s1, s2: editScores.s2 });
-                                 setEditingId(null);
-                               }} style={{ background: theme.accent, border: "none", color: "#000", fontSize: "9px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold" }}>SAVE</button>
-                               <button onClick={() => setEditingId(null)} style={{ background: "#333", border: "none", color: "#FFF", fontSize: "9px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold" }}>CANCEL</button>
-                             </>
-                           ) : (
-                             <>
-                               <button onClick={() => { setEditingId(m.id); setEditScores({ s1: m.s1, s2: m.s2 }); }} style={{ background: "transparent", border: "1px solid #444", color: "#888", fontSize: "8px", padding: "3px 6px", borderRadius: "4px" }}>EDIT</button>
-                               <button onClick={() => window.confirm("Delete record?") && remove(ref(db, `history/${m.id}`))} style={{ background: "transparent", border: "1px solid #444", color: "#ff4444", fontSize: "8px", padding: "3px 6px", borderRadius: "4px" }}>DEL</button>
-                             </>
-                           )}
-                         </div>
-                       )}
-                     </div>
-                     <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: "15px" }}>
-                       <div style={{ textAlign: "right" }}>
-                         <div style={{ fontSize: "13px", fontWeight: "900", color: Number(m.s1) > Number(m.s2) ? theme.accent : "#FFF" }}>{m.t1}</div>
-                         <div style={{ fontSize: "10px", color: "#666" }}>{m.players.split(" vs ")[0]}</div>
-                       </div>
-                       <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#000", padding: "8px 12px", borderRadius: "8px", border: "1px solid #222" }}>
-                         {isEditing ? (
-                           <>
-                             <input type="number" value={editScores.s1} onChange={e => setEditScores({...editScores, s1: e.target.value})} style={{ width: "35px", background: "#111", color: "#FFF", border: "1px solid #444", textAlign: "center", borderRadius: "4px" }} />
-                             <span style={{ color: "#444" }}>-</span>
-                             <input type="number" value={editScores.s2} onChange={e => setEditScores({...editScores, s2: e.target.value})} style={{ width: "35px", background: "#111", color: "#FFF", border: "1px solid #444", textAlign: "center", borderRadius: "4px" }} />
-                           </>
-                         ) : (
-                           <>
-                             <span style={{ fontSize: "18px", fontWeight: "900", color: Number(m.s1) > Number(m.s2) ? theme.accent : "#FFF" }}>{m.s1}</span>
-                             <span style={{ color: "#444", fontWeight: "900" }}>:</span>
-                             <span style={{ fontSize: "18px", fontWeight: "900", color: Number(m.s2) > Number(m.s1) ? theme.accent : "#FFF" }}>{m.s2}</span>
-                           </>
-                         )}
-                       </div>
-                       <div style={{ textAlign: "left" }}>
-                         <div style={{ fontSize: "13px", fontWeight: "900", color: Number(m.s2) > Number(m.s1) ? theme.accent : "#FFF" }}>{m.t2}</div>
-                         <div style={{ fontSize: "10px", color: "#666" }}>{m.players.split(" vs ")[1]}</div>
-                       </div>
-                     </div>
-                   </div>
-                 );
-               })
-             )}
-           </div>
-        )}
-
         {view === "schedule" && (
-           <div className="fade-in">
-             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-               {Object.keys(SCHEDULE_DATA).map(day => (
-                 <button key={day} onClick={() => setActiveDay(day)} style={{ flex: 1, padding: "12px", background: activeDay === day ? theme.accent : "#111", color: activeDay === day ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "12px" }}>{day.toUpperCase()}</button>
-               ))}
-             </div>
-             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-               {SCHEDULE_DATA[activeDay].map((m, i) => (
-                 <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                   <div>
-                     <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>{m.time} • {m.type.toUpperCase()}</div>
-                     <div style={{ fontSize: "14px", fontWeight: "700" }}>{m.t1} <span style={{ color: "#444", margin: "0 5px" }}>vs</span> {m.t2}</div>
-                   </div>
-                   <div style={{ background: "#222", width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>🎾</div>
-                 </div>
-               ))}
-             </div>
-           </div>
+          <div className="fade-in">
+            <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+              {Object.keys(SCHEDULE_DATA).map(day => (
+                <button key={day} onClick={() => setActiveDay(day)} style={{ flex: 1, padding: "12px", borderRadius: "10px", border: "none", background: activeDay === day ? theme.accent : "#111", color: activeDay === day ? "#000" : "#FFF", fontWeight: "900", fontSize: "11px" }}>{day.toUpperCase()}</button>
+              ))}
+            </div>
+            {SCHEDULE_DATA[activeDay].map((m, i) => (
+              <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222", marginBottom: "12px", display: "flex", alignItems: "center" }}>
+                <div style={{ paddingRight: "15px", borderRight: "1px solid #222", marginRight: "15px", textAlign: "center" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "900" }}>{m.time}</div>
+                  <div style={{ fontSize: "8px", color: theme.accent, marginTop: "4px" }}>{m.type.toUpperCase()}</div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "14px", fontWeight: "900" }}>{m.t1}</span>
+                    <span style={{ color: theme.muted, fontSize: "10px" }}>vs</span>
+                    <span style={{ fontSize: "14px", fontWeight: "900" }}>{m.t2}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* BOTTOM NAVIGATION */}
+      {/* FOOTER NAVIGATION */}
       <nav style={{ 
-        flexShrink: 0,
-        display: "flex", 
-        background: "rgba(10,10,10,0.95)", 
-        backdropFilter: "blur(10px)",
+        flexShrink: 0, 
+        display: "grid", 
+        gridTemplateColumns: `repeat(${VIEWS.length}, 1fr)`, 
+        background: "#0a0a0a", 
         borderTop: "1px solid #222", 
-        padding: "10px 5px env(safe-area-inset-bottom)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        zIndex: 1000,
         position: "fixed",
         bottom: 0,
         width: "100%",
-        zIndex: 1000,
-        justifyContent: "space-around",
-        boxSizing: "border-box"
+        maxWidth: "500px",
+        left: "50%",
+        transform: "translateX(-50%)"
       }}>
-        {VIEWS.map(v => (
-          <button key={v} onClick={() => setView(v)} style={{ background: "none", border: "none", color: view === v ? theme.accent : "#555", display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", transition: "all 0.2s", flex: 1 }}>
-            <div style={{ width: "35px", height: "35px", borderRadius: "10px", background: view === v ? "rgba(173,255,47,0.1)" : "transparent", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {VIEWS.map((v) => (
+          <button key={v} onClick={() => setView(v)} style={{ background: "none", border: "none", padding: "15px 5px", color: view === v ? theme.accent : "#555", display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", fontSize: "9px", fontWeight: "900" }}>
+            <div style={{ height: "22px", width: "22px", fontSize: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               {v === "live" ? <TennisBallIcon color={view === v ? theme.accent : "#555"} size={22} /> : 
                v === "results" ? "📊" : v === "standings" ? "🏆" : v === "schedule" ? "⏩" : "📋"}
             </div>
-            <div style={{ fontSize: "9px", fontWeight: "900", letterSpacing: "0.5px" }}>{v.toUpperCase()}</div>
+            {v.toUpperCase()}
           </button>
         ))}
       </nav>
@@ -620,11 +574,10 @@ const MWCScoreboard = () => {
         .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
         @keyframes breathingBorder { 0%, 100% { border-color: #222; box-shadow: 0 0 0px rgba(173,255,47,0); } 50% { border-color: #adff2f; box-shadow: 0 0 15px rgba(173,255,47,0.2); } }
         .racquet-breathe { animation: racquetPulse 1.5s infinite ease-in-out; }
-        @keyframes racquetPulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
-        .set-point-blinker { animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); } 50% { opacity: 0.8; transform: translateX(-50%) scale(0.95); } }
+        @keyframes racquetPulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } }
+        .set-point-blinker { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
         .scroll-container::-webkit-scrollbar { display: none; }
-        input[type=number]::-webkit-inner-spin-button { display: none; }
       `}</style>
     </div>
   );
