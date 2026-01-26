@@ -26,7 +26,7 @@ const COMMUNITY_TEAM = {
 };
 
 const TEAM_ROSTERS = {
-  "Team C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Praful"],
+  "Team C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
   "Team R": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
   "Team S": ["Saikat", "Rajesh", "SKP", "Dhiraj W", "Viswas", "Pramila"],
   "Team K": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
