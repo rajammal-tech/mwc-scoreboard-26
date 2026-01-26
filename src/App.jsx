@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -15,7 +16,8 @@ const firebaseConfig = {
 
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
-  { label: "VOLUNTARY CONTRIBUTION", name: "Prashul, Naveen" },
+  { label: "EVENING SNACKS - Day-1", name: "Prashul" }, 
+  { label: "VOLUNTARY CONTRIBUTION", name: "???" },
 ];
 
 const COMMUNITY_TEAM = { 
@@ -24,39 +26,39 @@ const COMMUNITY_TEAM = {
 };
 
 const TEAM_ROSTERS = {
-  "Team  C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Praful"],
-  "Team  S": ["Saikat", "Rajesh", "SKP", "Dhiraj W", "Viswas", "Pramila"],
-  "Team  SN": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
-  "Team  R": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
-  "Team  K": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
-  "Team  P": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
+  "Team C": ["Chetan", "SKP", "Vishav", "Shria", "Bala", "Praful"],
+  "Team S": ["Saikat", "Rajesh", "Haresh", "Arvind", "Bhavey", "Pramila"],
+  "Team SN": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team R": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "Rakesh"],
+  "Team K": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
+  "Team P": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
 
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "Pool A, Blue, 1", pool: "X", t1: "Team  C", t2: "Team  S" },
-    { time: "07:25 AM", type: "2", pool: "Y", t1: "Team  R", t2: "Team  K" },
-    { time: "08:05 AM", type: "Pool A, Green 3", pool: "X", t1: "Team  C", t2: "Team  SN" },
-    { time: "03:30 PM", type: "4", pool: "Y", t1: "Team  R", t2: "Team  P" },
-    { time: "04:10 PM", type: "Pool A, Blue-Green 5", pool: "X", t1: "Team  S", t2: "Team  SN" },
-    { time: "04:50 PM", type: "6", pool: "Y", t1: "Team  K", t2: "Team  P" },
-    { time: "05:30 PM", type: "7", pool: "X", t1: "Team  C", t2: "Team  S" },
-    { time: "06:10 PM", type: "8", pool: "Y", t1: "Team  R", t2: "Team  K" },
-    { time: "06:50 PM", type: "9", pool: "X", t1: "Team  SN", t2: "Team  C" }
+    { time: "06:45 AM", type: "1", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "07:25 AM", type: "2", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "08:05 AM", type: "3", pool: "X", t1: "Team C", t2: "Team SN" },
+    { time: "03:30 PM", type: "4", pool: "Y", t1: "Team R", t2: "Team P" },
+    { time: "04:10 PM", type: "5", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "04:50 PM", type: "6", pool: "Y", t1: "Team K", t2: "Team P" },
+    { time: "05:30 PM", type: "7", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "06:10 PM", type: "8", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "06:50 PM", type: "9", pool: "X", t1: "Team SN", t2: "Team C" }
   ],
   "Feb 8": [
-    { time: "06:45 AM", type: "10", pool: "Y", t1: "Team  P", t2: "Team  R" },
-    { time: "07:25 AM", type: "11", pool: "X", t1: "Team  S", t2: "Team  SN" },
-    { time: "08:05 AM", type: "12", pool: "Y", t1: "Team  K", t2: "Team  P" },
-    { time: "03:30 PM", type: "13", pool: "X", t1: "Team  C", t2: "Team  S" },
-    { time: "04:10 PM", type: "14", pool: "Y", t1: "Team  R", t2: "Team  K" },
-    { time: "04:50 PM", type: "15", pool: "X", t1: "Team  SN", t2: "Team  C" },
-    { time: "05:30 PM", type: "16", pool: "Y", t1: "Team  P", t2: "Team  R" },
-    { time: "06:10 PM", type: "17", pool: "X", t1: "Team  S", t2: "Team  SN" },
-    { time: "06:50 PM", type: "18", pool: "Y", t1: "Team  K", t2: "Team  P" },
-    { time: "07:30 PM", type: "Finals -1", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
-    { time: "08:10 PM", type: "Finals -2", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
+    { time: "06:45 AM", type: "10", pool: "Y", t1: "Team P", t2: "Team R" },
+    { time: "07:25 AM", type: "11", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "08:05 AM", type: "12", pool: "Y", t1: "Team K", t2: "Team P" },
+    { time: "03:30 PM", type: "13", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "04:10 PM", type: "14", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "04:50 PM", type: "15", pool: "X", t1: "Team SN", t2: "Team C" },
+    { time: "05:30 PM", type: "16", pool: "Y", t1: "Team P", t2: "Team R" },
+    { time: "06:10 PM", type: "17", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "06:50 PM", type: "18", pool: "Y", t1: "Team K", t2: "Team P" },
+    { time: "07:30 PM", type: "Finals-1", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
+    { time: "08:10 PM", type: "Finals-2", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
     { time: "08:50 PM", type: "Tie-Breaker ( if required )", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
     { time: "09:30 PM", type: "Award Ceremony", pool: "All", t1: "", t2: "" }
   ]
@@ -409,7 +411,7 @@ const MWCScoreboard = () => {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px",  textAlign: "center" }}>{t.toUpperCase()}</h4>
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
                        {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
                     </div>
                   ))}
