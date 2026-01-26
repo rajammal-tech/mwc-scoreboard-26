@@ -528,7 +528,7 @@ const MWCScoreboard = () => {
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
-                   <div style={{ textAlign: "left" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold" }}>{m.type.toUpperCase()}</div></div>
+                   <div style={{ textAlign: "right" }}><div style={{ fontWeight: "800", fontSize: "15px" }}>{m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}</div><div style={{ fontSize: "10px", color: theme.accent, fontWeight: "bold" }}>{m.type.toUpperCase()}</div></div>
                   </div>
                ))}
              </div>
