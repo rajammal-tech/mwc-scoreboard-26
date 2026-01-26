@@ -36,25 +36,25 @@ const TEAM_ROSTERS = {
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "Pool A, Blue, 1", pool: "A", t1: "Team C", t2: "Team S" },
+    { time: "06:45 AM", type: "Pool A, Green, 1", pool: "A", t1: "Team C", t2: "Team S" },
     { time: "07:25 AM", type: "2", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "08:05 AM", type: "3", pool: "A", t1: "Team C", t2: "Team SN" },
+    { time: "08:05 AM", type: "Pool A, Blue, 3", pool: "A", t1: "Team C", t2: "Team SN" },
     { time: "03:30 PM", type: "4", pool: "B", t1: "Team R", t2: "Team P" },
-    { time: "04:10 PM", type: "5", pool: "A", t1: "Team S", t2: "Team SN" },
+    { time: "04:10 PM", type: "Pool A, Blue-Green, 5", pool: "A", t1: "Team S", t2: "Team SN" },
     { time: "04:50 PM", type: "6", pool: "B", t1: "Team K", t2: "Team P" },
-    { time: "05:30 PM", type: "7", pool: "A", t1: "Team C", t2: "Team S" },
+    { time: "05:30 PM", type: "Pool A, Blue, 7", pool: "A", t1: "Team C", t2: "Team S" },
     { time: "06:10 PM", type: "8", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "06:50 PM", type: "9", pool: "A", t1: "Team SN", t2: "Team C" }
+    { time: "06:50 PM", type: "Pool A, Blue-Green, 9", pool: "A", t1: "Team SN", t2: "Team C" }
   ],
   "Feb 8": [
     { time: "06:45 AM", type: "10", pool: "B", t1: "Team P", t2: "Team R" },
-    { time: "07:25 AM", type: "11", pool: "A", t1: "Team S", t2: "Team SN" },
+    { time: "07:25 AM", type: "Pool A, Green, 11", pool: "A", t1: "Team S", t2: "Team SN" },
     { time: "08:05 AM", type: "12", pool: "B", t1: "Team K", t2: "Team P" },
-    { time: "03:30 PM", type: "13", pool: "A", t1: "Team C", t2: "Team S" },
+    { time: "03:30 PM", type: "Pool A, Blue-Green, 13", pool: "A", t1: "Team C", t2: "Team S" },
     { time: "04:10 PM", type: "14", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "04:50 PM", type: "15", pool: "A", t1: "Team SN", t2: "Team C" },
+    { time: "04:50 PM", type: "Pool A, Blue, 15", pool: "A", t1: "Team SN", t2: "Team C" },
     { time: "05:30 PM", type: "16", pool: "B", t1: "Team P", t2: "Team R" },
-    { time: "06:10 PM", type: "17", pool: "A", t1: "Team S", t2: "Team SN" },
+    { time: "06:10 PM", type: "Pool A, Green, 17", pool: "A", t1: "Team S", t2: "Team SN" },
     { time: "06:50 PM", type: "18", pool: "B", t1: "Team K", t2: "Team P" },
     { time: "07:30 PM", type: "Finals -1", pool: "Finalists", t1: "Winner Pool A", t2: "Winner Pool B" },
     { time: "08:10 PM", type: "Finals -2", pool: "Finalists", t1: "Winner Pool B", t2: "Winner Pool B" },
