@@ -33,34 +33,34 @@ const TEAM_ROSTERS = {
   "Team Foxtrot": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
 
-/*
+
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { match: 1, time: "06:45 AM", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { match: 2, time: "07:25 AM", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { match: 3, time: "08:05 AM", pool: "X", t1: "Team Alpha", t2: "Team Charlie" },
-    { match: 4, time: "03:30 PM", pool: "Y", t1: "Team Delta", t2: "Team Foxtrot" },
-    { match: 5, time: "04:10 PM", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { match: 6, time: "04:50 PM", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { match: 7, time: "05:30 PM", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { match: 8, time: "06:10 PM", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { match: 9, time: "06:50 PM", pool: "X", t1: "Team Charlie", t2: "Team Alpha" }
+    { time: "06:45 AM", type: "1", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "07:25 AM", type: "2", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
+    { time: "08:05 AM", type: "3", pool: "X", t1: "Team Alpha", t2: "Team Charlie" },
+    { time: "03:30 PM", type: "4", pool: "Y", t1: "Team Delta", t2: "Team Foxtrot" },
+    { time: "04:10 PM", type: "5", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
+    { time: "04:50 PM", type: "6", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
+    { time: "05:30 PM", type: "7", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "06:10 PM", type: "8", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
+    { time: "06:50 PM", type: "9", pool: "X", t1: "Team Charlie", t2: "Team Alpha" }
   ],
   "Feb 8": [
-    { match: 10, time: "06:45 AM", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
-    { match: 11, time: "07:25 AM", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { match: 12, time: "08:05 AM", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { match: 13, time: "03:30 PM", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { match: 14, time: "04:10 PM", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { match: 15, time: "04:50 PM", pool: "X", t1: "Team Charlie", t2: "Team Alpha" },
-    { match: 16, time: "05:30 PM", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
-    { match: 17, time: "06:10 PM", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { match: 18, time: "06:50 PM", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { match: 19, time: "07:30 PM", pool: "Final", t1: "Winner Pool X", t2: "Winner Pool Y" }
+    { time: "06:45 AM", type: "10", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
+    { time: "07:25 AM", type: "11", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
+    { time: "08:05 AM", type: "12", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
+    { time: "03:30 PM", type: "13", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
+    { time: "04:10 PM", type: "14", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
+    { time: "04:50 PM", type: "15", pool: "X", t1: "Team Charlie", t2: "Team Alpha" },
+    { time: "05:30 PM", type: "16", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
+    { time: "06:10 PM", type: "17", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
+    { time: "06:50 PM", type: "18", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
+    { time: "07:30 PM", type: "19", pool: "Final", t1: "Winner Pool X", t2: "Winner Pool Y" }
   ]
 };
-*/
 
+/*
 const SCHEDULE_DATA = {
   "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
@@ -70,6 +70,7 @@ const SCHEDULE_DATA = {
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
 };
+*/
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
