@@ -410,8 +410,8 @@ const MWCScoreboard = () => {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
                     <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
-                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px", textAlign: "center" }}>{p}</div>)}
+                       <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px",  textAlign: "center" }}>{t.toUpperCase()}</h4>
+                       {ps.map((p, i) => <div key={i} style={{ fontSize: "12px", color: "#DDD", marginBottom: "3px" }}>{p}</div>)}
                     </div>
                   ))}
                 </div>
