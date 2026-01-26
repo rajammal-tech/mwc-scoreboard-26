@@ -25,37 +25,37 @@ const COMMUNITY_TEAM = {
 };
 
 const TEAM_ROSTERS = {
-  "Team Alpha": ["Chetan", "SKP", "Vishav", "Shria", "Bala", "Praful"],
-  "Team Bravo": ["Saikat", "Rajesh", "Haresh", "Arvind", "Bhavey", "Pramila"],
-  "Team Charlie": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
-  "Team Delta": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "Rakesh"],
-  "Team Echo": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
-  "Team Foxtrot": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
+  "Team C": ["Chetan", "SKP", "Vishav", "Shria", "Bala", "Praful"],
+  "Team S": ["Saikat", "Rajesh", "Haresh", "Arvind", "Bhavey", "Pramila"],
+  "Team SN": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team R": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "Rakesh"],
+  "Team K": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
+  "Team P": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
 
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "1", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "07:25 AM", type: "2", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { time: "08:05 AM", type: "3", pool: "X", t1: "Team Alpha", t2: "Team Charlie" },
-    { time: "03:30 PM", type: "4", pool: "Y", t1: "Team Delta", t2: "Team Foxtrot" },
-    { time: "04:10 PM", type: "5", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { time: "04:50 PM", type: "6", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { time: "05:30 PM", type: "7", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "06:10 PM", type: "8", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { time: "06:50 PM", type: "9", pool: "X", t1: "Team Charlie", t2: "Team Alpha" }
+    { time: "06:45 AM", type: "1", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "07:25 AM", type: "2", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "08:05 AM", type: "3", pool: "X", t1: "Team C", t2: "Team SN" },
+    { time: "03:30 PM", type: "4", pool: "Y", t1: "Team R", t2: "Team P" },
+    { time: "04:10 PM", type: "5", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "04:50 PM", type: "6", pool: "Y", t1: "Team K", t2: "Team P" },
+    { time: "05:30 PM", type: "7", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "06:10 PM", type: "8", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "06:50 PM", type: "9", pool: "X", t1: "Team SN", t2: "Team C" }
   ],
   "Feb 8": [
-    { time: "06:45 AM", type: "10", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
-    { time: "07:25 AM", type: "11", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { time: "08:05 AM", type: "12", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { time: "03:30 PM", type: "13", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "04:10 PM", type: "14", pool: "Y", t1: "Team Delta", t2: "Team Echo" },
-    { time: "04:50 PM", type: "15", pool: "X", t1: "Team Charlie", t2: "Team Alpha" },
-    { time: "05:30 PM", type: "16", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
-    { time: "06:10 PM", type: "17", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
-    { time: "06:50 PM", type: "18", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
+    { time: "06:45 AM", type: "10", pool: "Y", t1: "Team P", t2: "Team R" },
+    { time: "07:25 AM", type: "11", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "08:05 AM", type: "12", pool: "Y", t1: "Team K", t2: "Team P" },
+    { time: "03:30 PM", type: "13", pool: "X", t1: "Team C", t2: "Team S" },
+    { time: "04:10 PM", type: "14", pool: "Y", t1: "Team R", t2: "Team K" },
+    { time: "04:50 PM", type: "15", pool: "X", t1: "Team SN", t2: "Team C" },
+    { time: "05:30 PM", type: "16", pool: "Y", t1: "Team P", t2: "Team R" },
+    { time: "06:10 PM", type: "17", pool: "X", t1: "Team S", t2: "Team SN" },
+    { time: "06:50 PM", type: "18", pool: "Y", t1: "Team K", t2: "Team P" },
     { time: "07:30 PM", type: "Finals-1", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
     { time: "08:10 PM", type: "Finals-2", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
     { time: "08:50 PM", type: "Tie-Breaker ( if required )", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
