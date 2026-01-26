@@ -37,7 +37,7 @@ const TEAM_ROSTERS = {
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "A, Green, M-1", pool: "A", t1: "Team C", t2: "Team S" },
+    { time: "06:45 AM", type: "A, Green, M1", pool: "A", t1: "Team C", t2: "Team S" },
     { time: "07:25 AM", type: "B, Blue-Green, M2", pool: "B", t1: "Team R", t2: "Team K" },
     { time: "08:05 AM", type: "A, Blue, M3", pool: "A", t1: "Team C", t2: "Team SN" },
     { time: "03:30 PM", type: "B, Blue, M4", pool: "B", t1: "Team R", t2: "Team P" },
