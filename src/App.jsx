@@ -32,6 +32,8 @@ const TEAM_ROSTERS = {
   "Team Echo": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
   "Team Foxtrot": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
+
+/*
 const SCHEDULE_DATA = {
   "Feb 7": [
     { match: 1, time: "06:45 AM", pool: "X", t1: "Team Alpha", t2: "Team Bravo" },
@@ -57,8 +59,9 @@ const SCHEDULE_DATA = {
     { match: 19, time: "07:30 PM", pool: "Final", t1: "Winner Pool X", t2: "Winner Pool Y" }
   ]
 };
+*/
 
-/*const SCHEDULE_DATA = {
+const SCHEDULE_DATA = {
   "Feb 7": [
     { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
     { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
@@ -66,7 +69,7 @@ const SCHEDULE_DATA = {
   "Feb 8": [
     { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
   ],
-};*/
+};
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
