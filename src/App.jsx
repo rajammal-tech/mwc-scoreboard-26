@@ -109,7 +109,7 @@ const GreenCheck = ({ color }) => (
 
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
-  const [infoTab, setInfoTab] = useState("Teams");
+  const [infoTab, setInfoTab] = useState("teams");
   const [activeDay, setActiveDay] = useState("Feb 7");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
@@ -125,7 +125,7 @@ const MWCScoreboard = () => {
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   useEffect(() => {
-    if (view === "info") setInfoTab("Teams");
+    if (view === "info") setInfoTab("teams");
     if (view === "standings") setInfoTab("team_std");
     if (view === "schedule") setActiveDay("Feb 7");
     if (view !== "results") setEditingId(null);
@@ -136,7 +136,7 @@ const MWCScoreboard = () => {
   const handleLogin = () => {
     if (isAdmin) { 
         setIsAdmin(false);
-        if(infoTab === "banner") setInfoTab("Teams");
+        if(infoTab === "banner") setInfoTab("teams");
     } else {
       const p = window.prompt("Umpire PIN:");
       if (p === "121212") { setIsAdmin(true); setLoginError(false); } 
