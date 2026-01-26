@@ -25,12 +25,12 @@ const COMMUNITY_TEAM = {
 };
 
 const TEAM_ROSTERS = {
-  "Team Alpha": ["Chetan", "P2", "P3", "P4", "P5", "P6"],
-  "Team Bravo": ["Saikat", "P8", "P9", "P10", "P11", "P12"],
-  "Team Charlie": ["Shankar", "P14", "P15", "P16", "P17", "P18"],
-  "Team Delta": ["Ram", "P20", "P21", "P22", "P23", "P24"],
-  "Team Echo": ["Kiran", "P26", "P27", "P28", "P29", "P30"],
-  "Team Foxtrot": ["Prasad", "P32", "P33", "P34", "P35", "P36"],
+  "Team Alpha": ["Chetan", "SKP", "Vishav", "Shria", "Bala", "Praful"],
+  "Team Bravo": ["Saikat", "Rajesh", "Haresh", "Arvind", "Bhavey", "Pramila"],
+  "Team Charlie": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team Delta": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "P24"],
+  "Team Echo": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
+  "Team Foxtrot": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
 
 const SCHEDULE_DATA = {
