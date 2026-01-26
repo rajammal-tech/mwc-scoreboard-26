@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
-  { label: "VOLUNTARY CONTRIBUTION", name: "Prashul - 5000", "Naveen - 1000" },
+  { label: "VOLUNTARY CONTRIBUTION", name: "Prashul", Name: "Naveen" },
 ];
 
 const COMMUNITY_TEAM = { 
