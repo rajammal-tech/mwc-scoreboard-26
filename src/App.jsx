@@ -372,7 +372,7 @@ const MWCScoreboard = () => {
                  </div>
                );
              })}
-             {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a} / ${match.p1b} vs ${match.p2a} / ${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Singles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
+             {isAdmin && match.t1 && <button onClick={() => { if(!window.confirm("Finalize Match?")) return; push(ref(db, "history/"), { mNo: Date.now(), t1: match.t1, t2: match.t2, players: match.mType === "Singles" ? `${match.p1a} vs ${match.p2a}` : `${match.p1a} / ${match.p1b} vs ${match.p2a} / ${match.p2b}`, s1: match.s1, s2: match.s2, time: new Date().toISOString() }); sync({ t1: "", p1a: "", p1b: "", t2: "", p2a: "", p2b: "", s1: 0, s2: 0, mType: "Doubles", server: null }); }} style={{ width: "100%", padding: "18px", borderRadius: "12px", background: "#FFF", color: "#000", fontWeight: "900", border: "none", marginTop: "15px" }}>CLOSE THE MATCH</button>}
            </div>
         )}
 
