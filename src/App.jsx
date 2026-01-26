@@ -56,9 +56,9 @@ const SCHEDULE_DATA = {
     { time: "05:30 PM", type: "16", pool: "Y", t1: "Team Foxtrot", t2: "Team Delta" },
     { time: "06:10 PM", type: "17", pool: "X", t1: "Team Bravo", t2: "Team Charlie" },
     { time: "06:50 PM", type: "18", pool: "Y", t1: "Team Echo", t2: "Team Foxtrot" },
-    { time: "07:30 PM", type: "19", pool: "Final-1", t1: "Winner Pool X", t2: "Winner Pool Y" },
-    { time: "08:10 PM", type: "20", pool: "Final-2", t1: "Winner Pool X", t2: "Winner Pool Y" },
-    { time: "08:50 PM", type: "21", pool: "Final-3(Tie Breaker)", t1: "Winner Pool X", t2: "Winner Pool Y" },
+    { time: "07:30 PM", type: "FinaL-1", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
+    { time: "08:10 PM", type: "Final-2", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
+    { time: "08:50 PM", type: "Tie-Breaker(if required)", pool: "Finalists", t1: "Winner Pool X", t2: "Winner Pool Y" },
     { time: "09:30 PM", type: "Award Ceremony", pool: "All", t1: "", t2: "" }
   ]
 };
