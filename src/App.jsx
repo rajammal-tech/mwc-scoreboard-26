@@ -28,7 +28,7 @@ const TEAM_ROSTERS = {
   "Team Alpha": ["Chetan", "SKP", "Vishav", "Shria", "Bala", "Praful"],
   "Team Bravo": ["Saikat", "Rajesh", "Haresh", "Arvind", "Bhavey", "Pramila"],
   "Team Charlie": ["Shankar", "Ramanujam", "Santhosh", "Srividya", "Aditya", "Dhwani"],
-  "Team Delta": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "P24"],
+  "Team Delta": ["Ram", "Srini", "Dhiraj W", "Trisha", "Tapas", "Rakesh"],
   "Team Echo": ["Kiran", "Sushant", "Ravi DK", "Smrithi", "NP", "Viswas"],
   "Team Foxtrot": ["Prasad", "Naveen", "Guru", "Vishal", "Ritwik", "Meher"],
 };
