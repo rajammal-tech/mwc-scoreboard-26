@@ -449,7 +449,7 @@ const MWCScoreboard = () => {
                       <div 
                         key={i} 
                         style={{ 
-                          fontSize: "11px", 
+                          fontSize: "12px", 
                           marginBottom: "3px", 
                           fontWeight: "600",
                           color: i < 3 ? "#00BFFF" : "#adff2f" 
