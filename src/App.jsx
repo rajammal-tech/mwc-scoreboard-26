@@ -420,7 +420,7 @@ const MWCScoreboard = () => {
           <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "8px", paddingLeft: "5px", borderLeft: `3px solid ${theme.accent}` }}>
             {poolName}
           </div>
-          {/* Changed to gridTemplateColumns: "1fr 1fr 1fr" for 3-wide layout */}
+          {/* Grid for 3 teams side-by-side */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
             {Object.entries(TEAM_ROSTERS)
               .filter(([t]) => {
@@ -432,27 +432,30 @@ const MWCScoreboard = () => {
               .map(([t, ps]) => (
                 <div key={t} style={{ 
                   background: theme.card, 
-                  padding: "10px 5px", // Reduced padding to fit 3 side-by-side
+                  padding: "10px 8px", 
                   borderRadius: "10px", 
-                  border: "1px solid #222",
-                  textAlign: "center" 
+                  border: "1px solid #222"
                 }}>
-                  <h4 style={{ margin: "0 0 8px 0", color: "#FFF", fontSize: "10px", fontWeight: "900" }}>
-                    {t.replace("Team ", "").toUpperCase()}
+                  {/* 1. Team name centered in the box and includes "TEAM" */}
+                  <h4 style={{ margin: "0 0 8px 0", color: "#FFF", fontSize: "10px", fontWeight: "900", textAlign: "center" }}>
+                    {t.toUpperCase()}
                   </h4>
-                  {ps.map((p, i) => (
-                    <div 
-                      key={i} 
-                      style={{ 
-                        fontSize: "10px", // Slightly smaller font for fit
-                        marginBottom: "2px", 
-                        fontWeight: "600",
-                        color: i < 3 ? "#00BFFF" : "#adff2f" 
-                      }}
-                    >
-                      {p}
-                    </div>
-                  ))}
+                  {/* 2. Team members left-aligned */}
+                  <div style={{ textAlign: "left" }}>
+                    {ps.map((p, i) => (
+                      <div 
+                        key={i} 
+                        style={{ 
+                          fontSize: "10px", 
+                          marginBottom: "2px", 
+                          fontWeight: "600",
+                          color: i < 3 ? "#00BFFF" : "#adff2f" 
+                        }}
+                      >
+                        {p}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
           </div>
