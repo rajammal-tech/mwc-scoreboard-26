@@ -405,32 +405,38 @@ const MWCScoreboard = () => {
               </div>
             )}
 
+            
             {infoTab === "teams" && (
-  <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-    {Object.entries(TEAM_ROSTERS).map(([team, players]) => (
-      <div key={team} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-        <div style={{ color: theme.accent, fontWeight: "900", marginBottom: "10px", fontSize: "14px", borderBottom: "1px solid #222", paddingBottom: "5px" }}>
-          {team.toUpperCase()}
+   <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+    <div style={{ padding: "10px", textAlign: "center" }}>
+      <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div>
+      <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+      {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
+        <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+           <h4 style={{ margin: "0 0 10px 0", color: theme.accent, fontSize: "11px" }}>{t.toUpperCase()}</h4>
+           {ps.map((p, i) => (
+             <div 
+               key={i} 
+               style={{ 
+                 fontSize: "12px", 
+                 marginBottom: "3px",
+                 fontWeight: "600",
+                 // Members 1-3 in Light Green, 4-6 in Blue
+                 color: i < 3 ? "#adff2f" : "#00BFFF" 
+               }}
+             >
+               {p}
+             </div>
+           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-          {players.map((p, idx) => (
-            <div 
-              key={p} 
-              style={{ 
-                fontSize: "13px", 
-                fontWeight: "600",
-                // First 3 members (index 0, 1, 2) in Light Green, rest in Blue
-                color: idx < 3 ? "#adff2f" : "#00BFFF" 
-              }}
-            >
-              {p}
-            </div>
-          ))}
-        </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 )}
+            
+          
             
             {infoTab === "crew" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
