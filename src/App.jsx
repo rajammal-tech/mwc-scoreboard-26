@@ -539,38 +539,56 @@ const MWCScoreboard = () => {
            </div>
         )}
 
+{view === "schedule" && (
+           <div className="fade-in">
+             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+               {Object.keys(SCHEDULE_DATA).map(d => (
+                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
+               ))}
+             </div>
+             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+               {SCHEDULE_DATA[activeDay].map((m, i) => (
+                 <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "10px" }}>
+                     <span style={{ color: theme.muted, fontWeight: "800" }}>{m.time}</span>
+                     <div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
+                       {m.type.split(",").map((part, pIdx) => {
+                         const text = part.trim();
+                         let color = theme.accent; // Default for A, B, M1, etc.
+                         
+                         if (text.toLowerCase().includes("blue-green")) {
+                           return (
+                             <span key={pIdx}>
+                               <span style={{ color: "#00BFFF" }}>BLUE</span>
+                               <span style={{ color: "#adff2f" }}>-GREEN</span>
+                               {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
+                             </span>
+                           );
+                         } else if (text.toLowerCase() === "blue") {
+                           color = "#00BFFF";
+                         } else if (text.toLowerCase() === "green") {
+                           color = "#adff2f";
+                         }
 
-        {/* Replace the existing m.type display with this logic */}
-<div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
-  {m.type.split(",").map((part, pIdx) => {
-    const text = part.trim();
-    let color = theme.accent; // Default Neon Green for "A", "M1", etc.
-    
-    // Check for "Blue-Green" specifically first
-    if (text.toLowerCase().includes("blue-green")) {
-      return (
-        <span key={pIdx}>
-          <span style={{ color: "#00BFFF" }}>Blue</span>
-          <span style={{ color: "#adff2f" }}>-Green</span>
-          {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
-        </span>
-      );
-    } 
-    // Otherwise, assign color based on the single word
-    else if (text.toLowerCase() === "blue") {
-      color = "#00BFFF";
-    } else if (text.toLowerCase() === "green") {
-      color = "#adff2f";
-    }
-
-    return (
-      <span key={pIdx} style={{ color }}>
-        {text}
-        {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
-      </span>
-    );
-  })}
-</div>
+                         return (
+                           <span key={pIdx} style={{ color }}>
+                             {text.toUpperCase()}
+                             {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
+                           </span>
+                         );
+                       })}
+                     </div>
+                   </div>
+                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                     <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t1}</span>
+                     <span style={{ color: theme.muted, fontSize: "10px" }}>VS</span>
+                     <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t2}</span>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           </div>
+        )}
 
       {/* NAVIGATION */}
       <nav style={{ 
