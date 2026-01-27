@@ -551,11 +551,11 @@ const MWCScoreboard = () => {
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
-                    
-    <div style={{ display: "flex", gap: "4px", fontWeight: "900", fontSize: "10px", justifyContent: "flex-end" }}>
+
+                    <div style={{ display: "flex", gap: "4px", fontWeight: "900", fontSize: "10px", justifyContent: "flex-end" }}>
   {m.type.split(",").map((part, pIdx) => {
     const text = part.trim().toUpperCase();
-    let color = theme.accent; // Default Neon Green for A, B, M1, etc.
+    let color = theme.accent; // Default Neon Green (for A, B, M1, etc.)
     
     if (text.includes("BLUE-GREEN")) {
       return (
@@ -578,9 +578,9 @@ const MWCScoreboard = () => {
       </span>
     );
   })}
-</div>            
-                   
-                   </div>
+</div>
+                    
+                  </div>
                   </div>
                ))}
              </div>
