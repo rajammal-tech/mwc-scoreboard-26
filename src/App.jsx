@@ -551,37 +551,44 @@ const MWCScoreboard = () => {
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
                    <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                  
 
-<div style={{ display: "flex", gap: "4px", fontWeight: "900", fontSize: "10px", justifyContent: "flex-end" }}>
-  {m.type.split(",").map((part, pIdx) => {
-    const text = part.trim().toUpperCase();
-    let color = theme.accent; // Default Neon Green for A, M1, etc. [cite: 263]
-    
-    // Check for "BLUE-GREEN" specifically
-    if (text.includes("BLUE-GREEN")) {
+                    <div style={{ textAlign: "right" }}>
+  {/* 1. This part keeps your Team Names visible */}
+  <div style={{ fontWeight: "800", fontSize: "15px" }}>
+    {m.t1} <span style={{ color: "#555" }}>vs</span> {m.t2}
+  </div>
+
+  {/* 2. This part adds the dynamic colors to the Type */}
+  <div style={{ display: "flex", gap: "4px", fontWeight: "900", fontSize: "10px", justifyContent: "flex-end", marginTop: "4px" }}>
+    {m.type.split(",").map((part, pIdx) => {
+      const text = part.trim().toUpperCase();
+      let color = theme.accent; // Default Neon Green for A, M1, etc.
+      
+      if (text.includes("BLUE-GREEN")) {
+        return (
+          <span key={pIdx}>
+            <span style={{ color: "#00BFFF" }}>BLUE</span>
+            <span style={{ color: "#adff2f" }}>-GREEN</span>
+            {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
+          </span>
+        );
+      } else if (text === "BLUE") {
+        color = "#00BFFF";
+      } else if (text === "GREEN") {
+        color = "#adff2f";
+      }
+
       return (
-        <span key={pIdx}>
-          <span style={{ color: "#00BFFF" }}>BLUE</span>
-          <span style={{ color: "#adff2f" }}>-GREEN</span>
+        <span key={pIdx} style={{ color }}>
+          {text}
           {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
         </span>
       );
-    } 
-    // Otherwise check for individual Blue or Green
-    else if (text === "BLUE") {
-      color = "#00BFFF";
-    } else if (text === "GREEN") {
-      color = "#adff2f";
-    }
-
-    return (
-      <span key={pIdx} style={{ color }}>
-        {text}
-        {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
-      </span>
-    );
-  })}
+    })}
+  </div>
 </div>
+                    
                   </div>
                ))}
              </div>
