@@ -406,7 +406,6 @@ const MWCScoreboard = () => {
               </div>
             )}
 
-            
 {infoTab === "teams" && (
   <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
     <div style={{ padding: "10px", textAlign: "center" }}>
@@ -414,14 +413,17 @@ const MWCScoreboard = () => {
       <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
     </div>
     
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    {/* Main container for Pools with a larger gap (30px) between them */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
       {["POOL A", "POOL B"].map((poolName) => (
         <div key={poolName}>
-          <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "8px", paddingLeft: "5px", borderLeft: `3px solid ${theme.accent}` }}>
+          {/* Pool Header */}
+          <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "10px", paddingLeft: "5px", borderLeft: `3px solid ${theme.accent}` }}>
             {poolName}
           </div>
-          {/* Grid for 3 teams side-by-side */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+          
+          {/* 3-Column Grid for Teams */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
             {Object.entries(TEAM_ROSTERS)
               .filter(([t]) => {
                 const name = t.toUpperCase();
@@ -432,22 +434,23 @@ const MWCScoreboard = () => {
               .map(([t, ps]) => (
                 <div key={t} style={{ 
                   background: theme.card, 
-                  padding: "10px 8px", 
+                  padding: "12px 8px", 
                   borderRadius: "10px", 
                   border: "1px solid #222"
                 }}>
-                  {/* 1. Team name centered in the box and includes "TEAM" */}
-                  <h4 style={{ margin: "0 0 8px 0", color: "#FFF", fontSize: "10px", fontWeight: "900", textAlign: "center" }}>
+                  {/* Centered Team Name */}
+                  <h4 style={{ margin: "0 0 10px 0", color: "#FFF", fontSize: "10px", fontWeight: "900", textAlign: "center" }}>
                     {t.toUpperCase()}
                   </h4>
-                  {/* 2. Team members left-aligned */}
+                  
+                  {/* Left-aligned members with increased font size (11px) */}
                   <div style={{ textAlign: "left" }}>
                     {ps.map((p, i) => (
                       <div 
                         key={i} 
                         style={{ 
-                          fontSize: "10px", 
-                          marginBottom: "2px", 
+                          fontSize: "11px", 
+                          marginBottom: "3px", 
                           fontWeight: "600",
                           color: i < 3 ? "#00BFFF" : "#adff2f" 
                         }}
