@@ -25,44 +25,47 @@ const COMMUNITY_TEAM = {
   crew: ["Nagendra Prasad", "Ram", "Kiran", "Rajesh", "Srividya", "Smrithi", "Chetan"]
 };
 
+
 const TEAM_ROSTERS = {
-  "Team C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
-  "Team R": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
-  "Team S": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
-  "Team K": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
   "Team Rj": ["Shankar", "Rajesh", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team S": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
+  "Team R": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
+  "Team C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
+  "Team K": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
   "Team P": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
 };
 
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "A, Green, M1", pool: "A", t1: "Team C", t2: "Team S" },
-    { time: "07:25 AM", type: "B, Blue-Green, M2", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "08:05 AM", type: "A, Blue, M3", pool: "A", t1: "Team C", t2: "Team RJ" },
-    { time: "03:30 PM", type: "B, Blue, M4", pool: "B", t1: "Team R", t2: "Team P" },
-    { time: "04:10 PM", type: "A, Blue-Green, M5", pool: "A", t1: "Team S", t2: "Team RJ" },
-    { time: "04:50 PM", type: "B, Green, M6", pool: "B", t1: "Team K", t2: "Team P" },
-    { time: "05:30 PM", type: "A, Blue, M7", pool: "A", t1: "Team C", t2: "Team S" },
-    { time: "06:10 PM", type: "B, Green, M8", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "06:50 PM", type: "A, Blue-Green, M9", pool: "A", t1: "Team RJ", t2: "Team C" }
+    { time: "06:45 AM", type: "A, Green, M1", pool: "A", t1: "Team RJ", t2: "Team R" },
+    { time: "07:25 AM", type: "B, Blue-Green, M2", pool: "B", t1: "Team S", t2: "Team C" },
+    { time: "08:05 AM", type: "A, Blue, M3", pool: "A", t1: "Team RJ", t2: "Team K" },
+    { time: "03:30 PM", type: "B, Blue, M4", pool: "B", t1: "Team S", t2: "Team P" },
+    { time: "04:10 PM", type: "A, Blue-Green, M5", pool: "A", t1: "Team R", t2: "Team K" },
+    { time: "04:50 PM", type: "B, Green, M6", pool: "B", t1: "Team C", t2: "Team P" },
+    { time: "05:30 PM", type: "A, Blue, M7", pool: "A", t1: "Team RJ", t2: "Team R" },
+    { time: "06:10 PM", type: "B, Green, M8", pool: "B", t1: "Team S", t2: "Team C" },
+    { time: "06:50 PM", type: "A, Blue-Green, M9", pool: "A", t1: "Team K", t2: "Team RJ" }
   ],
   "Feb 8": [
-    { time: "06:45 AM", type: "B, Blue, M10", pool: "B", t1: "Team P", t2: "Team R" },
-    { time: "07:25 AM", type: "A, Green, M11", pool: "A", t1: "Team S", t2: "Team RJ" },
-    { time: "08:05 AM", type: "B, Blue-Green, M12", pool: "B", t1: "Team K", t2: "Team P" },
-    { time: "03:30 PM", type: "A, Blue-Green, M13", pool: "A", t1: "Team C", t2: "Team S" },
-    { time: "04:10 PM", type: "B, Blue, M14", pool: "B", t1: "Team R", t2: "Team K" },
-    { time: "04:50 PM", type: "A, Blue, M15", pool: "A", t1: "Team RJ", t2: "Team C" },
-    { time: "05:30 PM", type: "B, Blue-Green, M16", pool: "B", t1: "Team P", t2: "Team R" },
-    { time: "06:10 PM", type: "A, Green, M17", pool: "A", t1: "Team S", t2: "Team RJ" },
-    { time: "06:50 PM", type: "B, Green, M18", pool: "B", t1: "Team K", t2: "Team P" },
+    { time: "06:45 AM", type: "B, Blue, M10", pool: "B", t1: "Team P", t2: "Team S" },
+    { time: "07:25 AM", type: "A, Green, M11", pool: "A", t1: "Team R", t2: "Team K" },
+    { time: "08:05 AM", type: "B, Blue-Green, M12", pool: "B", t1: "Team C", t2: "Team P" },
+    { time: "03:30 PM", type: "A, Blue-Green, M13", pool: "A", t1: "Team RJ", t2: "Team R" },
+    { time: "04:10 PM", type: "B, Blue, M14", pool: "B", t1: "Team S", t2: "Team C" },
+    { time: "04:50 PM", type: "A, Blue, M15", pool: "A", t1: "Team K", t2: "Team RJ" },
+    { time: "05:30 PM", type: "B, Blue-Green, M16", pool: "B", t1: "Team P", t2: "Team S" },
+    { time: "06:10 PM", type: "A, Green, M17", pool: "A", t1: "Team R", t2: "Team K" },
+    { time: "06:50 PM", type: "B, Green, M18", pool: "B", t1: "Team C", t2: "Team P" },
     { time: "07:30 PM", type: "Blue-Green, Finals -1", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "08:10 PM", type: "Blue, Finals -2", pool: "Finalists", t1: "Winner B", t2: "Winner B" },
     { time: "08:50 PM", type: "Open, Tie-Breaker ( if required )", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "09:30 PM", type: "Award Ceremony", pool: "All", t1: "", t2: "" }
   ]
 };
+
+
 
 /*
 const SCHEDULE_DATA = {
