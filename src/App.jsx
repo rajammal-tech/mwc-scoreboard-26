@@ -543,18 +543,34 @@ const MWCScoreboard = () => {
            <div className="fade-in">
              <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
                {Object.keys(SCHEDULE_DATA).map(d => (
-                 <button key={d} onClick={() => setActiveDay(d)} style={{ flex: 1, padding: "14px", background: activeDay === d ? theme.accent : "#111", color: activeDay === d ? "#000" : "#FFF", border: "none", borderRadius: "12px", fontWeight: "900", fontSize: "12px" }}>{d.toUpperCase()}</button>
+                 <button 
+                   key={d} 
+                   onClick={() => setActiveDay(d)} 
+                   style={{ 
+                     flex: 1, 
+                     padding: "14px", 
+                     background: activeDay === d ? theme.accent : "#111", 
+                     color: activeDay === d ? "#000" : "#FFF", 
+                     border: "none", 
+                     borderRadius: "12px", 
+                     fontWeight: "900", 
+                     fontSize: "12px" 
+                   }}
+                 >
+                   {d.toUpperCase()}
+                 </button>
                ))}
              </div>
              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-               {SCHEDULE_DATA[activeDay].map((m, i) => (
+               {(SCHEDULE_DATA[activeDay] || []).map((m, i) => (
                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "10px" }}>
                      <span style={{ color: theme.muted, fontWeight: "800" }}>{m.time}</span>
+                     {/* START OF DYNAMIC COLOR LOGIC */}
                      <div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
                        {m.type.split(",").map((part, pIdx) => {
                          const text = part.trim();
-                         let color = theme.accent; // Default for A, B, M1, etc.
+                         let color = theme.accent; // Default Neon Green for A, B, M1, etc.
                          
                          if (text.toLowerCase().includes("blue-green")) {
                            return (
@@ -578,6 +594,7 @@ const MWCScoreboard = () => {
                          );
                        })}
                      </div>
+                     {/* END OF DYNAMIC COLOR LOGIC */}
                    </div>
                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                      <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t1}</span>
