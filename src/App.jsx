@@ -539,57 +539,38 @@ const MWCScoreboard = () => {
            </div>
         )}
 
-        {view === "schedule" && (
-  <div className="fade-in">
-    {/* ... (Existing day picker buttons) */}
-    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-      {(SCHEDULE_DATA[activeDay] || []).map((m, idx) => (
-        <div key={idx} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "10px" }}>
-            <span style={{ color: theme.muted, fontWeight: "800" }}>{m.time}</span>
-            {/* START OF UPDATED TYPE LOGIC */}
-            <div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
-              {m.type.split(",").map((part, pIdx) => {
-                const text = part.trim();
-                let color = theme.accent; // Default Neon Green for "A", "M1", etc.
-                
-                // Color Logic
-                if (text.toLowerCase().includes("blue-green")) {
-                  // Special case: "Blue-Green" split into two colors
-                  return (
-                    <span key={pIdx}>
-                      <span style={{ color: "#00BFFF" }}>Blue</span>
-                      <span style={{ color: "#adff2f" }}>-Green</span>
-                      {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
-                    </span>
-                  );
-                } else if (text.toLowerCase() === "blue") {
-                  color = "#00BFFF";
-                } else if (text.toLowerCase() === "green") {
-                  color = "#adff2f";
-                }
 
-                return (
-                  <span key={pIdx} style={{ color }}>
-                    {text}
-                    {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
-                  </span>
-                );
-              })}
-            </div>
-            {/* END OF UPDATED TYPE LOGIC */}
-          </div>
-          {/* ... (Remaining match rendering code for Team 1 vs Team 2) */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-             <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t1}</span>
-             <span style={{ color: theme.muted, fontSize: "10px" }}>VS</span>
-             <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t2}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+        {/* Replace the existing m.type display with this logic */}
+<div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
+  {m.type.split(",").map((part, pIdx) => {
+    const text = part.trim();
+    let color = theme.accent; // Default Neon Green for "A", "M1", etc.
+    
+    // Check for "Blue-Green" specifically first
+    if (text.toLowerCase().includes("blue-green")) {
+      return (
+        <span key={pIdx}>
+          <span style={{ color: "#00BFFF" }}>Blue</span>
+          <span style={{ color: "#adff2f" }}>-Green</span>
+          {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
+        </span>
+      );
+    } 
+    // Otherwise, assign color based on the single word
+    else if (text.toLowerCase() === "blue") {
+      color = "#00BFFF";
+    } else if (text.toLowerCase() === "green") {
+      color = "#adff2f";
+    }
+
+    return (
+      <span key={pIdx} style={{ color }}>
+        {text}
+        {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
+      </span>
+    );
+  })}
+</div>
 
       {/* NAVIGATION */}
       <nav style={{ 
