@@ -582,8 +582,6 @@ const MWCScoreboard = () => {
     );
   })}
 </div>
-                    
-                  </div>
                   </div>
                ))}
              </div>
