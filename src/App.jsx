@@ -427,7 +427,7 @@ const MWCScoreboard = () => {
                  marginBottom: "3px",
                  fontWeight: "600",
                  // Kept existing logic: first 3 Light Green, rest Blue
-                 color: i < 3 ? "#adff2f" : "#00BFFF" 
+                     color: i < 3 ? "#00BFFF" : "#adff2f" 
                }}
              >
                {p}
