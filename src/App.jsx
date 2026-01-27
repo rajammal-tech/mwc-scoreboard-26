@@ -407,39 +407,55 @@ const MWCScoreboard = () => {
             )}
 
             
- {infoTab === "teams" && (
+{infoTab === "teams" && (
   <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
     <div style={{ padding: "10px", textAlign: "center" }}>
       <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900" }}>CHAIR UMPIRE</div>
       <div style={{ fontSize: "12px", color: "#FFF" }}>{COMMUNITY_TEAM.chairUmpire}</div>
     </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-      {Object.entries(TEAM_ROSTERS).map(([t, ps]) => (
-        <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
-           {/* Team Name changed from theme.accent to #FFF */}
-           <h4 style={{ margin: "0 0 10px 0", color: "#FFF", fontSize: "11px", fontWeight: "900" }}>
-             {t.toUpperCase()}
-           </h4>
-           {ps.map((p, i) => (
-             <div 
-               key={i} 
-               style={{ 
-                 fontSize: "12px", 
-                 marginBottom: "3px",
-                 fontWeight: "600",
-                 // Kept existing logic: first 3 Light Green, rest Blue
-                     color: i < 3 ? "#00BFFF" : "#adff2f" 
-               }}
-             >
-               {p}
-             </div>
-           ))}
+    
+    {/* Wrap the grid to allow for Pool headers */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      {["POOL A", "POOL B"].map((poolName) => (
+        <div key={poolName}>
+          <div style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px", paddingLeft: "5px", borderLeft: `3px solid ${theme.accent}` }}>
+            {poolName}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            {Object.entries(TEAM_ROSTERS)
+              .filter(([t]) => {
+                const name = t.toUpperCase();
+                // Filter RJ, R, K into Pool A; S, C, P into Pool B
+                return poolName === "POOL A" 
+                  ? ["TEAM RJ", "TEAM R", "TEAM K"].includes(name)
+                  : ["TEAM S", "TEAM C", "TEAM P"].includes(name);
+              })
+              .map(([t, ps]) => (
+                <div key={t} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
+                  <h4 style={{ margin: "0 0 10px 0", color: "#FFF", fontSize: "11px", fontWeight: "900" }}>
+                    {t.toUpperCase()}
+                  </h4>
+                  {ps.map((p, i) => (
+                    <div 
+                      key={i} 
+                      style={{ 
+                        fontSize: "12px", 
+                        marginBottom: "3px", 
+                        fontWeight: "600",
+                        color: i < 3 ? "#00BFFF" : "#adff2f" 
+                      }}
+                    >
+                      {p}
+                    </div>
+                  ))}
+                </div>
+              ))}
+          </div>
         </div>
       ))}
     </div>
   </div>
 )}
-            
           
             
             {infoTab === "crew" && (
