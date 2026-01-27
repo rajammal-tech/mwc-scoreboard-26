@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -566,13 +567,13 @@ const MWCScoreboard = () => {
                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "12px", border: "1px solid #222" }}>
                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "10px" }}>
                      <span style={{ color: theme.muted, fontWeight: "800" }}>{m.time}</span>
-                     {/* START OF DYNAMIC COLOR LOGIC */}
+                     {/* DYNAMIC COLOR LOGIC FOR TYPE */}
                      <div style={{ display: "flex", gap: "4px", fontWeight: "900" }}>
                        {m.type.split(",").map((part, pIdx) => {
-                         const text = part.trim();
+                         const text = part.trim().toUpperCase();
                          let color = theme.accent; // Default Neon Green for A, B, M1, etc.
                          
-                         if (text.toLowerCase().includes("blue-green")) {
+                         if (text.includes("BLUE-GREEN")) {
                            return (
                              <span key={pIdx}>
                                <span style={{ color: "#00BFFF" }}>BLUE</span>
@@ -580,21 +581,20 @@ const MWCScoreboard = () => {
                                {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
                              </span>
                            );
-                         } else if (text.toLowerCase() === "blue") {
+                         } else if (text === "BLUE") {
                            color = "#00BFFF";
-                         } else if (text.toLowerCase() === "green") {
+                         } else if (text === "GREEN") {
                            color = "#adff2f";
                          }
 
                          return (
                            <span key={pIdx} style={{ color }}>
-                             {text.toUpperCase()}
+                             {text}
                              {pIdx < m.type.split(",").length - 1 && <span style={{ color: "#555" }}>,</span>}
                            </span>
                          );
                        })}
                      </div>
-                     {/* END OF DYNAMIC COLOR LOGIC */}
                    </div>
                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                      <span style={{ fontSize: "14px", fontWeight: "700" }}>{m.t1}</span>
@@ -606,6 +606,7 @@ const MWCScoreboard = () => {
              </div>
            </div>
         )}
+      </div>
 
       {/* NAVIGATION */}
       <nav style={{ 
