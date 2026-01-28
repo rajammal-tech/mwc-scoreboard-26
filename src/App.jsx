@@ -60,9 +60,9 @@ const SCHEDULE_DATA = {
     { time: "06:10 PM", type: "A, Green, M-17", pool: "A", t1: "Team R", t2: "Team K" },
     { time: "06:50 PM", type: "B, Green, M-18", pool: "B", t1: "Team C", t2: "Team P" },
     { time: "07:30 PM", type: "Blue-Green, Finals -1", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
-    { time: "08:10 PM", type: "Blue, Finals -2", pool: "Finalists", t1: "Winner B", t2: "Winner B" },
-    { time: "08:50 PM", type: "Open, Tie-Breaker ( if required )", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
-    { time: "09:30 PM", type: "Award Ceremony", pool: "All", t1: "", t2: "" }
+    { time: "08:00 PM", type: "Blue, Finals -2", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
+    { time: "08:30 PM", type: "Green, Finals -3", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
+    { time: "09:00 PM", type: "Award Ceremony", pool: "All", t1: "", t2: "" }
   ]
 };
 
