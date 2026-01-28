@@ -405,9 +405,6 @@ const standings = useMemo(() => {
       <li>All league matches are of 1 full set </li>
       <li>7 point Tie-breaker in case of 6-6 </li>
       <li>2 Matches per player is a must in Round robin play </li>
-      <li>Each game won = 1 point for the team </li>
-      <li>Set winner bonus: +1 bonus point </li>
-      <li>The top team with the highest total points from each pool qualifies for the finals. </li>
       
       {/* ADD THE HYPERLINK HERE */}
       <li style={{ marginTop: "10px" }}>
@@ -421,7 +418,7 @@ const standings = useMemo(() => {
             fontWeight: "900" 
           }}
         >
-          VIEW FULL SCHEDULE & STATS (XLS)
+          VIEW TOURNAMENT RULES HERE
         </a>
       </li>
     </ul>
