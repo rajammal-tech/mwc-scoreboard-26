@@ -544,7 +544,7 @@ const standings = useMemo(() => {
 
     {/* New POINTS Cell: Only displayed for TEAMS, highlighted in Neon Green */}
     {infoTab !== "player_std" && (
-      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>
+      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "16px" }}>
         {item.points}
       </td>
     )}
