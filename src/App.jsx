@@ -408,6 +408,7 @@ const standings = useMemo(() => {
                   <li>Each game won = 1 point for the team</li>
                   <li>Set winner bonus: +1 bonus point </li>
                    <li>The top team with the highest total points from each pool qualifies for the finals.</li>
+                   <li>https://docs.google.com/spreadsheets/d/1_xBVyyJxJgu7EprFFgglHzvmFQP_Cy2hyTX0WfutUa0/edit?pli=1&gid=1268571209#gid=1268571209</li>
                  </ul>
               </div>
             )}
