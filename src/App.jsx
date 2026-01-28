@@ -399,9 +399,12 @@ const MWCScoreboard = () => {
             {infoTab === "rules" && (
               <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
                  <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
-                  <li>All matches are of 1 full set</li>
+                  <li>All league matches are of 1 full set</li>
                   <li>7 point Tie-breaker in case of 6-6</li>
                   <li>2 Matches per player is a must in Round robin play</li>
+                  <li>Each game won = 1 point for the team</li>
+                  <li>Set winner bonus: +1 bonus point </li>
+                   <li>The top team with the highest total points from each pool qualifies for the finals.</li>
                  </ul>
               </div>
             )}
