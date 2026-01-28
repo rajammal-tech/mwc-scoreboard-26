@@ -520,7 +520,7 @@ const MWCScoreboard = () => {
                       {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
                       <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
                       {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
-                      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>{item.mw ?? item.won}</td>
+                      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900",  fontSize: "13px" }}>{item.mw ?? item.won}</td>
                     </tr>
                   ))}
                 </tbody>
