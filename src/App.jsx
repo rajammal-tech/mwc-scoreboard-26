@@ -399,19 +399,34 @@ const standings = useMemo(() => {
                </div>
             )}
 
-            {infoTab === "rules" && (
-              <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-                 <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
-                  <li>All league matches are of 1 full set</li>
-                  <li>7 point Tie-breaker in case of 6-6</li>
-                  <li>2 Matches per player is a must in Round robin play</li>
-                  <li>Each game won = 1 point for the team</li>
-                  <li>Set winner bonus: +1 bonus point </li>
-                   <li>The top team with the highest total points from each pool qualifies for the finals.</li>
-                   <li>https://docs.google.com/spreadsheets/d/1_xBVyyJxJgu7EprFFgglHzvmFQP_Cy2hyTX0WfutUa0/edit?pli=1&gid=1268571209#gid=1268571209</li>
-                 </ul>
-              </div>
-            )}
+{infoTab === "rules" && (
+  <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
+    <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
+      <li>All league matches are of 1 full set </li>
+      <li>7 point Tie-breaker in case of 6-6 </li>
+      <li>2 Matches per player is a must in Round robin play </li>
+      <li>Each game won = 1 point for the team </li>
+      <li>Set winner bonus: +1 bonus point </li>
+      <li>The top team with the highest total points from each pool qualifies for the finals. </li>
+      
+      {/* ADD THE HYPERLINK HERE */}
+      <li style={{ marginTop: "10px" }}>
+        <a 
+          href="https://docs.google.com/spreadsheets/d/1_xBVyyJxJgu7EprFFgglHzvmFQP_Cy2hyTX0WfutUa0/edit?pli=1&gid=1268571209#gid=1268571209" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ 
+            color: theme.accent, 
+            textDecoration: "underline", 
+            fontWeight: "900" 
+          }}
+        >
+          VIEW FULL SCHEDULE & STATS (XLS)
+        </a>
+      </li>
+    </ul>
+  </div>
+)}
 
 {infoTab === "teams" && (
   <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
