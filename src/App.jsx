@@ -189,8 +189,7 @@ const MWCScoreboard = () => {
     onValue(ref(db, "presence/"), (snap) => setViewers(snap.exists() ? Object.keys(snap.val()).length : 1));
     return () => remove(myPresenceRef);
   }, []);
-
-  const standings = useMemo(() => {
+const standings = useMemo(() => {
     const stats = TEAMS.reduce((acc, t) => { acc[t] = { played: 0, won: 0, games: 0 }; return acc; }, {});
     history.forEach((m) => {
       if (stats[m.t1]) {
@@ -205,10 +204,14 @@ const MWCScoreboard = () => {
       else if (Number(m.s2) > Number(m.s1)) { if (stats[m.t2]) stats[m.t2].won += 1; }
     });
     return Object.entries(stats)
-      .map(([name, d]) => ({ name, ...d }))
-      .sort((a, b) => b.won - a.won);
+      .map(([name, d]) => ({ 
+        name, 
+        ...d, 
+        points: (Number(d.games) || 0) + (Number(d.won) || 0) // New Points Logic
+      }))
+      .sort((a, b) => b.points - a.points); // Order by highest points first
   }, [history]);
-
+  
   const playerStats = useMemo(() => {
     const stats = {};
     const playerToTeam = {};
@@ -502,27 +505,51 @@ const MWCScoreboard = () => {
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead style={{ background: "#050505" }}>
-                  <tr style={{ textAlign: "left" }}>
-                    <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>{infoTab === "player_std" ? "PLAYER" : "TEAM"}</th>
-                    {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
-                    <th style={{ textAlign: "center", fontSize: "10px" }}>MATCHES</th>
-                    {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
-                    <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px" }}>WINS</th>
-                  </tr>
+<tr style={{ textAlign: "left" }}>
+  <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>
+    {infoTab === "player_std" ? "PLAYER" : "TEAM"}
+  </th>
+  {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
+  <th style={{ textAlign: "center", fontSize: "10px" }}>MATCHES</th>
+  {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
+  {/* WINS header: color is grey for Teams, kept neon only for Players */}
+  <th style={{ textAlign: "center", fontSize: "10px", color: infoTab === "player_std" ? theme.accent : "#FFF" }}>WINS</th>
+  {/* New Points Column Header - Only for Teams */}
+  {infoTab !== "player_std" && (
+    <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>POINTS</th>
+  )}
+</tr>
                 </thead>
                 <tbody>
-                  {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
-                    <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
-                      <td style={{ padding: "15px" }}>
-                        <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
-                        <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
-                      </td>
-                      {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
-                      <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
-                      {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
-                      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900",  fontSize: "13px" }}>{item.mw ?? item.won}</td>
-                    </tr>
-                  ))}
+   {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
+  <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
+    <td style={{ padding: "15px" }}>
+      <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+      <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
+    </td>
+    {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
+    <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
+    {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
+    
+    {/* WINS Cell: Neon Green removed for Teams view */}
+    <td style={{ 
+      textAlign: infoTab === "player_std" ? "right" : "center", 
+      paddingRight: infoTab === "player_std" ? "20px" : "0",
+      fontWeight: infoTab === "player_std" ? "900" : "400", 
+      color: infoTab === "player_std" ? theme.accent : "#888", 
+      fontSize: "13px" 
+    }}>
+      {item.mw ?? item.won}
+    </td>
+
+    {/* New POINTS Cell: Only displayed for TEAMS, highlighted in Neon Green */}
+    {infoTab !== "player_std" && (
+      <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent, fontSize: "18px" }}>
+        {item.points}
+      </td>
+    )}
+  </tr>
+))}
                 </tbody>
               </table>
             </div>
