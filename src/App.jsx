@@ -607,7 +607,7 @@ const standings = useMemo(() => {
              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}>
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
-                   <div style={{ color:  "#555", fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                   <div style={{ color:  "#FFF", fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                   
 
                     <div style={{ textAlign: "right" }}>
