@@ -505,7 +505,7 @@ const standings = useMemo(() => {
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead style={{ background: "#050505" }}>
-<tr style={{ textAlign: "center" }}>
+<tr style={{ textAlign: "left" }}>
   <th style={{ padding: "15px", fontSize: "10px", color: "#FFF" }}>
     {infoTab === "player_std" ? "PLAYER" : "TEAM"}
   </th>
@@ -607,7 +607,7 @@ const standings = useMemo(() => {
              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}>
                {SCHEDULE_DATA[activeDay].map((m, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "20px", borderBottom: "1px solid #222" }}>
-                   <div style={{ color: theme.accent, fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
+                   <div style={{ color:  "#555", fontWeight: "900", fontSize: "14px" }}>{m.time}</div>
                   
 
                     <div style={{ textAlign: "right" }}>
