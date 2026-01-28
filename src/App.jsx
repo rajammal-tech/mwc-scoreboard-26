@@ -512,8 +512,8 @@ const standings = useMemo(() => {
   {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
   <th style={{ textAlign: "center", fontSize: "10px" }}>MATCHES</th>
   {infoTab !== "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>GAMES</th>}
-  {/* WINS header: color is grey for Teams, kept neon only for Players */}
-  <th style={{ textAlign: "center", fontSize: "10px", color: infoTab === "player_std" ? theme.accent : "#FFF" }}>WINS</th>
+  {/* SETS header: color is grey for Teams, kept neon only for Players */}
+  <th style={{ textAlign: "center", fontSize: "10px", color: infoTab === "player_std" ? theme.accent : "#FFF" }}>SETS</th>
   {/* New Points Column Header - Only for Teams */}
   {infoTab !== "player_std" && (
     <th style={{ textAlign: "right", paddingRight: "20px", fontSize: "10px", color: theme.accent }}>POINTS</th>
@@ -531,7 +531,7 @@ const standings = useMemo(() => {
     <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.mp || item.played}</td>
     {infoTab !== "player_std" && <td style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>{item.games}</td>}
     
-    {/* WINS Cell: Neon Green removed for Teams view */}
+    {/* SETS Cell: Neon Green removed for Teams view */}
     <td style={{ 
       textAlign: infoTab === "player_std" ? "right" : "center", 
       paddingRight: infoTab === "player_std" ? "20px" : "0",
