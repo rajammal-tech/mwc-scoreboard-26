@@ -524,7 +524,7 @@ const standings = useMemo(() => {
    {(infoTab === "player_std" ? playerStats : standings).map((item, i) => (
   <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
     <td style={{ padding: "15px" }}>
-      <span style={{ color: i === 0 ? theme.accent : "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+      <span style={{ color: "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
       <span style={{ fontWeight: "700", fontSize: "14px" }}>{item.name}</span>
     </td>
     {infoTab === "player_std" && <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>}
