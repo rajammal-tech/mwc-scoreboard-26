@@ -505,8 +505,8 @@ const standings = useMemo(() => {
             <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead style={{ background: "#050505" }}>
-<tr style={{ textAlign: "left" }}>
-  <th style={{ padding: "15px", fontSize: "10px", color: theme.accent }}>
+<tr style={{ textAlign: "center" }}>
+  <th style={{ padding: "15px", fontSize: "10px", color: "#FFF" }}>
     {infoTab === "player_std" ? "PLAYER" : "TEAM"}
   </th>
   {infoTab === "player_std" && <th style={{ textAlign: "center", fontSize: "10px" }}>TEAM</th>}
