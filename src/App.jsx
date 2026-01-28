@@ -131,7 +131,7 @@ const MWCScoreboard = () => {
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   useEffect(() => {
-    if (view === "info") setInfoTab("rules");
+    if (view === "info") setInfoTab("teams");
     if (view === "standings") setInfoTab("team_std");
     if (view === "schedule") setActiveDay("Feb 7");
     if (view !== "results") setEditingId(null);
@@ -384,7 +384,7 @@ const MWCScoreboard = () => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
-              {["rules", "teams", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
+              {["teams", "rules", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
