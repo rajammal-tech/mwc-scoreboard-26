@@ -28,10 +28,10 @@ const COMMUNITY_TEAM = {
 
 
 const TEAM_ROSTERS = {
-  "Team 3": ["Shankar", "Rajesh", "Santhosh", "Srividya", "Aditya", "Dhwani"],
-  "Team 2": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
-  "Team 4": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
   "Team 1": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
+  "Team 2": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
+  "Team 3": ["Shankar", "Rajesh", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team 4": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
   "Team 5": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
   "Team 6": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
 };
@@ -39,26 +39,26 @@ const TEAM_ROSTERS = {
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "A, Green, M-1", pool: "A", t1: "Team RJ", t2: "Team R" },
-    { time: "07:25 AM", type: "B, Blue-Green, M-2", pool: "B", t1: "Team S", t2: "Team C" },
-    { time: "08:05 AM", type: "A, Blue, M-3", pool: "A", t1: "Team RJ", t2: "Team K" },
-    { time: "03:30 PM", type: "B, Blue, M-4", pool: "B", t1: "Team S", t2: "Team P" },
-    { time: "04:10 PM", type: "A, Blue-Green, M-5", pool: "A", t1: "Team R", t2: "Team K" },
-    { time: "04:50 PM", type: "B, Green, M-6", pool: "B", t1: "Team C", t2: "Team P" },
-    { time: "05:30 PM", type: "A, Blue, M-7", pool: "A", t1: "Team RJ", t2: "Team R" },
-    { time: "06:10 PM", type: "B, Green, M-8", pool: "B", t1: "Team S", t2: "Team C" },
-    { time: "06:50 PM", type: "A, Blue-Green, M-9", pool: "A", t1: "Team K", t2: "Team RJ" }
+    { time: "06:45 AM", type: "A, Green, M-1", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "07:25 AM", type: "B, Blue-Green, M-2", pool: "B", t1: "Team 2", t2: "Team 1" },
+    { time: "08:05 AM", type: "A, Blue, M-3", pool: "A", t1: "Team 3", t2: "Team 5" },
+    { time: "03:30 PM", type: "B, Blue, M-4", pool: "B", t1: "Team 2", t2: "Team 6" },
+    { time: "04:10 PM", type: "A, Blue-Green, M-5", pool: "A", t1: "Team 4", t2: "Team 5" },
+    { time: "04:50 PM", type: "B, Green, M-6", pool: "B", t1: "Team 1", t2: "Team 6" },
+    { time: "05:30 PM", type: "A, Blue, M-7", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "06:10 PM", type: "B, Green, M-8", pool: "B", t1: "Team 2", t2: "Team 1" },
+    { time: "06:50 PM", type: "A, Blue-Green, M-9", pool: "A", t1: "Team 5", t2: "Team 3" }
   ],
   "Feb 8": [
-    { time: "06:45 AM", type: "B, Blue, M-10", pool: "B", t1: "Team P", t2: "Team S" },
-    { time: "07:25 AM", type: "A, Green, M-11", pool: "A", t1: "Team R", t2: "Team K" },
-    { time: "08:05 AM", type: "B, Blue-Green, M-12", pool: "B", t1: "Team C", t2: "Team P" },
-    { time: "03:30 PM", type: "A, Blue-Green, M-13", pool: "A", t1: "Team RJ", t2: "Team R" },
-    { time: "04:10 PM", type: "B, Blue, M-14", pool: "B", t1: "Team S", t2: "Team C" },
-    { time: "04:50 PM", type: "A, Blue, M-15", pool: "A", t1: "Team K", t2: "Team RJ" },
-    { time: "05:30 PM", type: "B, Blue-Green, M-16", pool: "B", t1: "Team P", t2: "Team S" },
-    { time: "06:10 PM", type: "A, Green, M-17", pool: "A", t1: "Team R", t2: "Team K" },
-    { time: "06:50 PM", type: "B, Green, M-18", pool: "B", t1: "Team C", t2: "Team P" },
+    { time: "06:45 AM", type: "B, Blue, M-10", pool: "B", t1: "Team 6", t2: "Team 2" },
+    { time: "07:25 AM", type: "A, Green, M-11", pool: "A", t1: "Team 4", t2: "Team 5" },
+    { time: "08:05 AM", type: "B, Blue-Green, M-12", pool: "B", t1: "Team 1", t2: "Team 6" },
+    { time: "03:30 PM", type: "A, Blue-Green, M-13", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "04:10 PM", type: "B, Blue, M-14", pool: "B", t1: "Team 2", t2: "Team 1" },
+    { time: "04:50 PM", type: "A, Blue, M-15", pool: "A", t1: "Team 5", t2: "Team 3" },
+    { time: "05:30 PM", type: "B, Blue-Green, M-16", pool: "B", t1: "Team 6", t2: "Team 2" },
+    { time: "06:10 PM", type: "A, Green, M-17", pool: "A", t1: "Team 4", t2: "Team 5" },
+    { time: "06:50 PM", type: "B, Green, M-18", pool: "B", t1: "Team 1", t2: "Team 6" },
     { time: "07:30 PM", type: "Blue-Green, Finals -1", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "08:00 PM", type: "Blue, Finals -2", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "08:30 PM", type: "Green, Finals -3", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
@@ -67,18 +67,6 @@ const SCHEDULE_DATA = {
 };
 
 
-
-/*
-const SCHEDULE_DATA = {
-  "Feb 7": [
-    { time: "09:00 AM", type: "Singles", t1: "Team Alpha", t2: "Team Bravo" },
-    { time: "10:30 AM", type: "Doubles", t1: "Team Charlie", t2: "Team Delta" },
-  ],
-  "Feb 8": [
-    { time: "09:00 AM", type: "Doubles", t1: "Team Bravo", t2: "Team Delta" },
-  ],
-};
-*/
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
@@ -447,8 +435,8 @@ const standings = useMemo(() => {
               .filter(([t]) => {
                 const name = t.toUpperCase();
                 return poolName === "POOL A" 
-                  ? ["TEAM RJ", "TEAM R", "TEAM K"].includes(name)
-                  : ["TEAM S", "TEAM C", "TEAM P"].includes(name);
+                  ? ["TEAM 3", "TEAM 4", "TEAM 5"].includes(name)
+                  : ["TEAM 2", "TEAM 1", "TEAM 6"].includes(name);
               })
               .map(([t, ps]) => (
                 <div key={t} style={{ 
