@@ -112,6 +112,8 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
+
+  const [correctPin, setCorrectPin] = useState(null);
   
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
@@ -133,8 +135,7 @@ const MWCScoreboard = () => {
         if(infoTab === "banner") setInfoTab("rules");
     } else {
       const p = window.prompt("Umpire PIN:");
-        if (p === process.env.NEXT_PUBLIC_UMPIRE_PIN) { 
-          console.log("Debug PIN:", process.env.NEXT_PUBLIC_UMPIRE_PIN);
+        if (p === String(correctPin)) { 
     setIsAdmin(true); 
     setLoginError(false); 
 }
@@ -175,6 +176,12 @@ const MWCScoreboard = () => {
         setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo));
       } else setHistory([]);
     });
+    
+    const pinRef = ref(db, "umpire_config/pin");
+    onValue(pinRef, (snapshot) => {
+    setCorrectPin(snapshot.val());
+  });
+    
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
