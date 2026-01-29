@@ -134,6 +134,7 @@ const MWCScoreboard = () => {
     } else {
       const p = window.prompt("Umpire PIN:");
         if (p === process.env.NEXT_PUBLIC_UMPIRE_PIN) { 
+          console.log("Debug PIN:", process.env.NEXT_PUBLIC_UMPIRE_PIN);
     setIsAdmin(true); 
     setLoginError(false); 
 }
