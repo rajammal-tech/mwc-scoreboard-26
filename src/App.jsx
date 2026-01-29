@@ -133,7 +133,10 @@ const MWCScoreboard = () => {
         if(infoTab === "banner") setInfoTab("rules");
     } else {
       const p = window.prompt("Umpire PIN:");
-      if (p === "123123") { setIsAdmin(true); setLoginError(false); } 
+        if (p === process.env.NEXT_PUBLIC_UMPIRE_PIN) { 
+    setIsAdmin(true); 
+    setLoginError(false); 
+}
       else if (p !== null) { setLoginError(true);
       setTimeout(() => setLoginError(false), 3000); }
     }
