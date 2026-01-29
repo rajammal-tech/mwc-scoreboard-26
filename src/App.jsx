@@ -28,12 +28,12 @@ const COMMUNITY_TEAM = {
 
 
 const TEAM_ROSTERS = {
-  "Team Rj": ["Shankar", "Rajesh", "Santhosh", "Srividya", "Aditya", "Dhwani"],
-  "Team S": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
-  "Team R": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
-  "Team C": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
-  "Team K": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
-  "Team P": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
+  "Team 3": ["Shankar", "Rajesh", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team 2": ["Saikat", "Ramanujam", "SKP", "Dhiraj W", "Viswas", "Pramila"],
+  "Team 4": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
+  "Team 1": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
+  "Team 5": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
+  "Team 6": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
 };
 
 
