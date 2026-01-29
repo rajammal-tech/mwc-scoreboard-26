@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -140,6 +141,7 @@ const MWCScoreboard = () => {
     setLoginError(false); 
 }
       else if (p !== null) { setLoginError(true);
+                             console.log("Debug PIN:", process.env.NEXT_PUBLIC_UMPIRE_PIN);
       setTimeout(() => setLoginError(false), 3000); }
     }
   };
@@ -309,9 +311,8 @@ const standings = useMemo(() => {
           </div>
         </header>
 
-        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap",position: "relative",zIndex: 1 }}>
-          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite";will-change: transform;-webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;-webkit-backface-visibility: hidden; }}>
+        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
               {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
             </span>
@@ -695,7 +696,7 @@ const standings = useMemo(() => {
         body { margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; background: #000; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes ticker { 0% {-webkit-transform: translateX(0); transform: translateX(0); } 100% { -webkit-transform: translateX(-100%); transform: translateX(-100%); } }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         .pulse { animation: softPulse 2s infinite; }
         @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
