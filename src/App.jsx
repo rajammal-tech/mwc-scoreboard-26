@@ -309,7 +309,7 @@ const standings = useMemo(() => {
           </div>
         </header>
 
-        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
+        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap",position: "relative",zIndex: 1 }}>
           <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite";will-change: transform;-webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0);
   backface-visibility: hidden;-webkit-backface-visibility: hidden; }}>
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
