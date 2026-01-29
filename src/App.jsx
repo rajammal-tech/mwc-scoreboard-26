@@ -140,7 +140,6 @@ const MWCScoreboard = () => {
     setLoginError(false); 
 }
       else if (p !== null) { setLoginError(true);
-                             console.log("Debug PIN:", process.env.NEXT_PUBLIC_UMPIRE_PIN);
       setTimeout(() => setLoginError(false), 3000); }
     }
   };
