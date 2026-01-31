@@ -1,4 +1,8 @@
 
+
+
+
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -115,7 +119,6 @@ const MWCScoreboard = () => {
   
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
-  const [feedbackList, setFeedbackList] = useState([]);
 
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
@@ -175,24 +178,12 @@ const MWCScoreboard = () => {
         setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo));
       } else setHistory([]);
     });
-
+    
     const pinRef = ref(db, "umpire_config/pin");
     onValue(pinRef, (snapshot) => {
     setCorrectPin(snapshot.val());
   });
-
-    // Fetch feedback messages
-onValue(ref(db, "feedback/"), (snap) => {
-  if (snap.exists()) {
-    const raw = snap.val();
-    // Convert object to array and sort by newest first
-    const list = Object.keys(raw).map(k => ({ id: k, ...raw[k] }))
-      .sort((a, b) => b.timestamp - a.timestamp);
-    setFeedbackList(list);
-  } else {
-    setFeedbackList([]);
-  }
-});
+    
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
@@ -264,14 +255,15 @@ const standings = useMemo(() => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
+
     // 1. Logic to hide symbols if someone reaches 7 or satisfies the "Win by 2" at 6 games rule
     const isDone = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
     if(isDone)
       return false;
-    
+
+
     if (teamNum === 1) return s1 >= 5 && s1 > s2;
     if (teamNum === 2) return s2 >= 5 && s2 > s1;
-    
     return false;
   };
 
@@ -362,10 +354,9 @@ const standings = useMemo(() => {
               const s1 = Number(match.s1 || 0);
               const s2 = Number(match.s2 || 0);
                const isMatchOver = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
-              
+
                const showBreathing = isTieBreak || isServing;
                const showRacquet = isServing && !isTieBreak;
-
 
                return (
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
@@ -407,11 +398,10 @@ const standings = useMemo(() => {
            </div>
         )}
 
-        
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
-              {["teams", "rules", "crew", "sponsors","feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
+              {["teams", "rules", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
@@ -510,50 +500,7 @@ const standings = useMemo(() => {
     </div>
   </div>
 )}
-          {/* FEEDBACK SECTION UI */}
-{infoTab === "feedback" && (
-  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-    {/* Form for all users */}
-    <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
-      <textarea 
-        id="feedbackInput"
-        rows="4" 
-        placeholder="Share your thoughts..."
-        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
-      />
-      <button 
-        onClick={() => {
-          const msg = document.getElementById("feedbackInput").value;
-          if (!msg.trim()) return;
-          push(ref(db, "feedback/"), { message: msg, timestamp: serverTimestamp() });
-          alert("Feedback Sent!");
-          document.getElementById("feedbackInput").value = "";
-        }}
-        style={{ width: "100%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
-      >SUBMIT</button>
-    </div>
-
-    {/* ADMIN VIEW: List of received messages (only visible to Umpire) */}
-    {isAdmin && (
-      <div className="fade-in">
-        <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>RECEIVED FEEDBACK ({feedbackList.length})</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {feedbackList.map(f => (
-            <div key={f.id} style={{ background: "#1a1a1a", padding: "15px", borderRadius: "10px", border: "1px solid #222" }}>
-              <div style={{ fontSize: "13px", color: "#FFF", marginBottom: "8px" }}>{f.message}</div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#555" }}>
-                <span>{f.timestamp ? new Date(f.timestamp).toLocaleString() : "---"}</span>
-                <button onClick={() => remove(ref(db, `feedback/${f.id}`))} style={{ color: "#ff4444", background: "none", border: "none", fontWeight: "bold" }}>DELETE</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-  </div>
-)}
-            
+          
             
             {infoTab === "crew" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -563,7 +510,7 @@ const standings = useMemo(() => {
               </div>
             )}
 
-                        {infoTab === "sponsors" && (
+            {infoTab === "sponsors" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {SPONSORS.map((s, i) => (
                   <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
@@ -573,8 +520,9 @@ const standings = useMemo(() => {
                 ))}
               </div>
             )}
-                       
-        
+          </div>
+        )}
+
         {view === "standings" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
