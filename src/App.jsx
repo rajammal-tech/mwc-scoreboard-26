@@ -355,7 +355,7 @@ const standings = useMemo(() => {
                const isMatchOver = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
               
                const showBreathing = isTieBreak || isServing;
-               const showRacquet = isServing && !isTieBreak || isMatchOver;
+               const showRacquet = isServing && !isTieBreak;
 
 
                return (
