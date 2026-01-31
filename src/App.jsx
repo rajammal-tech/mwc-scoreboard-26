@@ -520,10 +520,8 @@ const standings = useMemo(() => {
                 ))}
               </div>
             )}
-          </div>
-        )}
 
-        {infoTab === "feedback" && (
+                    {infoTab === "feedback" && (
   <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
     <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
     <textarea 
@@ -557,14 +555,12 @@ const standings = useMemo(() => {
     </button>
   </div>
 )}
+            
+          </div>
+        )}
 
-  {infoTab === "feedback" && isAdmin && (
-  <div style={{ marginTop: "20px" }}>
-    <h3 style={{ color: theme.accent, fontSize: "12px" }}>RECEIVED FEEDBACK</h3>
-    {/* You would add a useEffect to fetch 'feedback/' from Firebase and map it here */}
-    <p style={{ fontSize: "11px", color: "#666" }}>Check Firebase Console under 'feedback' node.</p>
-  </div>
-)}
+
+
         
         {view === "standings" && (
           <div className="fade-in">
