@@ -119,6 +119,7 @@ const MWCScoreboard = () => {
   
   const [editingId, setEditingId] = useState(null);
   const [editScores, setEditScores] = useState({ s1: 0, s2: 0 });
+  const [feedbackList, setFeedbackList] = useState([]);
 
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
@@ -178,12 +179,24 @@ const MWCScoreboard = () => {
         setHistory(Object.keys(raw).map(k => ({ id: k, ...raw[k] })).sort((a, b) => b.mNo - a.mNo));
       } else setHistory([]);
     });
-    
+
     const pinRef = ref(db, "umpire_config/pin");
     onValue(pinRef, (snapshot) => {
     setCorrectPin(snapshot.val());
   });
-    
+
+    // Fetch feedback messages
+onValue(ref(db, "feedback/"), (snap) => {
+  if (snap.exists()) {
+    const raw = snap.val();
+    // Convert object to array and sort by newest first
+    const list = Object.keys(raw).map(k => ({ id: k, ...raw[k] }))
+      .sort((a, b) => b.timestamp - a.timestamp);
+    setFeedbackList(list);
+  } else {
+    setFeedbackList([]);
+  }
+});
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
       if (snap.val() === true) { onDisconnect(myPresenceRef).remove(); set(myPresenceRef, serverTimestamp()); }
