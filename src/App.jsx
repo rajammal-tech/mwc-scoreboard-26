@@ -255,8 +255,14 @@ const standings = useMemo(() => {
     if (!match.server || match.server !== teamNum) return false;
     const s1 = Number(match.s1 || 0);
     const s2 = Number(match.s2 || 0);
+    // 1. Logic to hide symbols if someone reaches 7 or satisfies the "Win by 2" at 6 games rule
+    const isDone = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
+    if(isDone)
+      return false;
+    
     if (teamNum === 1) return s1 >= 5 && s1 > s2;
     if (teamNum === 2) return s2 >= 5 && s2 > s1;
+    
     return false;
   };
 
@@ -343,8 +349,14 @@ const standings = useMemo(() => {
                const setPoint = isServingForSet(n);
                const isTieBreak = Number(match.s1) === 6 && Number(match.s2) === 6;
                const isServing = match.server === n;
+                          // 1. Logic to hide symbols if someone reaches 7 or satisfies the "Win by 2" at 6 games rule
+              const s1 = Number(match.s1 || 0);
+              const s2 = Number(match.s2 || 0);
+               const isMatchOver = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
+              
                const showBreathing = isTieBreak || isServing;
-               const showRacquet = isServing && !isTieBreak;
+               const showRacquet = isServing && !isTieBreak || isMatchOver;
+
 
                return (
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
