@@ -444,7 +444,19 @@ const standings = useMemo(() => {
           alert("Thank you! Feedback Sent.");
           document.getElementById("feedbackInput").value = "";
         }}
-        style={{ width: "50%", marginTop: "10px", textAlign: "center", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
+
+        style={{ 
+    display: "block",           // Allows centering with margin
+    width: "50%",               // Reduces size by 50%
+    margin: "15px auto 0 auto", // Centers it: 15px top, auto left/right
+    padding: "10px", 
+    background: theme.accent, 
+    color: "#000", 
+    fontWeight: "900", 
+    border: "none", 
+    borderRadius: "8px",
+    fontSize: "12px"            // Optional: slightly smaller text for the smaller button
+  }}
       >SUBMIT</button>
     </div>
 
