@@ -414,7 +414,7 @@ const standings = useMemo(() => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
-              {["teams", "rules", "crew", "sponsors","feedback" ...(isAdmin ? ["banner"] : [])].map(tab => (
+              {["teams", "rules", "crew", "sponsors","feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
