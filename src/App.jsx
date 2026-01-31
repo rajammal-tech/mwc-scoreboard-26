@@ -429,7 +429,7 @@ const standings = useMemo(() => {
   <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
     {/* PUBLIC FORM */}
     <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>Thoughts?</h3>
+      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>Courtside comments</h3>
       <textarea 
         id="feedbackInput"
         rows="4" 
