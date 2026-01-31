@@ -114,7 +114,7 @@ const MWCScoreboard = () => {
   const [viewers, setViewers] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [bannerText, setBannerText] = useState("Welcome to MWC Open'26 - 8th Edition");
-
+  const [feedbackList, setFeedbackList] = useState([]);
   const [correctPin, setCorrectPin] = useState(null);
   
   const [editingId, setEditingId] = useState(null);
@@ -183,6 +183,18 @@ const MWCScoreboard = () => {
     onValue(pinRef, (snapshot) => {
     setCorrectPin(snapshot.val());
   });
+
+    // Add this inside the main useEffect block
+onValue(ref(db, "feedback/"), (snap) => {
+  if (snap.exists()) {
+    const raw = snap.val();
+    const list = Object.keys(raw).map(k => ({ id: k, ...raw[k] }))
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    setFeedbackList(list);
+  } else {
+    setFeedbackList([]);
+  }
+});
     
     const myPresenceRef = push(ref(db, "presence/"));
     onValue(ref(db, ".info/connected"), (snap) => {
@@ -401,7 +413,7 @@ const standings = useMemo(() => {
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
-              {["teams", "rules", "crew", "sponsors", ...(isAdmin ? ["banner"] : [])].map(tab => (
+              {["teams", "rules", "crew", "sponsors", "feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
                 <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
               ))}
             </div>
@@ -413,6 +425,60 @@ const standings = useMemo(() => {
                </div>
             )}
 
+            {infoTab === "feedback" && (
+  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    {/* PUBLIC FORM */}
+    <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
+      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
+      <textarea 
+        id="feedbackInput"
+        rows="4" 
+        placeholder="Share your thoughts or report an issue..."
+        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
+      />
+      <button 
+        onClick={() => {
+          const msg = document.getElementById("feedbackInput").value;
+          if (!msg.trim()) return;
+          push(ref(db, "feedback/"), { message: msg, timestamp: serverTimestamp() });
+          alert("Thank you! Feedback Sent.");
+          document.getElementById("feedbackInput").value = "";
+        }}
+        style={{ width: "100%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
+      >SUBMIT</button>
+    </div>
+
+    {/* ADMIN VIEW - Only visible when logged in as Umpire */}
+    {isAdmin && (
+      <div className="fade-in">
+        <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>
+          RECEIVED FEEDBACK ({feedbackList.length})
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {feedbackList.length === 0 ? (
+            <div style={{ color: "#555", fontSize: "12px", textAlign: "center" }}>No messages yet.</div>
+          ) : (
+            feedbackList.map(f => (
+              <div key={f.id} style={{ background: "#1a1a1a", padding: "15px", borderRadius: "10px", border: "1px solid #222" }}>
+                <div style={{ fontSize: "13px", color: "#FFF", marginBottom: "8px", lineHeight: "1.4" }}>{f.message}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "9px", color: "#555" }}>
+                    {f.timestamp ? new Date(f.timestamp).toLocaleString() : "---"}
+                  </span>
+                  <button 
+                    onClick={() => remove(ref(db, `feedback/${f.id}`))}
+                    style={{ background: "none", border: "none", color: "#ff4444", fontSize: "10px", fontWeight: "bold" }}
+                  >DELETE</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+)}
+            
 {infoTab === "rules" && (
   <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
     <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
