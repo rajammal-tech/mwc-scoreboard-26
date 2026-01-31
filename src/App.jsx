@@ -429,11 +429,11 @@ const standings = useMemo(() => {
   <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
     {/* PUBLIC FORM */}
     <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
+      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>Thoughts?</h3>
       <textarea 
         id="feedbackInput"
         rows="4" 
-        placeholder="Share your thoughts or report an issue..."
+        placeholder="Share your thoughts ..."
         style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
       />
       <button 
@@ -444,7 +444,7 @@ const standings = useMemo(() => {
           alert("Thank you! Feedback Sent.");
           document.getElementById("feedbackInput").value = "";
         }}
-        style={{ width: "100%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
+        style={{ width: "50%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
       >SUBMIT</button>
     </div>
 
