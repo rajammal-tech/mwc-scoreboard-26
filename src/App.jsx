@@ -1,8 +1,4 @@
 
-
-
-
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, onValue, set, push, remove, update, onDisconnect, serverTimestamp } from "firebase/database";
@@ -411,6 +407,7 @@ const standings = useMemo(() => {
            </div>
         )}
 
+        
         {view === "info" && (
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
@@ -587,10 +584,6 @@ const standings = useMemo(() => {
   </div>
 )}
             
-          </div>
-        )}
-
-
 
         
         {view === "standings" && (
