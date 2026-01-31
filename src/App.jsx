@@ -510,7 +510,50 @@ const standings = useMemo(() => {
     </div>
   </div>
 )}
-          
+          {/* FEEDBACK SECTION UI */}
+{infoTab === "feedback" && (
+  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    {/* Form for all users */}
+    <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
+      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
+      <textarea 
+        id="feedbackInput"
+        rows="4" 
+        placeholder="Share your thoughts..."
+        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
+      />
+      <button 
+        onClick={() => {
+          const msg = document.getElementById("feedbackInput").value;
+          if (!msg.trim()) return;
+          push(ref(db, "feedback/"), { message: msg, timestamp: serverTimestamp() });
+          alert("Feedback Sent!");
+          document.getElementById("feedbackInput").value = "";
+        }}
+        style={{ width: "100%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
+      >SUBMIT</button>
+    </div>
+
+    {/* ADMIN VIEW: List of received messages (only visible to Umpire) */}
+    {isAdmin && (
+      <div className="fade-in">
+        <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>RECEIVED FEEDBACK ({feedbackList.length})</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {feedbackList.map(f => (
+            <div key={f.id} style={{ background: "#1a1a1a", padding: "15px", borderRadius: "10px", border: "1px solid #222" }}>
+              <div style={{ fontSize: "13px", color: "#FFF", marginBottom: "8px" }}>{f.message}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#555" }}>
+                <span>{f.timestamp ? new Date(f.timestamp).toLocaleString() : "---"}</span>
+                <button onClick={() => remove(ref(db, `feedback/${f.id}`))} style={{ color: "#ff4444", background: "none", border: "none", fontWeight: "bold" }}>DELETE</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
+            
             
             {infoTab === "crew" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -530,61 +573,7 @@ const standings = useMemo(() => {
                 ))}
               </div>
             )}
-                          {infoTab === "feedback" && (
-  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-    {/* Form for all users */}
-    <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
-      <h3 style={{ color: theme.accent, fontSize: "14px", marginTop: 0 }}>SEND FEEDBACK</h3>
-      <textarea 
-        id="feedbackInput"
-        rows="4" 
-        placeholder="Share your thoughts..."
-        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
-      />
-      <button 
-        onClick={() => {
-          const msg = document.getElementById("feedbackInput").value;
-          if (!msg.trim()) return;
-          push(ref(db, "feedback/"), { message: msg, timestamp: serverTimestamp() }); [cite: 1, 2]
-          alert("Sent!");
-          document.getElementById("feedbackInput").value = "";
-        }}
-        style={{ width: "100%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
-      >SUBMIT</button>
-    </div>
-
-    {/* ADMIN VIEW: List of received messages */}
-    {isAdmin && (
-      <div className="fade-in">
-        <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>RECEIVED FEEDBACK ({feedbackList.length})</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {feedbackList.length === 0 ? (
-            <div style={{ color: "#555", fontSize: "12px", textAlign: "center" }}>No messages yet.</div>
-          ) : (
-            feedbackList.map(f => (
-              <div key={f.id} style={{ background: "#1a1a1a", padding: "15px", borderRadius: "10px", border: "1px solid #222" }}>
-                <div style={{ fontSize: "13px", color: "#FFF", marginBottom: "8px", lineHeight: "1.4" }}>{f.message}</div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: "9px", color: "#555" }}>
-                    {f.timestamp ? new Date(f.timestamp).toLocaleString() : "---"}
-                  </div>
-                  <button 
-                    [cite_start]onClick={() => remove(ref(db, `feedback/${f.id}`))} 
-                    style={{ background: "none", border: "none", color: "#ff4444", fontSize: "9px", fontWeight: "bold" }}
-                  >
-                    DELETE
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    )}
-  </div>
-)}
-            
-
+                       
         
         {view === "standings" && (
           <div className="fade-in">
