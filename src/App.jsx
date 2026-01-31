@@ -433,7 +433,7 @@ const standings = useMemo(() => {
       <textarea 
         id="feedbackInput"
         rows="4" 
-        placeholder="Share your thoughts ..."
+        placeholder="drop a note ..."
         style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
       />
       <button 
@@ -444,7 +444,7 @@ const standings = useMemo(() => {
           alert("Thank you! Feedback Sent.");
           document.getElementById("feedbackInput").value = "";
         }}
-        style={{ width: "50%", marginTop: "10px", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
+        style={{ width: "50%", marginTop: "10px", textAlign: "center", padding: "12px", background: theme.accent, color: "#000", fontWeight: "900", border: "none", borderRadius: "8px" }}
       >SUBMIT</button>
     </div>
 
