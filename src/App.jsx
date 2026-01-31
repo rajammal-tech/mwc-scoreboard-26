@@ -421,7 +421,7 @@ const standings = useMemo(() => {
             {infoTab === "banner" && isAdmin && (
                <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: `1px solid ${theme.accent}` }}>
                  <label style={{ fontSize: "10px", color: theme.accent, fontWeight: "900", display: "block", marginBottom: "10px" }}>EDIT LIVE ROLLING BANNER</label>
-                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} />
+                 <textarea rows="3" value={bannerText} onChange={(e) => updateBanner(e.target.value)} style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "16px", outline: "none", resize: "none" }} />
                </div>
             )}
 
@@ -434,7 +434,7 @@ const standings = useMemo(() => {
         id="feedbackInput"
         rows="4" 
         placeholder="drop a note ..."
-        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "14px", outline: "none", resize: "none" }} 
+        style={{ width: "100%", background: "#000", color: "#FFF", border: "1px solid #333", padding: "12px", borderRadius: "8px", fontSize: "16px", outline: "none", resize: "none" }} 
       />
       <button 
         onClick={() => {
