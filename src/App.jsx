@@ -415,10 +415,10 @@ const standings = useMemo(() => {
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
               {["teams", "rules", "crew", "sponsors", "feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
                 <button key={tab} 
-                  onClick={(e) => setInfoTab(tab);
+                  onClick={(e) => { setInfoTab(tab);
                   // This forces the button to slide to the center of the iPhone screen
       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-                  }} 
+                  }}
                   style={{ flexShrink: 0,
       padding: "10px 20px",
       borderRadius: "20px",
@@ -476,7 +476,7 @@ const standings = useMemo(() => {
     {isAdmin && (
       <div className="fade-in">
         <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>
-          RECEIVED FEEDBACK ({feedbackList.length})
+          RECEIVED FEEDBACKS ({feedbackList.length})
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {feedbackList.length === 0 ? (
