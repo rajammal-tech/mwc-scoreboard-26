@@ -50,7 +50,7 @@ const SCHEDULE_DATA = {
     { time: "05:30 PM", type: "A, Blue, M-7", pool: "A", t1: "Team 3", t2: "Team 4" },
     { time: "06:10 PM", type: "B, Green, M-8", pool: "B", t1: "Team 1", t2: "Team 2" },
     { time: "06:50 PM", type: "A, Blue-Green, M-9", pool: "A", t1: "Team 5", t2: "Team 3" },
-    { time: "07:30 PM", type: "B, Blue, M-10", pool: "B", t1: "Team 6", t2: "Team 1" },
+    { time: "07:30 PM", type: "B, Blue, M-10", pool: "B", t1: "Team 6", t2: "Team 2" },
     { time: "08:10 PM", type: "A, Green, M-11", pool: "A", t1: "Team 4", t2: "Team 5" },
     { time: "08:50 PM", type: "B, Blue-Green, M-12", pool: "B", t1: "Team 2", t2: "Team 6" },
   ],
