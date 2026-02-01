@@ -331,14 +331,21 @@ const standings = useMemo(() => {
           </div>
         </header>
 
+
+        {/* Replace the div at line 361 with this */}
 <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden" }}>
-  <div className="banner-ticker">
+  <div className="banner-ticker-container">
     <div className="ticker-content">
-      <span>{bannerText} — {bannerText} &nbsp;</span>
-      <span>{bannerText} — {bannerText} &nbsp;</span>
+      <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
+        {bannerText} — {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp;
+      </span>
+      <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
+        {bannerText} — {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp;
+      </span>
     </div>
   </div>
 </div>
+        
       </div>
 
       {/* CONTENT AREA */}
@@ -809,8 +816,8 @@ const standings = useMemo(() => {
         @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
         .scroll-container::-webkit-scrollbar { display: none; }
 
-        /* Update or add these classes */
-.banner-ticker {
+/* Update these in your <style> tag at the bottom of the file */
+.banner-ticker-container {
   display: flex;
   white-space: nowrap;
   width: max-content;
@@ -820,16 +827,13 @@ const standings = useMemo(() => {
   display: inline-block;
   animation: ticker-smooth 30s linear infinite;
   will-change: transform;
+  /* Use translate3d to fix the iOS "disappearing" bug */
+  transform: translate3d(0, 0, 0); 
 }
 
 @keyframes ticker-smooth {
   0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); } /* Moves exactly half-way for a perfect loop */
-}
-
-/* Optional: Pause on touch so users can read long messages */
-.banner-ticker:active .ticker-content {
-  animation-play-state: paused;
+  100% { transform: translate3d(-50%, 0, 0); } /* Moves half-way for an infinite loop */
 }
 
       `}</style>
