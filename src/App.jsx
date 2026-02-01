@@ -331,13 +331,14 @@ const standings = useMemo(() => {
           </div>
         </header>
 
-        <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden", whiteSpace: "nowrap" }}>
-          <div className="banner-ticker" style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker 20s linear infinite" }}>
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
-              {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText} &nbsp;&nbsp; — &nbsp;&nbsp; {bannerText}
-            </span>
-          </div>
-        </div>
+<div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden" }}>
+  <div className="banner-ticker">
+    <div className="ticker-content">
+      <span>{bannerText} — {bannerText} &nbsp;</span>
+      <span>{bannerText} — {bannerText} &nbsp;</span>
+    </div>
+  </div>
+</div>
       </div>
 
       {/* CONTENT AREA */}
@@ -807,6 +808,30 @@ const standings = useMemo(() => {
         .set-point-blinker { animation: blink 0.8s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
         .scroll-container::-webkit-scrollbar { display: none; }
+
+        /* Update or add these classes */
+.banner-ticker {
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+}
+
+.ticker-content {
+  display: inline-block;
+  animation: ticker-smooth 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes ticker-smooth {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); } /* Moves exactly half-way for a perfect loop */
+}
+
+/* Optional: Pause on touch so users can read long messages */
+.banner-ticker:active .ticker-content {
+  animation-play-state: paused;
+}
+
       `}</style>
     </div>
   );
