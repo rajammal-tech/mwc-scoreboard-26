@@ -414,7 +414,19 @@ const standings = useMemo(() => {
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
               {["teams", "rules", "crew", "sponsors", "feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
+                <button key={tab} 
+                  onClick={(e) => setInfoTab(tab);
+                  // This forces the button to slide to the center of the iPhone screen
+      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                  } 
+                  style={{ flexShrink: 0,
+      padding: "10px 20px",
+      borderRadius: "20px",
+      background: infoTab === tab ? theme.accent : "transparent",
+      color: infoTab === tab ? "#000" : "#888",
+      fontSize: "11px",
+      fontWeight: "900",
+      border: "none"}}>{tab.toUpperCase()}</button>
               ))}
             </div>
             
