@@ -418,7 +418,7 @@ const standings = useMemo(() => {
                   onClick={(e) => setInfoTab(tab);
                   // This forces the button to slide to the center of the iPhone screen
       e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center' });
-                  } 
+                  }} 
                   style={{ flexShrink: 0,
       padding: "10px 20px",
       borderRadius: "20px",
