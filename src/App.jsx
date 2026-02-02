@@ -332,7 +332,6 @@ const standings = useMemo(() => {
         </header>
 
 
-        {/* Replace the div at line 361 with this */}
 <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden" }}>
   <div className="banner-ticker-container">
     <div className="ticker-content">
@@ -345,6 +344,7 @@ const standings = useMemo(() => {
     </div>
   </div>
 </div>
+        
         
       </div>
 
@@ -806,17 +806,7 @@ const standings = useMemo(() => {
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; background: #000; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .pulse { animation: softPulse 2s infinite; }
-        @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
-        @keyframes breathingBorder { 0%, 100% { border-color: #333; } 50% { border-color: #EEE; } }
-        .set-point-blinker { animation: blink 0.8s infinite alternate; }
-        @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
-        .scroll-container::-webkit-scrollbar { display: none; }
 
-/* Update these in your <style> tag at the bottom of the file */
 .banner-ticker-container {
   display: flex;
   white-space: nowrap;
@@ -825,17 +815,16 @@ const standings = useMemo(() => {
 
 .ticker-content {
   display: inline-block;
-  animation: ticker-smooth 30s linear infinite;
+  /* Use translate3d to force GPU acceleration on iOS/Android */
+  transform: translate3d(0, 0, 0);
+  animation: ticker-infinite 25s linear infinite;
   will-change: transform;
-  /* Use translate3d to fix the iOS "disappearing" bug */
-  transform: translate3d(0, 0, 0); 
 }
 
-@keyframes ticker-smooth {
+@keyframes ticker-infinite {
   0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); } /* Moves half-way for an infinite loop */
+  100% { transform: translate3d(-50%, 0, 0); }
 }
-
       `}</style>
     </div>
   );
