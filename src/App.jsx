@@ -85,10 +85,10 @@ const TennisBallIcon = ({ color, size = 22 }) => (
 );
 
 const RacquetIcon = ({ color, size = 32, isServing = false }) => (
-  <svg 
+<svg 
     width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
     className={isServing ? "racquet-breathe" : ""}
-    style={{ filter: isServing ? `drop-shadow(0 0 6px rgba(255,255,255,0.4))` : "none" }}
+    style={{ filter: isServing ? `drop-shadow(0 0 10px rgba(0, 204, 255, 0.6))` : "none" }}
   >
     <circle cx="15" cy="9" r="6" />
     <path d="M10.5 13.5L3 21" />
