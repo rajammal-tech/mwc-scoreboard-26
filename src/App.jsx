@@ -554,17 +554,6 @@ const standings = useMemo(() => {
   <div style={{ width: '100%', height: '1px', background: `linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.4), transparent)`, marginBottom: '30px' }} />
   
   <img 
-    src="/MW_LOG_STD1.jpg" // Using your existing logo path from the live tab
-    alt="MWC Open 2026 Official Logo" 
-    style={{ 
-      width: '240px', // Large size as requested
-      height: 'auto',
-      opacity: 0.9,
-      filter: 'drop-shadow(0px 0px 15px rgba(173, 255, 47, 0.2))' // Subtle glow matching your accent color
-    }} 
-  />
-
-  <img 
         src="/MW_LOG_STD1.jpg" 
         alt="MWC Open 2026 Official Logo" 
         className="pulse" 
@@ -577,7 +566,7 @@ const standings = useMemo(() => {
         }}
       />
 
-  <div style={{ marginTop: "15px", fontSize: "11px", color: ""#EEE"", fontWeight: "900", textTransform: 'uppercase', letterSpacing: "4px" }}>
+  <div style={{ marginTop: "15px", fontSize: "11px", color: "#EEE", fontWeight: "900", textTransform: 'uppercase', letterSpacing: "4px" }}>
    MWC Tennis Tournament
   </div>
 </div>
