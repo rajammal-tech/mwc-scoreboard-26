@@ -383,12 +383,14 @@ const standings = useMemo(() => {
           className="pulse" // Synchronized breathing class
           style={{
             position: "absolute",
-            top: "10px",
-            right: "10px",
-            width: "22px",
-            height: "22px",
-            borderRadius: "4px",
-            opacity: 0.8
+            top: "12px",
+            right: "12px",
+            width: "35px",
+            height: "35px",
+            borderRadius: "6px",
+            opacity: 1,
+            zIndex: 10,
+            filter: 'drop-shadow(0px 0px 10px rgba(173, 255, 47, 0.3))' // Adds a neon glow
           }}
         />
       )}
