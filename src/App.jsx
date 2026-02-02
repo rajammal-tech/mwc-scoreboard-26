@@ -405,7 +405,7 @@ const standings = useMemo(() => {
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
-                      ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
+                      ) : (showRacquet && <RacquetIcon color="#00ccff" size={28} isServing={true} />)}
                    </div>
 
                    
