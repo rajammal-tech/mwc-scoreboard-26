@@ -358,34 +358,6 @@ const standings = useMemo(() => {
            <div className="fade-in">
              {!isAdmin && <div style={{ textAlign: "center", marginBottom: "15px", fontSize: "12px", fontWeight: "900", color: theme.accent, letterSpacing: "2px", textTransform: "uppercase" }}>{(match.mType || "Doubles")} MATCH</div>}
              {isAdmin && <select disabled={isMatchInProgress} style={{ ...getUmpireSelectStyle(isMatchInProgress), marginBottom: "15px" }} value={match.mType} onChange={(e) => sync({ ...match, mType: e.target.value })}><option value="Singles">Singles</option><option value="Doubles">Doubles</option></select>}
-
-
-{ !isAdmin && match?.server && (
-  <div style={{
-    position: 'absolute',
-    bottom: '90px', 
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: 10,
-    textAlign: 'center',
-    pointerEvents: 'none'
-  }} className="fade-in">
-    <img 
-      src="/MW_LOG_STD1.jpg" 
-      alt="MWC Logo"
-      style={{
-        width: '45px',
-        height: 'auto',
-        opacity: 0.8,
-        filter: 'drop-shadow(0px 0px 8px rgba(0,0,0,0.6))'
-      }}
-    />
-  </div>
-)}
-
-
-
-
              
              {[1, 2].map(n => {
                const setPoint = isServingForSet(n);
