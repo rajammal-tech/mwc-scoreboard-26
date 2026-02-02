@@ -555,6 +555,47 @@ const standings = useMemo(() => {
         </a>
       </li>
     </ul>
+
+    {/* LARGE LOGO AT THE END OF RULES */}
+<div style={{ 
+  textAlign: 'center', 
+  marginTop: '60px', // Spacing after the last rule
+  paddingBottom: '40px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center'
+}}>
+  <div style={{ 
+    width: '100%', 
+    height: '1px', 
+    background: `linear-gradient(90deg, transparent, ${theme.accent}44, transparent)`,
+    marginBottom: '30px' 
+  }} />
+  
+  <img 
+    src="/MW_LOG_STD1.jpg" // Using your existing logo path from the live tab
+    alt="MWC Open 2026 Official Logo" 
+    style={{ 
+      width: '240px', // Large size as requested
+      height: 'auto',
+      opacity: 0.9,
+      filter: 'drop-shadow(0px 0px 15px rgba(173, 255, 47, 0.2))' // Subtle glow matching your accent color
+    }} 
+  />
+  
+  <div style={{ 
+    color: theme.accent, 
+    fontSize: '10px', 
+    fontWeight: '900', 
+    marginTop: '15px',
+    letterSpacing: '4px',
+    textTransform: 'uppercase',
+    opacity: 0.7
+  }}>
+    Official Tournament Standards
+  </div>
+</div>
+    
   </div>
 )}
 
