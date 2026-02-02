@@ -382,17 +382,16 @@ const standings = useMemo(() => {
           alt="MWC" 
           className="pulse" // Synchronized breathing class
           style={{
+            
             position: "absolute",
-      right: "15px",      // Spacing from right edge
-      top: "50%",         // Move to middle
-      transform: "translateY(-50%)", // Perfect vertical centering
-      width: "55px",      // Increased size
-      height: "55px",     // Increased size
-      borderRadius: "10px",
-      zIndex: 10,
-      /* Electric Blue Glow */
-      filter: 'drop-shadow(0px 0px 15px rgba(0, 204, 255, 0.9))',
-      border: '1px solid rgba(0, 204, 255, 0.4)'
+            top: "12px",      // Anchored to top
+            right: "12px",    // Anchored to right
+            width: "55px",    // Maintaining the larger size
+            height: "55px",
+            borderRadius: "10px",
+            zIndex: 10,
+            filter: 'drop-shadow(0px 0px 15px rgba(0, 204, 255, 0.9))', // Blue Glow
+            border: '1px solid rgba(0, 204, 255, 0.4)'
             
           }}
         />
@@ -405,7 +404,7 @@ const standings = useMemo(() => {
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
-                      ) : (showRacquet && <RacquetIcon color="#00ccff" size={28} isServing={true} />)}
+                      ) : (showRacquet && <RacquetIcon color="#00ccff" size={42} isServing={true} />)}
                    </div>
 
                    
