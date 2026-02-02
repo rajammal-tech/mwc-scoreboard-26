@@ -332,7 +332,7 @@ const standings = useMemo(() => {
         </header>
 
 
-<div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden" }}>
+  <div style={{ width: "100%", background: "#111", borderBottom: "1px solid #222", padding: "8px 0", overflow: "hidden" }}>
   <div className="banner-ticker-container">
     <div className="ticker-content">
       <span style={{ fontSize: "11px", fontWeight: "700", color: "#f0f0f0", letterSpacing: "0.5px" }}>
@@ -817,14 +817,15 @@ const standings = useMemo(() => {
   display: inline-block;
   /* Use translate3d to force GPU acceleration on iOS/Android */
   transform: translate3d(0, 0, 0);
-  animation: ticker-infinite 25s linear infinite;
+  animation: ticker-smooth 25s linear infinite;
   will-change: transform;
 }
 
-@keyframes ticker-infinite {
+@keyframes ticker-smooth {
   0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); } /* Moves exactly half-way for a perfect loop */
 }
+
       `}</style>
     </div>
   );
