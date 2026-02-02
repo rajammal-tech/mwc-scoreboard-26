@@ -84,20 +84,6 @@ const TennisBallIcon = ({ color, size = 22 }) => (
   </svg>
 );
 
-const RacquetIcon = ({ color, size = 32, isServing = false }) => (
-<svg 
-    width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
-    className={isServing ? "racquet-breathe" : ""}
-    style={{ filter: isServing ? `drop-shadow(0 0 10px rgba(0, 204, 255, 0.6))` : "none" }}
-  >
-    <circle cx="15" cy="9" r="6" />
-    <path d="M10.5 13.5L3 21" />
-    <path d="M13 7l4 4" />
-    <path d="M11 9l4 4" />
-    <circle cx="20" cy="20" r="2.5" fill={color} stroke="none" />
-  </svg>
-);
-
 const GreenCheck = ({ color }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: "middle" }}>
     <polyline points="20 6 9 17 4 12"></polyline>
@@ -369,7 +355,7 @@ const standings = useMemo(() => {
                const isMatchOver = s1 >= 7 || s2 >= 7 || (s1 === 6 && s1 - s2 >= 2) || (s2 === 6 && s2 - s1 >= 2);
 
                const showBreathing = isTieBreak || isServing;
-               const showRacquet = isServing && !isTieBreak;
+              // const showRacquet = isServing && !isTieBreak;
 
                return (
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} 
@@ -402,9 +388,11 @@ const standings = useMemo(() => {
 
                    
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
-                      {isAdmin && !match.server && match.t1 && match.t2 ? (
-                        <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
-                      ) : (showRacquet && <RacquetIcon color="#00ccff" size={42} isServing={true} />)}
+
+{isAdmin && !match.server && match.t1 && match.t2 && (
+   <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
+)}
+                     
                    </div>
 
                    
