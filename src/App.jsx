@@ -42,26 +42,26 @@ const TEAM_ROSTERS = {
 
 const SCHEDULE_DATA = {
   "Feb 7": [
-    { time: "06:45 AM", type: "A, Green, M-1", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "06:45 AM", type: "A, Blue-Green, M-1", pool: "A", t1: "Team 3", t2: "Team 4" },
     { time: "07:25 AM", type: "B, Blue-Green, M-2", pool: "B", t1: "Team 2", t2: "Team 1" },
-    { time: "08:05 AM", type: "A, Blue, M-3", pool: "A", t1: "Team 3", t2: "Team 5" },
-    { time: "03:30 PM", type: "B, Blue, M-4", pool: "B", t1: "Team 2", t2: "Team 6" },
-    { time: "04:10 PM", type: "A, Blue-Green, M-5", pool: "A", t1: "Team 4", t2: "Team 5" },
-    { time: "04:50 PM", type: "B, Green, M-6", pool: "B", t1: "Team 1", t2: "Team 6" },
-    { time: "05:30 PM", type: "A, Blue, M-7", pool: "A", t1: "Team 3", t2: "Team 4" },
-    { time: "06:10 PM", type: "B, Green, M-8", pool: "B", t1: "Team 2", t2: "Team 1" },
-    { time: "06:50 PM", type: "A, Blue-Green, M-9", pool: "A", t1: "Team 5", t2: "Team 3" },
+    { time: "08:05 AM", type: "A, Green, M-3", pool: "A", t1: "Team 5", t2: "Team 3" },
+    { time: "03:30 PM", type: "B, Green, M-4", pool: "B", t1: "Team 2", t2: "Team 6" },
+    { time: "04:10 PM", type: "A, Blue, M-5", pool: "A", t1: "Team 4", t2: "Team 5" },
+    { time: "04:50 PM", type: "B, Blue, M-6", pool: "B", t1: "Team 1", t2: "Team 6" },
+    { time: "05:30 PM", type: "A, Green, M-7", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "06:10 PM", type: "B, Green, M-8", pool: "B", t1: "Team 1", t2: "Team 2" },
+    { time: "06:50 PM", type: "A, Blue, M-9", pool: "A", t1: "Team 5", t2: "Team 3" },
     { time: "07:30 PM", type: "B, Blue, M-10", pool: "B", t1: "Team 6", t2: "Team 2" },
-    { time: "08:10 PM", type: "A, Green, M-11", pool: "A", t1: "Team 4", t2: "Team 5" },
-    { time: "08:50 PM", type: "B, Blue-Green, M-12", pool: "B", t1: "Team 1", t2: "Team 6" },
+    { time: "08:10 PM", type: "A, Blue-Green, M-11", pool: "A", t1: "Team 4", t2: "Team 5" },
+    { time: "08:50 PM", type: "B, Blue-Green, M-12", pool: "B", t1: "Team 2", t2: "Team 6" },
   ],
   "Feb 8": [    
-    { time: "06:45 AM", type: "A, Blue-Green, M-13", pool: "A", t1: "Team 3", t2: "Team 4" },
+    { time: "06:45 AM", type: "A, Blue, M-13", pool: "A", t1: "Team 3", t2: "Team 4" },
     { time: "07:25 AM", type: "B, Blue, M-14", pool: "B", t1: "Team 2", t2: "Team 1" },
-    { time: "08:05 AM", type: "A, Blue, M-15", pool: "A", t1: "Team 5", t2: "Team 3" },
-    { time: "04:00 PM", type: "B, Blue-Green, M-16", pool: "B", t1: "Team 6", t2: "Team 2" },
+    { time: "08:05 AM", type: "A, Blue-Green, M-15", pool: "A", t1: "Team 5", t2: "Team 3" },
+    { time: "04:00 PM", type: "B, Blue-Green, M-16", pool: "B", t1: "Team 1", t2: "Team 6" },
     { time: "04:40 PM", type: "A, Green, M-17", pool: "A", t1: "Team 4", t2: "Team 5" },
-    { time: "05:20 PM", type: "B, Green, M-18", pool: "B", t1: "Team 1", t2: "Team 6" },
+    { time: "05:20 PM", type: "B, Green, M-18", pool: "B", t1: "Team 4", t2: "Team 5" },
     { time: "06:00 PM", type: "Blue-Green, Finals -1", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "06:40 PM", type: "Blue, Finals -2", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
     { time: "07:20 PM", type: "Green, Finals -3", pool: "Finalists", t1: "Winner A", t2: "Winner B" },
@@ -415,7 +415,19 @@ const standings = useMemo(() => {
           <div className="fade-in">
             <div style={{ display: "flex", gap: "6px", marginBottom: "15px", overflowX: "auto", paddingBottom: "8px" }}>
               {["teams", "rules", "crew", "sponsors", "feedback", ...(isAdmin ? ["banner"] : [])].map(tab => (
-                <button key={tab} onClick={() => setInfoTab(tab)} style={{ flex: "1 0 auto", minWidth: "85px", padding: "12px 10px", background: infoTab === tab ? theme.accent : "#111", color: infoTab === tab ? "#000" : "#FFF", border: "none", borderRadius: "10px", fontWeight: "900", fontSize: "10px" }}>{tab.toUpperCase()}</button>
+                <button key={tab} 
+                  onClick={(e) => { setInfoTab(tab);
+                  // This forces the button to slide to the center of the iPhone screen
+      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+                  }}
+                  style={{ flexShrink: 0,
+      padding: "10px 20px",
+      borderRadius: "20px",
+      background: infoTab === tab ? theme.accent : "transparent",
+      color: infoTab === tab ? "#000" : "#888",
+      fontSize: "11px",
+      fontWeight: "900",
+      border: "none"}}>{tab.toUpperCase()}</button>
               ))}
             </div>
             
@@ -465,7 +477,7 @@ const standings = useMemo(() => {
     {isAdmin && (
       <div className="fade-in">
         <h3 style={{ color: theme.accent, fontSize: "12px", fontWeight: "900", marginBottom: "10px" }}>
-          RECEIVED FEEDBACK ({feedbackList.length})
+          RECEIVED FEEDBACKS ({feedbackList.length})
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {feedbackList.length === 0 ? (
