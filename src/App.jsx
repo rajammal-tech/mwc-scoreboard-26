@@ -356,8 +356,8 @@ const standings = useMemo(() => {
                  <div key={n} className={showBreathing ? "serving-card-active" : ""} 
                    style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
 
-                   {/* NEW: LOGO AT TOP RIGHT - Only shows when team is serving */}
-      {isServing && (
+                   {/* NEW: LOGO AT TOP RIGHT - Only shows when team is serving and tie-break */}
+      {showBreathing && (
         <img 
           src="/MW_LOG_STD1.jpg" 
           alt="MWC" 
