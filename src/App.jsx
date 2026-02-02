@@ -592,7 +592,7 @@ const standings = useMemo(() => {
     textTransform: 'uppercase',
     opacity: 0.7
   }}>
-    Official Tournament Standards
+   MWC Tennis Community
   </div>
 </div>
     
