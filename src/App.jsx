@@ -584,8 +584,8 @@ const standings = useMemo(() => {
   />
   
   <div style={{ 
-    color: theme.accent, 
-    fontSize: '10px', 
+    color: "#EEE", 
+    fontSize: '11px', 
     fontWeight: '900', 
     marginTop: '15px',
     letterSpacing: '4px',
