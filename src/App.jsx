@@ -558,8 +558,8 @@ const standings = useMemo(() => {
         alt="MWC Open 2026 Official Logo" 
         className="pulse" 
         style={{
-          width: "160px",      // Slightly larger for the footer display
-          height: "160px",
+          width: "180px",      // Slightly larger for the footer display
+          height: "180px",
           borderRadius: "12px",
           filter: 'drop-shadow(0px 0px 20px rgba(0, 204, 255, 0.9))', // Blue Glow
           border: '1px solid rgba(0, 204, 255, 0.4)'
