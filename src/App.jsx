@@ -549,12 +549,9 @@ const standings = useMemo(() => {
   flexDirection: 'column',
   alignItems: 'center'
 }}>
-  <div style={{ 
-    width: '100%', 
-    height: '1px', 
-    background: `linear-gradient(90deg, transparent, ${theme.accent}44, transparent)`,
-    marginBottom: '30px' 
-  }} />
+
+    
+  <div style={{ width: '100%', height: '1px', background: `linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.4), transparent)`, marginBottom: '30px' }} />
   
   <img 
     src="/MW_LOG_STD1.jpg" // Using your existing logo path from the live tab
@@ -566,16 +563,21 @@ const standings = useMemo(() => {
       filter: 'drop-shadow(0px 0px 15px rgba(173, 255, 47, 0.2))' // Subtle glow matching your accent color
     }} 
   />
-  
-  <div style={{ 
-    color: "#EEE", 
-    fontSize: '11px', 
-    fontWeight: '900', 
-    marginTop: '15px',
-    letterSpacing: '4px',
-    textTransform: 'uppercase',
-    opacity: 0.7
-  }}>
+
+  <img 
+        src="/MW_LOG_STD1.jpg" 
+        alt="MWC Open 2026 Official Logo" 
+        className="pulse" 
+        style={{
+          width: "160px",      // Slightly larger for the footer display
+          height: "160px",
+          borderRadius: "12px",
+          filter: 'drop-shadow(0px 0px 20px rgba(0, 204, 255, 0.9))', // Blue Glow
+          border: '1px solid rgba(0, 204, 255, 0.4)'
+        }}
+      />
+
+  <div style={{ marginTop: "15px", fontSize: "11px", color: ""#EEE"", fontWeight: "900", textTransform: 'uppercase', letterSpacing: "4px" }}>
    MWC Tennis Tournament
   </div>
 </div>
