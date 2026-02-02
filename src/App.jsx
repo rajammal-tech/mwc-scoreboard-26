@@ -372,13 +372,38 @@ const standings = useMemo(() => {
                const showRacquet = isServing && !isTieBreak;
 
                return (
-                 <div key={n} className={showBreathing ? "serving-card-active" : ""} style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
+                 <div key={n} className={showBreathing ? "serving-card-active" : ""} 
+                   style={{ backgroundColor: theme.card, padding: "20px", borderRadius: "15px", margin: "15px 0", border: showBreathing ? `2px solid #EEE` : "1px solid #222", textAlign: "center", position: "relative", boxSizing: "border-box" }}>
+
+                   {/* NEW: LOGO AT TOP RIGHT - Only shows when team is serving */}
+      {isServing && (
+        <img 
+          src="/MW_LOG_STD1.jpg" 
+          alt="MWC" 
+          className="pulse" // Synchronized breathing class
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            width: "22px",
+            height: "22px",
+            borderRadius: "4px",
+            opacity: 0.8
+          }}
+        />
+      )}
+
+                   
                    {setPoint && !isTieBreak && <div className="set-point-blinker" style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: theme.accent, color: "#000", fontSize: "9px", fontWeight: "900", padding: "4px 12px", borderRadius: "20px", zIndex: 100, border: "2px solid #000" }}>SERVING FOR THE SET</div>}
+
+                   
                    <div style={{ position: "absolute", bottom: "12px", left: "12px" }}>
                       {isAdmin && !match.server && match.t1 && match.t2 ? (
                         <button disabled={!arePlayersSelected} onClick={() => sync({ ...match, server: n })} style={{ background: "transparent", border: `1px solid ${arePlayersSelected ? "#FFF" : "#444"}`, color: arePlayersSelected ? "#FFF" : "#444", fontSize: "8px", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", opacity: arePlayersSelected ? 1 : 0.5 }}>SERVER</button>
                       ) : (showRacquet && <RacquetIcon color="#FFF" size={28} isServing={true} />)}
                    </div>
+
+                   
                    {isAdmin ? (
                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "5px" }}>
                        {!isMatchInProgress ? (
