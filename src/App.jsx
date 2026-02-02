@@ -854,25 +854,24 @@ const standings = useMemo(() => {
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-     //   .pulse { animation: softPulse 2s infinite; }
+
 .pulse { 
   animation: softPulse 2s infinite ease-in-out; 
 }
 
-     //   @keyframes softPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
 
      @keyframes softPulse { 
   0%, 100% { opacity: 1; transform: scale(1); } 
   50% { opacity: 0.5; transform: scale(1.1); } 
 }
-    //    .serving-card-active { animation: breathingBorder 2s infinite ease-in-out; }
+
 
         .serving-card-active { 
   /* Border breathing speed matched to 2s */
   animation: breathingBorder 2s infinite ease-in-out; 
 }
 
-        
         @keyframes breathingBorder { 0%, 100% { border-color: #333; } 50% { border-color: #EEE; } }
         .set-point-blinker { animation: blink 0.8s infinite alternate; }
         @keyframes blink { from { opacity: 1; } to { opacity: 0.6; } }
