@@ -520,9 +520,9 @@ const standings = useMemo(() => {
   <div style={{ padding: "20px", background: theme.card, borderRadius: "15px", border: "1px solid #333" }}>
     <ul style={{ color: "#EEE", lineHeight: "2.2", margin: 0, paddingLeft: "20px", fontSize: "14px" }}>
       <li>1 Full set will be played for All league matches </li>
-      <li>7 point Tie-breaker(leading by at least 2) in case of 6-6 </li>
+      <li>7 point Tie-breaker( at least 2) in case of 6-6 </li>
       <li>2 Matches per player is a must in Round robin play </li>
-      <li>2nd Duece is a Decider/Golden point. Receiver chooses side to receive the Serve</li>
+      <li>2nd Duece is a Decider/Golden point. Receiver chooses the side to receive the Serve</li>
       
       {/* ADD THE HYPERLINK HERE */}
       <li style={{ marginTop: "10px" }}>
