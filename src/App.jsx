@@ -359,7 +359,7 @@ const standings = useMemo(() => {
                    {/* NEW: LOGO AT TOP RIGHT - Only shows when team is serving and tie-break */}
       {showBreathing && (
         <img 
-          src="/MW_LOG_STD1.jpg" 
+          src="/MW_LOG_STD3.jpg" 
           alt="MWC" 
           className="pulse" // Synchronized breathing class
           style={{
@@ -555,7 +555,7 @@ const standings = useMemo(() => {
   <div style={{ width: '100%', height: '1px', background: `linear-gradient(90deg, transparent, rgba(0, 204, 255, 0.4), transparent)`, marginBottom: '30px' }} />
   
   <img 
-        src="/MW_LOG_STD1.jpg" 
+        src="/MW_LOG_STD3.jpg" 
         alt="MWC Open 2026 Official Logo" 
         className="pulse" 
         style={{
