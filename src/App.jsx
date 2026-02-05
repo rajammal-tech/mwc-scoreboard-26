@@ -21,13 +21,13 @@ const SPONSORS = [
     label: "LEGACY SPONSORS", 
     name: "Rajashri Grandhim Speciality Hospitals",
     logo: "/rgh_logo.png",
-    url:https://grandhimhospitals.com/
+    url: "https://grandhimhospitals.com/"
   },
   { 
     label: "LEGACY SPONSORS", 
     name: "Gaadi Saathi",
     logo: "/GD_logo.png",
-    url:https://gaadisaathi.com/
+    url: "https://gaadisaathi.com/"
   },
 ];
 
