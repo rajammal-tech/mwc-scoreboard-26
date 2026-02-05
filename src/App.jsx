@@ -672,40 +672,41 @@ const standings = useMemo(() => {
         alignItems: "center",
         gap: "10px"
       }}>
-        {/* Render Logo if it exists */}
+        {/* Logo rendering */}
         {s.logo && (
           <img 
             src={s.logo} 
             alt={s.name} 
-            style={{ 
-              width: "80px", 
-              height: "80px", 
-              borderRadius: "8px", 
-              objectFit: "contain",
-              background: "#FFF", // Provides contrast for transparent logos
-              padding: "5px"
-            }} 
+            style={{ width: "80px", height: "80px", objectFit: "contain", borderRadius: "8px" }} 
           />
         )}
-        
+
         <div>
           <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>
             {s.label}
           </div>
-          {/* Clickable Name opens URL in new tab */}
-          <a 
-            href={s.url || "#"} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            style={{ 
-              fontSize: "14px", 
-              color: "#FFF", 
-              textDecoration: "underline", 
-              cursor: "pointer" 
-            }}
-          >
-            {s.name}
-          </a>
+
+          {/* Conditional Hyperlink Logic */}
+          {s.url ? (
+            <a 
+              href={s.url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ 
+                fontSize: "14px", 
+                color: "#FFF", 
+                textDecoration: "underline", 
+                cursor: "pointer",
+                fontWeight: "600"
+              }}
+            >
+              {s.name}
+            </a>
+          ) : (
+            <div style={{ fontSize: "14px", color: "#FFF", fontWeight: "600" }}>
+              {s.name}
+            </div>
+          )}
         </div>
       </div>
     ))}
