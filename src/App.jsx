@@ -27,8 +27,8 @@ const COMMUNITY_TEAM = {
 
 const TEAM_ROSTERS = {
   "Team 1": ["Chetan", "Haresh", "Vishav", "Shria", "Rakesh", "Prashul"],
-  "Team 2": ["Saikat", "TBD", "SKP", "Dhiraj W", "Viswas", "Pramila"],
-  "Team 3": ["Shankar", "TBD", "Santhosh", "Srividya", "Aditya", "Dhwani"],
+  "Team 2": ["Saikat", "Dhiraj S", "SKP", "Dhiraj W", "Viswas", "Pramila"],
+  "Team 3": ["Shankar", "Ananth", "Santhosh", "Srividya", "Aditya", "Dhwani"],
   "Team 4": ["Ram", "Srini", "Ravi DK", "Trisha", "Bala", "Tapas"],
   "Team 5": ["Kiran", "Sushant", "Arvind", "Smrithi", "NP", "Bhavey"],
   "Team 6": ["Prasad", "Naveen", "Guru", "Vishal", "Meher", "Ritwik"],
