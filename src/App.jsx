@@ -19,13 +19,13 @@ const SPONSORS = [
   { label: "DIGITAL SCOREBOARD", name: "Ram" },
   { 
     label: "LEGACY SPONSORS", 
-    name: "Dr Haresh",
-    logo: "/MW_LOG_STD3.jpg" 
+    name: "Rajashri Grandhim Hospitals",
+    logo: "/rgh_logo.png" 
   },
   { 
     label: "LEGACY SPONSORS", 
-    name: "Ramanujam",
-    logo: "/MW_LOG_STD3.jpg" 
+    name: "Gaadi Saathi",
+    logo: "/GD_logo.png" 
   },
 ];
 
