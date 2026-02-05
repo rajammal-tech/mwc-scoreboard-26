@@ -17,6 +17,16 @@ const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
   { label: "VOLUNTARY CONTRIBUTION", name: "Prashul, Naveen" },
   { label: "DIGITAL SCOREBOARD", name: "Ram" },
+  { 
+    label: "LEGACY SPONSORS", 
+    name: "Dr Haresh",
+    logo: "/MW_LOG_STD3.jpg" 
+  },
+  { 
+    label: "LEGACY SPONSORS", 
+    name: "Ramanujam",
+    logo: "/MW_LOG_STD3.jpg" 
+  },
 ];
 
 const COMMUNITY_TEAM = { 
@@ -646,16 +656,49 @@ const standings = useMemo(() => {
               </div>
             )}
 
-            {infoTab === "sponsors" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {SPONSORS.map((s, i) => (
-                  <div key={i} style={{ background: theme.card, padding: "15px", borderRadius: "10px", border: "1px solid #222", textAlign: "center" }}>
-                    <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>{s.label}</div>
-                    <div style={{ fontSize: "14px", color: "#FFF" }}>{s.name}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+{infoTab === "sponsors" && (
+  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    {SPONSORS.map((s, i) => (
+      <div key={i} style={{ 
+        background: theme.card, 
+        padding: "20px", 
+        borderRadius: "10px", 
+        border: "1px solid #222", 
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "10px"
+      }}>
+        {/* Render Logo if it exists */}
+        {s.logo && (
+          <img 
+            src={s.logo} 
+            alt={s.name} 
+            style={{ 
+              width: "80px", 
+              height: "80px", 
+              borderRadius: "8px", 
+              objectFit: "contain",
+              background: "#FFF", // Optional: white background for better visibility
+              padding: "5px"
+            }} 
+          />
+        )}
+        <div>
+          <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>
+            {s.label}
+          </div>
+          <div style={{ fontSize: "14px", color: "#FFF" }}>
+            {s.name}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+            
           </div>
         )}
 
