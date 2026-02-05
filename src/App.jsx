@@ -20,7 +20,7 @@ const SPONSORS = [
   { 
     label: "LEGACY SPONSORS", 
     name: "Rajashri Grandhim Speciality Hospitals",
-    logo: "/rgh_logo.png",
+    logo: "/rgh_logo1.jpg",
     url: "https://grandhimhospitals.com/"
   },
   { 
@@ -670,48 +670,62 @@ const standings = useMemo(() => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "10px"
+        gap: "12px" 
       }}>
-        {/* Logo rendering */}
+        
+        {/* 1. LABEL FIRST */}
+        <div style={{ 
+          color: theme.accent, 
+          fontSize: "10px", 
+          fontWeight: "900", 
+          letterSpacing: "1px" 
+        }}>
+          {s.label}
+        </div>
+
+        {/* 2. LOGO NEXT */}
         {s.logo && (
           <img 
             src={s.logo} 
             alt={s.name} 
-            style={{ width: "80px", height: "80px", objectFit: "contain", borderRadius: "8px" }} 
+            style={{ 
+              width: "70px", 
+              height: "70px", 
+              objectFit: "contain", 
+              borderRadius: "8px",
+              background: "#FFF", // Optional: provides contrast for logos
+              padding: "4px"
+            }} 
           />
         )}
 
-        <div>
-          <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>
-            {s.label}
+        {/* 3. NAME LAST (Conditional Hyperlink) */}
+        {s.url ? (
+          <a 
+            href={s.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ 
+              fontSize: "15px", 
+              color: "#FFF", 
+              fontWeight: "700",
+              textDecoration: "underline", 
+              cursor: "pointer" 
+            }}
+          >
+            {s.name}
+          </a>
+        ) : (
+          <div style={{ fontSize: "15px", color: "#FFF", fontWeight: "700" }}>
+            {s.name}
           </div>
-
-          {/* Conditional Hyperlink Logic */}
-          {s.url ? (
-            <a 
-              href={s.url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ 
-                fontSize: "14px", 
-                color: "#FFF", 
-                textDecoration: "underline", 
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
-            >
-              {s.name}
-            </a>
-          ) : (
-            <div style={{ fontSize: "14px", color: "#FFF", fontWeight: "600" }}>
-              {s.name}
-            </div>
-          )}
-        </div>
+        )}
+        
       </div>
     ))}
   </div>
 )}
+            
 
             
           </div>
