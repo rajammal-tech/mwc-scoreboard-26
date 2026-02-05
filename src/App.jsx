@@ -19,13 +19,15 @@ const SPONSORS = [
   { label: "DIGITAL SCOREBOARD", name: "Ram" },
   { 
     label: "LEGACY SPONSORS", 
-    name: "Rajashri Grandhim Hospitals",
-    logo: "/rgh_logo.png" 
+    name: "Rajashri Grandhim Speciality Hospitals",
+    logo: "/rgh_logo.png",
+    url:https://grandhimhospitals.com/
   },
   { 
     label: "LEGACY SPONSORS", 
     name: "Gaadi Saathi",
-    logo: "/GD_logo.png" 
+    logo: "/GD_logo.png",
+    url:https://gaadisaathi.com/
   },
 ];
 
@@ -680,18 +682,30 @@ const standings = useMemo(() => {
               height: "80px", 
               borderRadius: "8px", 
               objectFit: "contain",
-              background: "#FFF", // Optional: white background for better visibility
+              background: "#FFF", // Provides contrast for transparent logos
               padding: "5px"
             }} 
           />
         )}
+        
         <div>
           <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}>
             {s.label}
           </div>
-          <div style={{ fontSize: "14px", color: "#FFF" }}>
+          {/* Clickable Name opens URL in new tab */}
+          <a 
+            href={s.url || "#"} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ 
+              fontSize: "14px", 
+              color: "#FFF", 
+              textDecoration: "underline", 
+              cursor: "pointer" 
+            }}
+          >
             {s.name}
-          </div>
+          </a>
         </div>
       </div>
     ))}
