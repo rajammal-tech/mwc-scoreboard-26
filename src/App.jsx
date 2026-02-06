@@ -15,8 +15,14 @@ const firebaseConfig = {
 
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
-  { label: "VOLUNTARY CONTRIBUTION", name: "Prashul, Naveen" },
+  { label: "VOLUNTARY CONTRIBUTION", name: "Naveen" },
   { label: "DIGITAL SCOREBOARD", name: "Ram" },
+  { 
+    label: "SPONSORS", 
+    name: "Hotel Aurum Keys",
+    logo: "/keys_logo.jpg",
+    url: "https://vydahotels.com/hotelaurumkeys/"
+  },
   { 
     label: "LEGACY SPONSORS", 
     name: "Rajashri Grandhim Speciality Hospitals",
