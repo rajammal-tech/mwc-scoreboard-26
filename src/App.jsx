@@ -20,7 +20,7 @@ const SPONSORS = [
   { 
     label: "SPONSORS", 
     name: "Hotel Aurum Keys",
-    logo: "/keys_logo.jpg",
+    logo: "/keys_logo1.jpg",
     url: "https://vydahotels.com/hotelaurumkeys/"
   },
   { 
