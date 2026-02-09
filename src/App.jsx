@@ -105,7 +105,7 @@ const GreenCheck = ({ color }) => (
 
 const MWCScoreboard = () => {
   const [view, setView] = useState("live");
-  const [infoTab, setInfoTab] = useState("rules");
+  const [infoTab, setInfoTab] = useState("feedback");
   const [activeDay, setActiveDay] = useState("Feb 7");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loginError, setLoginError] = useState(false);
@@ -123,7 +123,7 @@ const MWCScoreboard = () => {
   const theme = { bg: "#000", card: "#111", accent: "#adff2f", text: "#FFF", muted: "#666", server: "#FFF" };
 
   useEffect(() => {
-    if (view === "info") setInfoTab("teams");
+    if (view === "info") setInfoTab("feedback");
     if (view === "standings") setInfoTab("team_std");
     if (view === "schedule") setActiveDay("Feb 7");
     if (view !== "results") setEditingId(null);
