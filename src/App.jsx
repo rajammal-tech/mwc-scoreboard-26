@@ -104,7 +104,7 @@ const GreenCheck = ({ color }) => (
 );
 
 const MWCScoreboard = () => {
-  const [view, setView] = useState("Info");
+  const [view, setView] = useState("info");
   const [infoTab, setInfoTab] = useState("feedback");
   const [activeDay, setActiveDay] = useState("Feb 7");
   const [isAdmin, setIsAdmin] = useState(false);
