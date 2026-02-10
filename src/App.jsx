@@ -226,6 +226,49 @@ const standings = useMemo(() => {
       }))
       .sort((a, b) => b.points - a.points); // Order by highest points first
   }, [history]);
+
+const draftingData = useMemo(() => {
+  const stats = {};
+  const playerToTeam = {};
+  Object.entries(TEAM_ROSTERS).forEach(([team, players]) => {
+    players.forEach(p => playerToTeam[p] = team);
+  });
+
+  // 1. Calculate Raw Stats [cite: 43-44]
+  history.forEach((m) => {
+    if (!m.players || !m.players.includes(" vs ")) return;
+    const sides = m.players.split(" vs ");
+    const t1p = sides[0].split("/").map(p => p.trim());
+    const t2p = sides[1].split("/").map(p => p.trim());
+    const s1 = Number(m.s1 || 0);
+    const s2 = Number(m.s2 || 0);
+
+    [...t1p, ...t2p].forEach(p => {
+      if (!stats[p]) stats[p] = { name: p, mp: 0, mw: 0, gw: 0, gl: 0, team: playerToTeam[p] || "---" };
+      stats[p].mp += 1;
+    });
+
+    t1p.forEach(p => { stats[p].gw += s1; stats[p].gl += s2; if (s1 > s2) stats[p].mw += 1; });
+    t2p.forEach(p => { stats[p].gw += s2; stats[p].gl += s1; if (s2 > s1) stats[p].mw += 1; });
+  });
+
+  // 2. Calculate Performance Index (PI)
+  const processed = Object.values(stats).map(p => {
+    const setRatio = p.mw / p.mp;
+    const gameRatio = p.gw / (p.gw + p.gl || 1);
+    const pi = (setRatio * 0.6 + gameRatio * 0.4) * 10; // Scale to 10
+    return { ...p, pi: pi.toFixed(2) };
+  }).sort((a, b) => b.pi - a.pi);
+
+  // 3. Assign Tiers based on Rank
+  return processed.map((p, index) => {
+    let tier = "C";
+    if (index < 6) tier = "A";      // Top 6 are Elites
+    else if (index < 18) tier = "B"; // Next 12 are Core Players
+    return { ...p, tier };
+  });
+}, [history]);
+  
   
 const playerStats = useMemo(() => {
   const stats = {};
@@ -746,11 +789,13 @@ const playerStats = useMemo(() => {
 {view === "standings" && (
   <div className="fade-in">
     {/* Navigation Toggle */}
-    <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-      <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}>TEAMS</button>
-      <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}>PLAYERS</button>
-    </div>
 
+<div style={{ display: "flex", gap: "10px", marginBottom: "15px", overflowX: "auto" }}>
+  <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "12px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>TEAMS</button>
+  <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "12px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>PLAYERS</button>
+  <button onClick={() => setInfoTab("draft_std")} style={{ flex: 1, padding: "12px", background: infoTab === "draft_std" ? theme.accent : "#111", color: infoTab === "draft_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>DRAFTING</button>
+</div>
+    
     {/* TEAM STANDINGS VIEW */}
     {infoTab !== "player_std" && (
       <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
@@ -821,6 +866,41 @@ const playerStats = useMemo(() => {
         </table>
       </div>
     )}
+
+{infoTab === "draft_std" && (
+  <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+    <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+      <thead style={{ background: "#050505" }}>
+        <tr style={{ color: "#666", fontSize: "10px" }}>
+          <th style={{ padding: "15px", textAlign: "left", width: "45%" }}>PLAYER (TIER)</th>
+          <th style={{ textAlign: "center" }}>PI</th>
+          <th style={{ textAlign: "center", color: theme.accent }}>VALUE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {draftingData.map((p, i) => (
+          <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
+            <td style={{ padding: "15px", textAlign: "left" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ 
+                  background: p.tier === "A" ? theme.accent : p.tier === "B" ? "#00BFFF" : "#555",
+                  color: "#000", padding: "2px 6px", borderRadius: "4px", fontSize: "10px", fontWeight: "900"
+                }}>{p.tier}</span>
+                <span style={{ fontWeight: "700" }}>{p.name}</span>
+              </div>
+              <div style={{ fontSize: "10px", color: "#555", marginLeft: "35px" }}>{p.team}</div>
+            </td>
+            <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{p.pi}</td>
+            <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>
+              {p.tier === "A" ? "ELITE" : p.tier === "B" ? "CORE" : "VALUE"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+    
   </div>
 )}
         
