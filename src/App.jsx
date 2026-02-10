@@ -822,31 +822,43 @@ const standings = useMemo(() => {
 
     {/* CASE 2: PLAYER STANDINGS (Full List) */}
     {infoTab === "player_std" && (
-      <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ background: "#050505" }}>
-            <tr style={{ textAlign: "left", fontSize: "10px", color: "#666" }}>
-              <th style={{ padding: "15px" }}>PLAYER</th>
-              <th style={{ textAlign: "center" }}>TEAM</th>
-              <th style={{ textAlign: "center" }}>MP</th>
-              <th style={{ textAlign: "right", paddingRight: "20px", color: theme.accent }}>SETS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {playerStats.map((item, i) => (
-              <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
-                <td style={{ padding: "15px" }}>
-                  <span style={{ color: "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
-                  <span style={{ fontWeight: "700" }}>{item.name}</span>
-                </td>
-                <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>
-                <td style={{ textAlign: "center", color: "#888" }}>{item.mp}</td>
-                <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent }}>{item.mw}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+<div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", tableLayout: "fixed" }}>
+    <thead style={{ background: "#050505" }}>
+      <tr style={{ color: "#666", fontSize: "10px" }}>
+        {/* TEAM name takes 40% of width, others take equal share of remaining */}
+        <th style={{ padding: "15px", textAlign: "left", width: "40%" }}>TEAM</th>
+        <th style={{ padding: "15px 0", textAlign: "center" }}>MP</th>
+        <th style={{ padding: "15px 0", textAlign: "center" }}>SETS</th>
+        <th style={{ padding: "15px 0", textAlign: "center" }}>GMS</th>
+        <th style={{ padding: "15px", textAlign: "center", color: theme.accent, width: "15%" }}>PTS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {poolTeams.map((t, i) => (
+        <tr key={t.name} style={{ borderBottom: i === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
+          <td style={{ padding: "15px", textAlign: "left" }}>
+            <div style={{ fontWeight: "700", color: "#FFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {t.name}
+            </div>
+          </td>
+          <td style={{ textAlign: "center", color: "#888" }}>{t.played}</td>
+          <td style={{ textAlign: "center", color: "#888" }}>{t.won}</td>
+          <td style={{ textAlign: "center", color: "#888" }}>{t.games || 0}</td>
+          <td style={{ 
+            padding: "15px", 
+            textAlign: "center", 
+            fontWeight: "900", 
+            color: theme.accent, 
+            fontSize: "14px" 
+          }}>
+            {t.points}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
     )}
   </div>
 )}
