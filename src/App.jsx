@@ -880,9 +880,9 @@ const playerStats = useMemo(() => {
         </code>
       </div>
       <div style={{ fontSize: "11px", color: "#888", lineHeight: "1.5" }}>
-        • <b style={{color: "#FFF"}}>Match Win %:</b> Sets Won / Sets Played [cite: 367]<br/>
-        • <b style={{color: "#FFF"}}>Game Win %:</b> Games Won / Total Games [cite: 367]<br/>
-        • <b style={{color: "#FFF"}}>Weightage:</b> Wins carry 60% weight, while game efficiency carries 40%.
+        • <b style={{color: "#FFF"}}>Match Win %:</b> Sets Won / Sets Played <br/>
+        • <b style={{color: "#FFF"}}>Game Win %:</b> Games Won / Total Games <br/>
+        • <b style={{color: "#FFF"}}>Weightage:</b> Wins carry 60% weight, Game efficiency carries 40%.
       </div>
     </div>
 
