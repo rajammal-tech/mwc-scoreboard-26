@@ -739,16 +739,26 @@ const standings = useMemo(() => {
 
 {view === "standings" && (
   <div className="fade-in">
-    {/* Sub-tab Toggle (Teams vs Players) */}
+    {/* Sub-tab Toggle */}
     <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-      <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "14px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}>TEAMS</button>
-      <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}>PLAYERS</button>
+      <button 
+        onClick={() => setInfoTab("team_std")} 
+        style={{ flex: 1, padding: "14px", background: infoTab !== "player_std" ? theme.accent : "#111", color: infoTab !== "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}
+      >
+        TEAMS
+      </button>
+      <button 
+        onClick={() => setInfoTab("player_std")} 
+        style={{ flex: 1, padding: "14px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "12px", fontWeight: "900" }}
+      >
+        PLAYERS
+      </button>
     </div>
 
-    {infoTab === "team_std" && (
+    {/* CASE 1: TEAM STANDINGS (Grouped by Pool) */}
+    {infoTab !== "player_std" && (
       <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
         {["POOL A", "POOL B"].map(poolName => {
-          // Filter teams based on your existing roster structure
           const poolTeams = standings.filter(t => {
             const name = t.name.toUpperCase();
             return poolName === "POOL A" 
@@ -758,29 +768,29 @@ const standings = useMemo(() => {
 
           return (
             <div key={poolName}>
-              {/* Pool Title */}
               <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "10px", paddingLeft: "5px", borderLeft: `3px solid ${theme.accent}` }}>
                 {poolName}
               </div>
-
-              {/* Standings Table for this Pool */}
               <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid #222", color: "#666" }}>
-                      <th style={{ padding: "15px", textAlign: "left" }}>TEAM</th>
-                      <th style={{ padding: "15px" }}>P</th>
-                      <th style={{ padding: "15px" }}>W</th>
-                      <th style={{ padding: "15px", color: theme.accent }}>PTS</th>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead style={{ background: "#050505" }}>
+                    <tr style={{ textAlign: "left", fontSize: "10px", color: "#666" }}>
+                      <th style={{ padding: "15px" }}>TEAM</th>
+                      <th style={{ textAlign: "center" }}>MP</th>
+                      <th style={{ textAlign: "center" }}>MW</th>
+                      <th style={{ textAlign: "right", paddingRight: "20px", color: theme.accent }}>PTS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {poolTeams.map((t, idx) => (
-                      <tr key={t.name} style={{ borderBottom: idx === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
-                        <td style={{ padding: "15px", fontWeight: "bold" }}>{t.name}</td>
-                        <td style={{ padding: "15px", textAlign: "center" }}>{t.played}</td>
-                        <td style={{ padding: "15px", textAlign: "center" }}>{t.won}</td>
-                        <td style={{ padding: "15px", textAlign: "center", color: theme.accent, fontWeight: "900" }}>{t.points}</td>
+                    {poolTeams.map((t, i) => (
+                      <tr key={t.name} style={{ borderBottom: i === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
+                        <td style={{ padding: "15px" }}>
+                          <span style={{ color: "#555", marginRight: "8px" }}>#{i+1}</span>
+                          <span style={{ fontWeight: "700" }}>{t.name}</span>
+                        </td>
+                        <td style={{ textAlign: "center", color: "#888" }}>{t.played}</td>
+                        <td style={{ textAlign: "center", color: "#888" }}>{t.won}</td>
+                        <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent }}>{t.points}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -792,14 +802,37 @@ const standings = useMemo(() => {
       </div>
     )}
 
+    {/* CASE 2: PLAYER STANDINGS (Full List) */}
     {infoTab === "player_std" && (
-      /* Keep your existing Player Stats logic here */
-      <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222" }}>
-         {/* ... (Existing table code for players) ... */}
+      <div style={{ backgroundColor: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead style={{ background: "#050505" }}>
+            <tr style={{ textAlign: "left", fontSize: "10px", color: "#666" }}>
+              <th style={{ padding: "15px" }}>PLAYER</th>
+              <th style={{ textAlign: "center" }}>TEAM</th>
+              <th style={{ textAlign: "center" }}>MP</th>
+              <th style={{ textAlign: "right", paddingRight: "20px", color: theme.accent }}>SETS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {playerStats.map((item, i) => (
+              <tr key={item.name} style={{ borderBottom: "1px solid #222" }}>
+                <td style={{ padding: "15px" }}>
+                  <span style={{ color: "#555", fontWeight: "900", marginRight: "8px" }}>#{i+1}</span>
+                  <span style={{ fontWeight: "700" }}>{item.name}</span>
+                </td>
+                <td style={{ textAlign: "center", fontSize: "11px", color: "#888" }}>{item.team}</td>
+                <td style={{ textAlign: "center", color: "#888" }}>{item.mp}</td>
+                <td style={{ textAlign: "right", paddingRight: "20px", fontWeight: "900", color: theme.accent }}>{item.mw}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     )}
   </div>
 )}
+        
         
         {view === "results" && (
            <div className="fade-in" style={{ backgroundColor: theme.card, borderRadius: "12px", border: "1px solid #222" }}>
