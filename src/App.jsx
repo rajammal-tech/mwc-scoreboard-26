@@ -788,16 +788,15 @@ const playerStats = useMemo(() => {
 
 {view === "standings" && (
   <div className="fade-in">
-    {/* Navigation Toggle */}
+    {/* Navigation Toggle - Separated into 3 clear views */}
+    <div style={{ display: "flex", gap: "10px", marginBottom: "15px", overflowX: "auto", paddingBottom: "5px" }}>
+      <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "12px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>TEAMS</button>
+      <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "12px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>PLAYERS</button>
+      <button onClick={() => setInfoTab("draft_std")} style={{ flex: 1, padding: "12px", background: infoTab === "draft_std" ? theme.accent : "#111", color: infoTab === "draft_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>DRAFTING</button>
+    </div>
 
-<div style={{ display: "flex", gap: "10px", marginBottom: "15px", overflowX: "auto" }}>
-  <button onClick={() => setInfoTab("team_std")} style={{ flex: 1, padding: "12px", background: infoTab === "team_std" ? theme.accent : "#111", color: infoTab === "team_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>TEAMS</button>
-  <button onClick={() => setInfoTab("player_std")} style={{ flex: 1, padding: "12px", background: infoTab === "player_std" ? theme.accent : "#111", color: infoTab === "player_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>PLAYERS</button>
-  <button onClick={() => setInfoTab("draft_std")} style={{ flex: 1, padding: "12px", background: infoTab === "draft_std" ? theme.accent : "#111", color: infoTab === "draft_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>DRAFTING</button>
-</div>
-    
-    {/* TEAM STANDINGS VIEW */}
-    {infoTab !== "player_std" && (
+    {/* 1. TEAMS TAB: Shows Pool A and Pool B standings exclusively */}
+    {infoTab === "team_std" && (
       <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
         {["POOL A", "POOL B"].map(poolName => {
           const poolTeams = standings.filter(t => {
@@ -806,19 +805,16 @@ const playerStats = useMemo(() => {
               ? ["TEAM 3", "TEAM 4", "TEAM 5"].includes(name) 
               : ["TEAM 1", "TEAM 2", "TEAM 6"].includes(name);
           });
-
           return (
             <div key={poolName}>
               <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "10px", paddingLeft: "8px", borderLeft: `3px solid ${theme.accent}` }}>{poolName}</div>
               <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead style={{ background: "#050505" }}>
                     <tr style={{ color: "#666", fontSize: "10px" }}>
-                      <th style={{ padding: "15px", textAlign: "left", width: "40%" }}>TEAM</th>
+                      <th style={{ padding: "15px", textAlign: "left" }}>TEAM</th>
                       <th style={{ textAlign: "center" }}>MP</th>
-                      <th style={{ textAlign: "center" }}>SETS</th>
-                      <th style={{ textAlign: "center" }}>GMS</th>
-                      <th style={{ textAlign: "center", color: theme.accent, width: "15%" }}>PTS</th>
+                      <th style={{ textAlign: "center", color: theme.accent }}>PTS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -826,8 +822,6 @@ const playerStats = useMemo(() => {
                       <tr key={t.name} style={{ borderBottom: i === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
                         <td style={{ padding: "15px", textAlign: "left", fontWeight: "700" }}>{t.name}</td>
                         <td style={{ textAlign: "center", color: "#888" }}>{t.played}</td>
-                        <td style={{ textAlign: "center", color: "#888" }}>{t.won}</td>
-                        <td style={{ textAlign: "center", color: "#888" }}>{t.games || 0}</td>
                         <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>{t.points}</td>
                       </tr>
                     ))}
@@ -840,15 +834,15 @@ const playerStats = useMemo(() => {
       </div>
     )}
 
-    {/* PLAYER STANDINGS VIEW */}
+    {/* 2. PLAYERS TAB: Shows raw individual match statistics */}
     {infoTab === "player_std" && (
       <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead style={{ background: "#050505" }}>
             <tr style={{ color: "#666", fontSize: "10px" }}>
-              <th style={{ padding: "15px", textAlign: "left", width: "45%" }}>PLAYER</th>
+              <th style={{ padding: "15px", textAlign: "left" }}>PLAYER</th>
               <th style={{ textAlign: "center" }}>MP</th>
-              <th style={{ textAlign: "center", color: theme.accent }}>SETS</th>
+              <th style={{ textAlign: "center", color: theme.accent }}>WON</th>
             </tr>
           </thead>
           <tbody>
@@ -867,8 +861,7 @@ const playerStats = useMemo(() => {
       </div>
     )}
 
-
-{/* 3. DRAFTING TAB: Display ONLY Tiered Players here */}
+    {/* 3. DRAFTING TAB: Clean Player List by PI and Tier (No Pool grouping) */}
     {infoTab === "draft_std" && (
       <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -897,7 +890,6 @@ const playerStats = useMemo(() => {
         </table>
       </div>
     )}
-    
   </div>
 )}
         
