@@ -795,45 +795,49 @@ const playerStats = useMemo(() => {
       <button onClick={() => setInfoTab("draft_std")} style={{ flex: 1, padding: "12px", background: infoTab === "draft_std" ? theme.accent : "#111", color: infoTab === "draft_std" ? "#000" : "#888", borderRadius: "10px", border: "none", fontSize: "11px", fontWeight: "900" }}>DRAFTING</button>
     </div>
 
-    {/* 1. TEAMS TAB: Shows Pool A and Pool B standings exclusively */}
-    {infoTab === "team_std" && (
-      <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
-        {["POOL A", "POOL B"].map(poolName => {
-          const poolTeams = standings.filter(t => {
-            const name = t.name.toUpperCase();
-            return poolName === "POOL A" 
-              ? ["TEAM 3", "TEAM 4", "TEAM 5"].includes(name) 
-              : ["TEAM 1", "TEAM 2", "TEAM 6"].includes(name);
-          });
-          return (
-            <div key={poolName}>
-              <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "10px", paddingLeft: "8px", borderLeft: `3px solid ${theme.accent}` }}>{poolName}</div>
-              <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead style={{ background: "#050505" }}>
-                    <tr style={{ color: "#666", fontSize: "10px" }}>
-                      <th style={{ padding: "15px", textAlign: "left" }}>TEAM</th>
-                      <th style={{ textAlign: "center" }}>MP</th>
-                      <th style={{ textAlign: "center", color: theme.accent }}>PTS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {poolTeams.map((t, i) => (
-                      <tr key={t.name} style={{ borderBottom: i === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
-                        <td style={{ padding: "15px", textAlign: "left", fontWeight: "700" }}>{t.name}</td>
-                        <td style={{ textAlign: "center", color: "#888" }}>{t.played}</td>
-                        <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>{t.points}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
-
+{/* 1. TEAMS TAB: Grouped by Pool with restored GMS and SETS */}
+{infoTab === "team_std" && (
+  <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+    {["POOL A", "POOL B"].map(poolName => {
+      const poolTeams = standings.filter(t => {
+        const name = t.name.toUpperCase();
+        return poolName === "POOL A" 
+          ? ["TEAM 3", "TEAM 4", "TEAM 5"].includes(name) 
+          : ["TEAM 1", "TEAM 2", "TEAM 6"].includes(name);
+      });
+      return (
+        <div key={poolName}>
+          <div style={{ color: theme.accent, fontSize: "11px", fontWeight: "900", marginBottom: "10px", paddingLeft: "8px", borderLeft: `3px solid ${theme.accent}` }}>{poolName}</div>
+          <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead style={{ background: "#050505" }}>
+                <tr style={{ color: "#666", fontSize: "10px" }}>
+                  <th style={{ padding: "15px", textAlign: "left" }}>TEAM</th>
+                  <th style={{ textAlign: "center" }}>MP</th>
+                  <th style={{ textAlign: "center" }}>GMS</th>
+                  <th style={{ textAlign: "center" }}>SET</th>
+                  <th style={{ textAlign: "center", color: theme.accent }}>PTS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {poolTeams.map((t, i) => (
+                  <tr key={t.name} style={{ borderBottom: i === poolTeams.length - 1 ? "none" : "1px solid #222" }}>
+                    <td style={{ padding: "15px", textAlign: "left", fontWeight: "700" }}>{t.name}</td>
+                    <td style={{ textAlign: "center", color: "#888" }}>{t.played}</td>
+                    <td style={{ textAlign: "center", color: "#888" }}>{t.games}</td>
+                    <td style={{ textAlign: "center", color: "#888" }}>{t.won}</td>
+                    <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>{t.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
+    
     {/* 2. PLAYERS TAB: Shows raw individual match statistics */}
     {infoTab === "player_std" && (
       <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
