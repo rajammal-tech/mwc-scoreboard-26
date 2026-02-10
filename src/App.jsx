@@ -867,6 +867,7 @@ const playerStats = useMemo(() => {
       </div>
     )}
 
+{/* DRAFTING TAB: Clean list of players by Tier & PI */}
 {infoTab === "draft_std" && (
   <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
     <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
@@ -874,7 +875,7 @@ const playerStats = useMemo(() => {
         <tr style={{ color: "#666", fontSize: "10px" }}>
           <th style={{ padding: "15px", textAlign: "left", width: "45%" }}>PLAYER (TIER)</th>
           <th style={{ textAlign: "center" }}>PI</th>
-          <th style={{ textAlign: "center", color: theme.accent }}>VALUE</th>
+          <th style={{ textAlign: "center", color: theme.accent }}>RANK</th>
         </tr>
       </thead>
       <tbody>
@@ -891,9 +892,7 @@ const playerStats = useMemo(() => {
               <div style={{ fontSize: "10px", color: "#555", marginLeft: "35px" }}>{p.team}</div>
             </td>
             <td style={{ textAlign: "center", color: "#888", fontSize: "12px" }}>{p.pi}</td>
-            <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>
-              {p.tier === "A" ? "ELITE" : p.tier === "B" ? "CORE" : "VALUE"}
-            </td>
+            <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>#{i + 1}</td>
           </tr>
         ))}
       </tbody>
