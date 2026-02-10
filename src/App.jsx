@@ -264,7 +264,7 @@ const draftingData = useMemo(() => {
   return processed.map((p, index) => {
     let tier = "C";
     if (index < 8) tier = "A";      // Top 8 are Elites
-    else if (index < 22) tier = "B"; // Next 14 are Core Players
+    else if (index < 21) tier = "B"; // Next 14 are Core Players
     return { ...p, tier };
   });
 }, [history]);
