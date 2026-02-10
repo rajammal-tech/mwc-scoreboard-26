@@ -13,6 +13,7 @@ const firebaseConfig = {
   appId: "1:1056583710011:web:998e4f73a657ef69d3b31e",
 };
 
+
 const SPONSORS = [
   { label: "TENNIS BALLS", name: "Smrithi" },
   { label: "VOLUNTARY CONTRIBUTION", name: "Naveen" },
