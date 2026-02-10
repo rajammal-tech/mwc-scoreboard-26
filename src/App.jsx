@@ -861,35 +861,64 @@ const playerStats = useMemo(() => {
       </div>
     )}
 
-    {/* 3. DRAFTING TAB: Clean Player List by PI and Tier (No Pool grouping) */}
-    {infoTab === "draft_std" && (
-      <div className="fade-in" style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ background: "#050505" }}>
-            <tr style={{ color: "#666", fontSize: "10px" }}>
-              <th style={{ padding: "15px", textAlign: "left" }}>PLAYER (TIER)</th>
-              <th style={{ textAlign: "center" }}>INDEX (PI)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {draftingData.map((p, i) => (
-              <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
-                <td style={{ padding: "15px", textAlign: "left" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ 
-                      background: p.tier === "A" ? theme.accent : p.tier === "B" ? "#00BFFF" : "#555",
-                      color: "#000", padding: "2px 6px", borderRadius: "4px", fontSize: "10px", fontWeight: "900"
-                    }}>{p.tier}</span>
-                    <span style={{ fontWeight: "700" }}>{p.name}</span>
-                  </div>
-                </td>
-                <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>{p.pi}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+{/* 3. DRAFTING TAB: Formula + Clean Player List */}
+{infoTab === "draft_std" && (
+  <div className="fade-in">
+    {/* Formula Explanation Card */}
+    <div style={{ 
+      background: "#0a0a0a", 
+      padding: "20px", 
+      borderRadius: "15px", 
+      border: "1px solid #333", 
+      marginBottom: "20px",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.5)"
+    }}>
+      <div style={{ color: theme.accent, fontSize: "10px", fontWeight: "900", letterSpacing: "1px", marginBottom: "10px" }}>PERFORMANCE INDEX (PI) FORMULA</div>
+      <div style={{ background: "#111", padding: "12px", borderRadius: "8px", border: "1px dashed #444", textAlign: "center", marginBottom: "12px" }}>
+        <code style={{ fontSize: "14px", color: "#FFF", fontWeight: "700" }}>
+          PI = [(Match Win % × 0.6) + (Game Win % × 0.4)] × 10
+        </code>
       </div>
-    )}
+      <div style={{ fontSize: "11px", color: "#888", lineHeight: "1.5" }}>
+        • <b style={{color: "#FFF"}}>Match Win %:</b> Sets Won / Sets Played [cite: 367]<br/>
+        • <b style={{color: "#FFF"}}>Game Win %:</b> Games Won / Total Games [cite: 367]<br/>
+        • <b style={{color: "#FFF"}}>Weightage:</b> Wins carry 60% weight, while game efficiency carries 40%.
+      </div>
+    </div>
+
+    {/* Drafting Table */}
+    <div style={{ background: theme.card, borderRadius: "15px", border: "1px solid #222", overflow: "hidden" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead style={{ background: "#050505" }}>
+          <tr style={{ color: "#666", fontSize: "10px" }}>
+            <th style={{ padding: "15px", textAlign: "left" }}>PLAYER (TIER)</th>
+            <th style={{ textAlign: "center" }}>INDEX (PI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {draftingData.map((p, i) => (
+            <tr key={p.name} style={{ borderBottom: "1px solid #222" }}>
+              <td style={{ padding: "15px", textAlign: "left" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ 
+                    background: p.tier === "A" ? theme.accent : p.tier === "B" ? "#00BFFF" : "#555",
+                    color: "#000", padding: "2px 6px", borderRadius: "4px", fontSize: "10px", fontWeight: "900"
+                  }}>{p.tier}</span>
+                  <span style={{ fontWeight: "700" }}>{p.name}</span>
+                </div>
+                <div style={{ fontSize: "10px", color: "#555", marginLeft: "35px" }}>{p.team}</div>
+              </td>
+              <td style={{ textAlign: "center", fontWeight: "900", color: theme.accent }}>{p.pi}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+
+    
   </div>
 )}
         
